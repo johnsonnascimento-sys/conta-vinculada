@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Conta Vinculada
 
-## Getting Started
+MVP web para gestão institucional de conta vinculada em contratos administrativos com dedicação exclusiva de mão de obra.
 
-First, run the development server:
+## Escopo implementado
+
+- landing page institucional e backoffice navegável;
+- dashboard com visão de saldo bancário, provisões, pendências e diferença conciliatória;
+- páginas de contratos, detalhe do contrato, liberações, conciliação, auditoria e administração;
+- domínio tipado para competências, provisões, solicitações, documentos, conciliação e auditoria;
+- rotas `GET` para resumo do dashboard e contratos;
+- schema Prisma inicial alinhado ao plano conceitual.
+
+## Stack
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- Prisma schema para PostgreSQL
+
+## Como rodar
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aplicação:
+- `http://localhost:3000`
+- `http://localhost:3000/dashboard`
+- `http://localhost:3000/login`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Modos de dados
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- sem `DATABASE_URL`: a aplicação usa o repositório em memória e continua navegável;
+- com `DATABASE_URL`: a camada de repositório passa a ler dados reais via Prisma.
 
-## Learn More
+## Autenticação local
 
-To learn more about Next.js, take a look at the following resources:
+- login interno em ` /login `;
+- sessão assinada em cookie;
+- RBAC por perfil nas rotas do backoffice.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Variáveis:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```env
+AUTH_SECRET="troque-esta-chave-em-producao"
+AUTH_DEV_PASSWORD="admin123"
+```
 
-## Deploy on Vercel
+Usuários de seed:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `beatriz.campos@jmu.mil.br`
+- `felipe.costa@jmu.mil.br`
+- `rafaela.vasques@jmu.mil.br`
+- `henrique.dias@jmu.mil.br`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Banco de dados
+
+Scripts disponíveis:
+
+```bash
+npm run db:generate
+npm run db:push
+npm run db:seed
+```
+
+Exemplo de variável:
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/conta_vinculada"
+```
+
+## Estrutura principal
+
+- `src/app`: rotas, layout e APIs
+- `src/features`: domínio do produto e consultas
+- `src/shared`: componentes e utilitários
+- `prisma/schema.prisma`: base transacional proposta para o MVP
+
+## Próximos passos
+
+1. trocar o repositório em memória por DAL com Prisma;
+2. adicionar autenticação real com MFA e RBAC persistido;
+3. implementar formulários e server actions para contratos, competências e solicitações;
+4. criar importador histórico da planilha e trilha de auditoria persistida;
+5. conectar storage S3 compatível para documentos.

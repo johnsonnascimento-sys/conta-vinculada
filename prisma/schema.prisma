@@ -1,0 +1,443 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id            String         @id @default(cuid())
+  name          String
+  jurisdiction  String
+  organizations Organization[]
+  companies     Company[]
+  contracts     Contract[]
+  employees     Employee[]
+  users         User[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Organization {
+  id        String     @id @default(cuid())
+  tenantId  String
+  name      String
+  code      String
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  contracts Contract[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Company {
+  id         String           @id @default(cuid())
+  tenantId   String
+  legalName  String
+  tradeName  String
+  cnpj       String
+  tenant     Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  contracts  Contract[]
+  releaseRequests ReleaseRequest[]
+  documents  Document[]
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+}
+
+model Contract {
+  id                  String               @id @default(cuid())
+  tenantId            String
+  organizationId      String
+  companyId           String
+  code                String
+  name                String
+  object              String
+  startDate           DateTime
+  endDate             DateTime
+  status              ContractStatus
+  tenant              Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  organization        Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  company             Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  parameters          ContractParameter[]
+  competencies        Competency[]
+  employeeAllocations EmployeeAllocation[]
+  linkedAccounts      LinkedAccount[]
+  releaseRequests     ReleaseRequest[]
+  bankEntries         BankEntry[]
+  reconciliations     BankReconciliation[]
+  auditLogs           AuditLog[]
+  documents           Document[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  @@unique([tenantId, code])
+}
+
+model ContractParameter {
+  id            String    @id @default(cuid())
+  contractId    String
+  version       Int
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+  payload       Json
+  contract      Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  provisionEntries ProvisionEntry[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([contractId, version])
+}
+
+model Employee {
+  id                  String               @id @default(cuid())
+  tenantId            String
+  name                String
+  cpf                 String
+  role                String
+  status              EmployeeStatus
+  admissionDate       DateTime
+  terminationDate     DateTime?
+  tenant              Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  allocations         EmployeeAllocation[]
+  payrollEntries      PayrollEntry[]
+  provisionEntries    ProvisionEntry[]
+  provisionBalances   ProvisionBalance[]
+  releaseRequestItems ReleaseRequestItem[]
+  documents           Document[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  @@unique([tenantId, cpf])
+}
+
+model EmployeeAllocation {
+  id         String    @id @default(cuid())
+  employeeId String
+  contractId String
+  startDate  DateTime
+  endDate    DateTime?
+  costCenter String
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  contract   Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Competency {
+  id                 String                 @id @default(cuid())
+  contractId         String
+  competency         String
+  status             CompetencyStatus
+  processedAt        DateTime?
+  contract           Contract               @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  payrollEntries     PayrollEntry[]
+  provisionEntries   ProvisionEntry[]
+  bankEntries        BankEntry[]
+  balanceSnapshots   ProvisionBalance[]
+  reconciliations    BankReconciliation[]
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+
+  @@unique([contractId, competency])
+}
+
+model PayrollEntry {
+  id            String     @id @default(cuid())
+  contractId    String
+  competencyId  String
+  employeeId    String
+  grossAmount   Decimal    @db.Decimal(12, 2)
+  netAmount     Decimal    @db.Decimal(12, 2)
+  payload       Json
+  competency    Competency @relation(fields: [competencyId], references: [id], onDelete: Cascade)
+  employee      Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model ProvisionEntry {
+  id                 String             @id @default(cuid())
+  contractId         String
+  competencyId       String
+  employeeId         String
+  rubric             String
+  parameterVersionId String
+  amount             Decimal            @db.Decimal(12, 2)
+  reservedAmount     Decimal            @db.Decimal(12, 2) @default(0)
+  releasedAmount     Decimal            @db.Decimal(12, 2) @default(0)
+  sourceType         ProvisionSourceType
+  payload            Json?
+  competency         Competency         @relation(fields: [competencyId], references: [id], onDelete: Cascade)
+  employee           Employee           @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  parameterVersion   ContractParameter  @relation(fields: [parameterVersionId], references: [id], onDelete: Cascade)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+}
+
+model ProvisionBalance {
+  id             String     @id @default(cuid())
+  contractId     String
+  competencyId   String
+  employeeId     String
+  rubric         String
+  balance        Decimal    @db.Decimal(12, 2)
+  reservedAmount Decimal    @db.Decimal(12, 2) @default(0)
+  releasedAmount Decimal    @db.Decimal(12, 2) @default(0)
+  competency     Competency @relation(fields: [competencyId], references: [id], onDelete: Cascade)
+  employee       Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+model LinkedAccount {
+  id             String         @id @default(cuid())
+  contractId     String
+  bankName       String
+  branch         String
+  accountNumber  String
+  currentBalance Decimal        @db.Decimal(12, 2)
+  contract       Contract       @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  bankEntries    BankEntry[]
+  documents      Document[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model BankEntry {
+  id                  String                  @id @default(cuid())
+  contractId          String
+  linkedAccountId     String
+  competencyId        String?
+  type                BankEntryType
+  description         String
+  amount              Decimal                 @db.Decimal(12, 2)
+  occurredOn          DateTime
+  linkedAccount       LinkedAccount           @relation(fields: [linkedAccountId], references: [id], onDelete: Cascade)
+  contract            Contract                @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  competency          Competency?             @relation(fields: [competencyId], references: [id], onDelete: SetNull)
+  reconciliationItems BankReconciliationItem[]
+  releaseExecutions   ReleaseExecution[]
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+}
+
+model BankReconciliation {
+  id                       String                  @id @default(cuid())
+  contractId               String
+  competencyId             String
+  bankBalance              Decimal                 @db.Decimal(12, 2)
+  provisionBalance         Decimal                 @db.Decimal(12, 2)
+  approvedPendingExecution Decimal                 @db.Decimal(12, 2)
+  explainedDifference      Decimal                 @db.Decimal(12, 2)
+  unexplainedDifference    Decimal                 @db.Decimal(12, 2)
+  differenceType           ReconciliationDifferenceType
+  contract                 Contract                @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  competency               Competency              @relation(fields: [competencyId], references: [id], onDelete: Cascade)
+  items                    BankReconciliationItem[]
+  createdAt                DateTime                @default(now())
+  updatedAt                DateTime                @updatedAt
+}
+
+model BankReconciliationItem {
+  id               String             @id @default(cuid())
+  reconciliationId String
+  bankEntryId      String
+  justification    String?
+  reconciliation   BankReconciliation @relation(fields: [reconciliationId], references: [id], onDelete: Cascade)
+  bankEntry        BankEntry          @relation(fields: [bankEntryId], references: [id], onDelete: Cascade)
+  createdAt        DateTime           @default(now())
+}
+
+model ReleaseRequest {
+  id                String               @id @default(cuid())
+  contractId        String
+  companyId         String
+  protocol          String               @unique
+  status            ReleaseRequestStatus
+  requestedByName   String
+  analystName       String?
+  approverName      String?
+  contract          Contract             @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  company           Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  items             ReleaseRequestItem[]
+  documents         Document[]
+  approvals         Approval[]
+  releaseExecutions ReleaseExecution[]
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+}
+
+model ReleaseRequestItem {
+  id               String              @id @default(cuid())
+  releaseRequestId String
+  employeeId       String
+  rubric           String
+  competencyRef    String
+  requestedAmount  Decimal             @db.Decimal(12, 2)
+  approvedAmount   Decimal             @db.Decimal(12, 2) @default(0)
+  decision         ReleaseItemDecision
+  releaseRequest   ReleaseRequest      @relation(fields: [releaseRequestId], references: [id], onDelete: Cascade)
+  employee         Employee            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+}
+
+model Approval {
+  id               String           @id @default(cuid())
+  releaseRequestId String
+  stage            WorkflowStage
+  decision         ApprovalDecision
+  decidedBy        String
+  notes            String?
+  releaseRequest   ReleaseRequest   @relation(fields: [releaseRequestId], references: [id], onDelete: Cascade)
+  createdAt        DateTime         @default(now())
+}
+
+model ReleaseExecution {
+  id               String         @id @default(cuid())
+  releaseRequestId String
+  bankEntryId      String
+  executedAmount   Decimal        @db.Decimal(12, 2)
+  executedAt       DateTime
+  releaseRequest   ReleaseRequest @relation(fields: [releaseRequestId], references: [id], onDelete: Cascade)
+  bankEntry        BankEntry      @relation(fields: [bankEntryId], references: [id], onDelete: Cascade)
+  createdAt        DateTime       @default(now())
+}
+
+model Document {
+  id               String          @id @default(cuid())
+  contractId       String?
+  companyId        String?
+  employeeId       String?
+  linkedAccountId  String?
+  releaseRequestId String?
+  kind             DocumentKind
+  originalName     String
+  storageKey       String
+  fileHash         String
+  metadata         Json?
+  contract         Contract?       @relation(fields: [contractId], references: [id], onDelete: SetNull)
+  company          Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  employee         Employee?       @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+  linkedAccount    LinkedAccount?  @relation(fields: [linkedAccountId], references: [id], onDelete: SetNull)
+  releaseRequest   ReleaseRequest? @relation(fields: [releaseRequestId], references: [id], onDelete: SetNull)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model User {
+  id         String    @id @default(cuid())
+  tenantId   String
+  name       String
+  email      String    @unique
+  role       String
+  scope      String
+  mfaEnabled Boolean   @default(false)
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  auditLogs  AuditLog[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  contractId String
+  userId     String?
+  actorName  String
+  action     String
+  entity     String
+  before     Json?
+  after      Json?
+  details    String?
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt  DateTime @default(now())
+}
+
+enum ContractStatus {
+  ativo
+  encerrado
+  suspenso
+}
+
+enum EmployeeStatus {
+  ativo
+  afastado
+  desligado
+}
+
+enum CompetencyStatus {
+  aberta
+  em_calculo
+  calculada
+  conciliada
+  fechada
+  reaberta
+}
+
+enum ReleaseRequestStatus {
+  em_elaboracao
+  enviada
+  em_exigencia
+  em_analise
+  aprovada_parcial
+  aprovada
+  rejeitada
+  liberada
+  cancelada
+}
+
+enum BankEntryType {
+  deposito
+  rendimento
+  liberacao
+  tarifa
+  estorno
+  ajuste
+}
+
+enum ApprovalDecision {
+  aprovar
+  aprovar_parcial
+  rejeitar
+  devolver
+}
+
+enum DocumentKind {
+  comprovante_pagamento
+  folha
+  ferias
+  rescisao
+  fgts
+  extrato
+  parecer
+  despacho
+  importacao
+}
+
+enum ReconciliationDifferenceType {
+  explicada
+  nao_explicada
+}
+
+enum WorkflowStage {
+  triagem
+  analise_documental
+  aprovacao_administrativa
+  execucao_financeira
+  conciliacao
+}
+
+enum ReleaseItemDecision {
+  pendente
+  aprovado
+  aprovado_parcial
+  glosado
+}
+
+enum ProvisionSourceType {
+  calculo
+  ajuste_manual
+  migracao
+}

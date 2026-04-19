@@ -15,6 +15,8 @@ Os usuários materializados no código são perfis internos do órgão, não usu
 
 O estágio atual do projeto é de MVP navegável com foco em consulta e demonstração operacional. O sistema já possui layout institucional, login local, autorização por perfil, páginas do backoffice, rotas `GET`, dados seed e leitura híbrida entre mock em memória e Prisma. Ainda não há fluxos transacionais completos de negócio.
 
+O primeiro fluxo transacional formalmente priorizado para sair desse estado é a criação de solicitação de liberação.
+
 ## 2. Estado atual implementado
 
 ### Frontend e navegação

@@ -79,10 +79,15 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/conta_vinculada"
 - `src/shared`: componentes e utilitários
 - `prisma/schema.prisma`: base transacional proposta para o MVP
 
+## Documentação de continuidade
+
+- [Continuidade do projeto](docs/CONTINUIDADE_DO_PROJETO.md)
+- [Mapa de implementação](docs/MAPA_DE_IMPLEMENTACAO.md)
+
 ## Próximos passos
 
-1. trocar o repositório em memória por DAL com Prisma;
-2. adicionar autenticação real com MFA e RBAC persistido;
-3. implementar formulários e server actions para contratos, competências e solicitações;
+1. expandir a camada de escrita com Prisma e preservar a compatibilidade do modo híbrido;
+2. implementar o primeiro fluxo transacional formalizado: criação de solicitação de liberação;
+3. adicionar autenticação real com MFA e RBAC persistido;
 4. criar importador histórico da planilha e trilha de auditoria persistida;
 5. conectar storage S3 compatível para documentos.

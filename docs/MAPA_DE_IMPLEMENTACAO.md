@@ -4,6 +4,12 @@
 
 O próximo ciclo deve tirar o projeto do estado de MVP predominantemente de leitura e entregar o primeiro fluxo transacional real, persistido, auditável e compatível com a arquitetura atual.
 
+Fluxo inicial escolhido:
+
+- criação de solicitação de liberação
+- recorte atual: iniciar a solicitação, persistir dados mínimos, validar entrada, validar autenticação/autorização no backend e registrar auditoria mínima
+- fora do recorte atual: aprovação, glosa, execução financeira, upload S3 e autenticação corporativa completa
+
 Escopo recomendado para este ciclo:
 
 - estabilizar a base híbrida mock/Prisma sem quebrar as telas existentes
@@ -38,9 +44,9 @@ Fora de escopo neste ciclo:
 - [ ] Garantir que cada comando grave auditoria junto da mutação principal.
 - [ ] Manter o contrato de retorno compatível com o restante do app.
 
-### Épico 3: Fluxo inicial de solicitações de liberação
+### Épico 3: Fluxo inicial de criação de solicitação de liberação
 
-- [ ] Definir o recorte exato do fluxo inicial: criar, complementar documentos, decidir ou executar.
+- [x] Formalizar o recorte do fluxo inicial como criação de solicitação de liberação.
 - [ ] Implementar persistência do caso de uso escolhido usando Prisma.
 - [ ] Implementar server actions para o fluxo.
 - [ ] Implementar UI mínima para operar o fluxo sem espalhar regra de negócio na página.
@@ -152,7 +158,7 @@ Pronto quando:
 1. Estabilizar o contrato de dados do app.
 2. Corrigir pontos de acoplamento direto ao mock.
 3. Criar a camada de comandos no `src/server`.
-4. Escolher um único fluxo inicial de liberação com recorte pequeno e fechado.
+4. Adotar explicitamente o fluxo inicial de criação de solicitação de liberação.
 5. Implementar persistência, validação, autorização e auditoria desse fluxo.
 6. Expor o fluxo na UI via server action.
 7. Atualizar telas de leitura impactadas.

@@ -15,7 +15,7 @@ Os usuários materializados no código são perfis internos do órgão, não usu
 
 O estágio atual do projeto é de MVP navegável com foco em consulta e demonstração operacional. O sistema já possui layout institucional, login local, autorização por perfil, páginas do backoffice, rotas `GET`, dados seed e leitura híbrida entre mock em memória e Prisma. Ainda não há fluxos transacionais completos de negócio.
 
-O primeiro fluxo transacional formalmente priorizado para sair desse estado é a criação de solicitação de liberação.
+O primeiro fluxo transacional formalmente priorizado para sair desse estado é a criação de solicitação de liberação. Essa base já existe no código com validação, server action, comando server-side, persistência via Prisma, auditoria mínima e comportamento explícito de somente leitura quando não há `DATABASE_URL`. O recorte imediatamente seguinte, já iniciado nesta etapa, é a análise/decisão da solicitação por item, ainda sem entrar em execução financeira.
 
 ## 2. Estado atual implementado
 
@@ -414,7 +414,7 @@ O frontend não consome diretamente os tipos do Prisma; ele consome um contrato 
 
 - persistência: leitura via Prisma existe, mas a cobertura do domínio no banco ainda não chega aos fluxos de escrita
 - autorização: existe por rota e perfil, mas não há evidência de autorização por operação de domínio
-- server actions: existe apenas `loginAction` em `src/features/auth/actions.ts`
+- server actions: já existem `loginAction`, `createReleaseRequestAction` e `reviewReleaseRequestAction`, mas o uso ainda está concentrado no login e no fluxo inicial de liberações
 - auditoria: há modelo, seed e consulta, mas não há evidência de gravação automática em mutações do app
 - administração: existe página de usuários, porém sem gestão real de perfis, MFA ou escopo
 - conciliação: existe leitura e apresentação, mas não há workflow de classificação, justificativa e fechamento
@@ -444,7 +444,7 @@ O frontend não consome diretamente os tipos do Prisma; ele consome um contrato 
 - server actions: apenas login
 - rotas POST/PUT/DELETE: ausentes
 - auditoria persistida por mutação real: ausente
-- testes: existe cobertura mínima de validação para o fluxo inicial de criação de solicitação de liberação via `node:test`
+- testes: existe cobertura mínima de validação para criação e análise de solicitação de liberação, além de teste de policy do módulo de liberações, via `node:test`
 - CI/CD: não encontrado
 - validação de entrada: mínima, praticamente restrita ao login
 - segurança: básica para ambiente local; insuficiente para produção
@@ -569,9 +569,9 @@ Resultado esperado:
 
 ### Liberações
 
-- [ ] Implementar criação de solicitação de liberação.
-- [ ] Implementar análise documental item a item.
-- [ ] Implementar decisão de aprovação parcial, glosa e rejeição.
+- [x] Implementar criação de solicitação de liberação.
+- [x] Implementar análise/decisão mínima por item da solicitação de liberação.
+- [ ] Expandir a decisão de solicitação para múltiplos itens, revisão controlada e etapas posteriores do workflow.
 - [ ] Implementar execução financeira vinculada a lançamento bancário.
 - [ ] Persistir pendências documentais derivadas de documentos obrigatórios.
 

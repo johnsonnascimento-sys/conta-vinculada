@@ -5,17 +5,46 @@ import {
   getReleaseRequests,
 } from "@/server/repositories/platform.repository";
 import { getCurrentUser } from "@/features/auth/queries";
-import { canInitiateReleaseRequest } from "@/features/releases/policy";
+import {
+  canInitiateReleaseRequest,
+  canReviewReleaseRequest,
+} from "@/features/releases/policy";
 import { isDatabaseEnabled } from "@/server/db/prisma";
 import type {
   Contract,
   Employee,
   EmployeeAllocation,
 } from "@/features/platform/types";
-import type { ReleaseRequestCreationOptions } from "@/features/releases/types";
+import type {
+  ReleaseRequestCreationOptions,
+  ReleaseRequestsBoardData,
+} from "@/features/releases/types";
 
-export async function getReleaseRequestsBoard() {
-  return getReleaseRequests();
+export async function getReleaseRequestsBoardData(): Promise<ReleaseRequestsBoardData> {
+  const [requests, contracts, user] = await Promise.all([
+    getReleaseRequests(),
+    getContracts(),
+    getCurrentUser(),
+  ]);
+
+  const contractCodeById = new Map(
+    contracts.map((contract: Contract) => [contract.id, contract.code]),
+  );
+
+  return {
+    requests,
+    databaseEnabled: isDatabaseEnabled(),
+    reviewableRequestIds: user
+      ? requests
+          .filter((request) => {
+            const contractCode = contractCodeById.get(request.contractId);
+            return contractCode
+              ? canReviewReleaseRequest(user, contractCode)
+              : false;
+          })
+          .map((request) => request.id)
+      : [],
+  };
 }
 
 export async function getReleaseRequestCreationOptions(): Promise<ReleaseRequestCreationOptions> {

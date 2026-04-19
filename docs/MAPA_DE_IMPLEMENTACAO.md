@@ -7,8 +7,9 @@ O próximo ciclo deve tirar o projeto do estado de MVP predominantemente de leit
 Fluxo inicial escolhido:
 
 - criação de solicitação de liberação
-- recorte atual: iniciar a solicitação, persistir dados mínimos, validar entrada, validar autenticação/autorização no backend e registrar auditoria mínima
-- fora do recorte atual: aprovação, glosa, execução financeira, upload S3 e autenticação corporativa completa
+- base já concluída: iniciar a solicitação, persistir dados mínimos, validar entrada, validar autenticação/autorização no backend e registrar auditoria mínima
+- recorte atual: analisar e decidir a solicitação por item, persistindo valor aprovado, decisão, autorização backend e auditoria mínima
+- fora do recorte atual: execução financeira, vínculo com lançamento bancário, upload S3 e autenticação corporativa completa
 
 Escopo recomendado para este ciclo:
 
@@ -38,31 +39,40 @@ Fora de escopo neste ciclo:
 
 ### Épico 2: Camada de comandos
 
-- [ ] Criar funções explícitas de escrita no `src/server` para o fluxo inicial.
+- [x] Criar funções explícitas de escrita no `src/server` para o fluxo inicial.
 - [ ] Garantir que cada comando valide pré-condições de domínio antes de gravar.
-- [ ] Garantir que cada comando use transação quando houver múltiplas gravações relacionadas.
-- [ ] Garantir que cada comando grave auditoria junto da mutação principal.
+- [x] Garantir que cada comando use transação quando houver múltiplas gravações relacionadas.
+- [x] Garantir que cada comando grave auditoria junto da mutação principal.
 - [ ] Manter o contrato de retorno compatível com o restante do app.
 
 ### Épico 3: Fluxo inicial de criação de solicitação de liberação
 
 - [x] Formalizar o recorte do fluxo inicial como criação de solicitação de liberação.
-- [ ] Implementar persistência do caso de uso escolhido usando Prisma.
-- [ ] Implementar server actions para o fluxo.
-- [ ] Implementar UI mínima para operar o fluxo sem espalhar regra de negócio na página.
-- [ ] Garantir autorização no backend para a ação executada.
+- [x] Implementar persistência do caso de uso escolhido usando Prisma.
+- [x] Implementar server actions para o fluxo.
+- [x] Implementar UI mínima para operar o fluxo sem espalhar regra de negócio na página.
+- [x] Garantir autorização no backend para a ação executada.
 
-### Épico 4: Exposição controlada no app
+### Épico 4: Análise/decisão da solicitação
+
+- [x] Definir análise/decisão por item como próximo recorte do fluxo inicial.
+- [x] Persistir decisão, valor aprovado e status agregado da solicitação.
+- [x] Registrar `Approval` e `AuditLog` a cada decisão.
+- [x] Expor UI mínima de análise na própria tela de liberações.
+- [ ] Expandir a cobertura para múltiplos itens por solicitação com UX mais refinada.
+- [ ] Definir com mais precisão a fronteira entre análise documental, aprovação administrativa e execução financeira.
+
+### Épico 5: Exposição controlada no app
 
 - [ ] Conectar a UI existente ao fluxo persistido.
 - [ ] Atualizar consultas e telas impactadas pelo novo dado transacional.
 - [ ] Evitar duplicar regra entre página, API e comando.
 - [ ] Se houver rota HTTP nova, manter a mesma regra de negócio centralizada no servidor.
 
-### Épico 5: Proteção contra regressão
+### Épico 6: Proteção contra regressão
 
 - [x] Adicionar teste mínimo de validação do fluxo inicial e script `npm test`.
-- [ ] Validar `typecheck` e `lint`.
+- [x] Validar `typecheck`, `lint` e testes do fluxo.
 - [ ] Validar que o modo sem `DATABASE_URL` continua funcional, se ele for mantido nesta etapa.
 - [ ] Validar que o modo com `DATABASE_URL` reflete corretamente o fluxo novo.
 
@@ -80,13 +90,14 @@ Fora de escopo neste ciclo:
 - Épico 2 depende do Épico 1.
 - Épico 3 depende do Épico 2.
 - Épico 4 depende do Épico 3.
-- Épico 5 depende de todos os anteriores.
+- Épico 5 depende do Épico 4.
+- Épico 6 depende de todos os anteriores.
 
 ### Dependências por fluxo
 
 - Criar solicitação depende de:
   `ReleaseRequest`, `ReleaseRequestItem`, validação de entrada, autenticação e auditoria mínima.
-- Aprovar ou glosar solicitação depende de:
+- Analisar e decidir solicitação depende de:
   regra de autorização por perfil, persistência do estado e registro de auditoria.
 - Executar financeiramente depende de:
   decisão anterior persistida, vínculo com `BankEntry` ou estratégia explícita para isso.
@@ -159,10 +170,11 @@ Pronto quando:
 2. Corrigir pontos de acoplamento direto ao mock.
 3. Criar a camada de comandos no `src/server`.
 4. Adotar explicitamente o fluxo inicial de criação de solicitação de liberação.
-5. Implementar persistência, validação, autorização e auditoria desse fluxo.
-6. Expor o fluxo na UI via server action.
-7. Atualizar telas de leitura impactadas.
-8. Adicionar testes do fluxo e validar `typecheck` e `lint`.
+5. Implementar persistência, validação, autorização e auditoria da criação.
+6. Implementar a análise/decisão por item como continuação imediata do mesmo fluxo.
+7. Expor o fluxo na UI via server action.
+8. Atualizar telas de leitura impactadas.
+9. Adicionar testes do fluxo e validar `typecheck` e `lint`.
 
 Regras de ordem para futuros agentes:
 

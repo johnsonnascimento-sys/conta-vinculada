@@ -1,12 +1,12 @@
 import type { AppUser } from "@/features/platform/types";
 import { canAccessRoute } from "@/features/auth/permissions";
 
-export function canInitiateReleaseRequest(user: AppUser, contractCode: string) {
+function canOperateReleaseRequest(user: AppUser, contractCode: string) {
   if (!canAccessRoute(user.role, "/dashboard/releases")) {
     return false;
   }
 
-  if (user.role === "Administrador do Ã³rgÃ£o" || user.role === "Financeiro") {
+  if (user.role === "Administrador do órgão" || user.role === "Financeiro") {
     return true;
   }
 
@@ -15,4 +15,12 @@ export function canInitiateReleaseRequest(user: AppUser, contractCode: string) {
   }
 
   return false;
+}
+
+export function canInitiateReleaseRequest(user: AppUser, contractCode: string) {
+  return canOperateReleaseRequest(user, contractCode);
+}
+
+export function canReviewReleaseRequest(user: AppUser, contractCode: string) {
+  return canOperateReleaseRequest(user, contractCode);
 }

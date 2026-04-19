@@ -23,6 +23,7 @@ export async function createReleaseRequestAction(
   if (!result.ok) {
     return {
       status: "error",
+      code: result.code,
       message: result.message,
       fieldErrors: result.fieldErrors,
     };

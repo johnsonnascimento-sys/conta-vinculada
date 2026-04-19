@@ -32,7 +32,7 @@ Fora de escopo neste ciclo:
 
 - [ ] Confirmar o contrato atual de `src/features/platform/types.ts` como fonte de verdade do app.
 - [ ] Revisar `src/server/db/serializers.ts` para garantir alinhamento total com os tipos do app.
-- [ ] Remover dependências diretas de mock em componentes que deveriam depender de query ou repository.
+- [x] Remover a dependência direta do `tenant` mock na `Sidebar`, movendo a leitura para o layout autenticado via repositório.
 - [ ] Definir onde ficará a futura camada de comandos de escrita em `src/server`.
 - [ ] Cobrir com testes o comportamento mínimo de `platform.repository`, serializers e RBAC atual.
 
@@ -61,7 +61,7 @@ Fora de escopo neste ciclo:
 
 ### Épico 5: Proteção contra regressão
 
-- [ ] Adicionar testes do fluxo inicial.
+- [x] Adicionar teste mínimo de validação do fluxo inicial e script `npm test`.
 - [ ] Validar `typecheck` e `lint`.
 - [ ] Validar que o modo sem `DATABASE_URL` continua funcional, se ele for mantido nesta etapa.
 - [ ] Validar que o modo com `DATABASE_URL` reflete corretamente o fluxo novo.

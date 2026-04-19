@@ -1,9 +1,8 @@
 import "server-only";
 
 import type { Prisma } from "@prisma/client";
-import type { AppUser } from "@/features/platform/types";
-import { canAccessRoute } from "@/features/auth/permissions";
 import { getCurrentUser } from "@/features/auth/queries";
+import { canInitiateReleaseRequest } from "@/features/releases/policy";
 import type {
   CreateReleaseRequestCommandResult,
   CreateReleaseRequestInput,
@@ -13,22 +12,46 @@ import { validateCreateReleaseRequestInput } from "@/server/commands/releases/cr
 
 function buildReleaseRequestProtocol(now = new Date()) {
   const year = now.getUTCFullYear();
-  const suffix = Math.random().toString(36).slice(2, 8).toUpperCase();
+  const suffix = crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase();
   return `RR-${year}-${suffix}`;
 }
 
-function canCreateReleaseRequestForContract(user: AppUser, contractCode: string) {
-  if (!canAccessRoute(user.role, "/dashboard/releases")) {
-    return false;
-  }
-
-  return user.role !== "Analista" || user.scope === contractCode;
+function isUniqueConstraintError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "P2002"
+  );
 }
 
+async function generateUniqueProtocol(tx: Prisma.TransactionClient) {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const protocol = buildReleaseRequestProtocol();
+    const existing = await tx.releaseRequest.findUnique({
+      where: { protocol },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      return protocol;
+    }
+  }
+
+  throw new Error("protocol_generation_failed");
+}
 export async function createReleaseRequest(
   input: CreateReleaseRequestInput,
 ): Promise<CreateReleaseRequestCommandResult> {
-  const validation = validateCreateReleaseRequestInput(input);
+  const normalizedInput: CreateReleaseRequestInput = {
+    contractId: input.contractId.trim(),
+    employeeId: input.employeeId.trim(),
+    competency: input.competency.trim(),
+    rubric: input.rubric.trim(),
+    requestedAmount: input.requestedAmount,
+  };
+
+  const validation = validateCreateReleaseRequestInput(normalizedInput);
 
   if (!validation.valid) {
     return {
@@ -72,7 +95,7 @@ export async function createReleaseRequest(
   try {
     return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const contract = await tx.contract.findUnique({
-        where: { id: input.contractId },
+        where: { id: normalizedInput.contractId },
         select: { id: true, code: true, companyId: true },
       });
 
@@ -85,7 +108,7 @@ export async function createReleaseRequest(
         } satisfies CreateReleaseRequestCommandResult;
       }
 
-      if (!canCreateReleaseRequestForContract(user, contract.code)) {
+      if (!canInitiateReleaseRequest(user, contract.code)) {
         return {
           ok: false,
           code: "unauthorized",
@@ -97,7 +120,7 @@ export async function createReleaseRequest(
       const allocation = await tx.employeeAllocation.findFirst({
         where: {
           contractId: contract.id,
-          employeeId: input.employeeId,
+          employeeId: normalizedInput.employeeId,
         },
         select: { id: true },
       });
@@ -116,7 +139,7 @@ export async function createReleaseRequest(
       const competency = await tx.competency.findFirst({
         where: {
           contractId: contract.id,
-          competency: input.competency,
+          competency: normalizedInput.competency,
         },
         select: { id: true },
       });
@@ -132,8 +155,7 @@ export async function createReleaseRequest(
         } satisfies CreateReleaseRequestCommandResult;
       }
 
-      const protocol = buildReleaseRequestProtocol();
-      const createdAt = new Date();
+      const protocol = await generateUniqueProtocol(tx);
       const request = await tx.releaseRequest.create({
         data: {
           contractId: contract.id,
@@ -144,10 +166,10 @@ export async function createReleaseRequest(
           items: {
             create: [
               {
-                employeeId: input.employeeId,
-                rubric: input.rubric.trim(),
-                competencyRef: input.competency.trim(),
-                requestedAmount: input.requestedAmount,
+                employeeId: normalizedInput.employeeId,
+                rubric: normalizedInput.rubric,
+                competencyRef: normalizedInput.competency,
+                requestedAmount: normalizedInput.requestedAmount,
                 approvedAmount: 0,
                 decision: "pendente",
               },
@@ -167,12 +189,12 @@ export async function createReleaseRequest(
             releaseRequestId: request.id,
             protocol,
             status: request.status,
-            employeeId: input.employeeId,
-            competency: input.competency.trim(),
-            rubric: input.rubric.trim(),
-            requestedAmount: input.requestedAmount,
+            employeeId: normalizedInput.employeeId,
+            competency: normalizedInput.competency,
+            rubric: normalizedInput.rubric,
+            requestedAmount: normalizedInput.requestedAmount,
           },
-          details: `Solicitacao iniciada em elaboracao para ${input.rubric.trim()} na competencia ${input.competency.trim()}.`,
+          details: `Solicitacao iniciada em elaboracao para ${normalizedInput.rubric} na competencia ${normalizedInput.competency}.`,
         },
       });
 
@@ -183,15 +205,24 @@ export async function createReleaseRequest(
           protocol,
           status: "em_elaboracao",
           contractId: contract.id,
-          employeeId: input.employeeId,
-          competency: input.competency.trim(),
-          rubric: input.rubric.trim(),
-          requestedAmount: input.requestedAmount,
-          createdAt: createdAt.toISOString(),
+          employeeId: normalizedInput.employeeId,
+          competency: normalizedInput.competency,
+          rubric: normalizedInput.rubric,
+          requestedAmount: normalizedInput.requestedAmount,
+          createdAt: request.createdAt.toISOString(),
         },
       } satisfies CreateReleaseRequestCommandResult;
     });
-  } catch {
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      return {
+        ok: false,
+        code: "unexpected_error",
+        message:
+          "Nao foi possivel reservar um protocolo unico para a solicitacao. Tente novamente.",
+      };
+    }
+
     return {
       ok: false,
       code: "unexpected_error",

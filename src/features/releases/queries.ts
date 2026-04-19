@@ -4,6 +4,8 @@ import {
   getEmployees,
   getReleaseRequests,
 } from "@/server/repositories/platform.repository";
+import { getCurrentUser } from "@/features/auth/queries";
+import { canInitiateReleaseRequest } from "@/features/releases/policy";
 import { isDatabaseEnabled } from "@/server/db/prisma";
 import type {
   Contract,
@@ -17,15 +19,21 @@ export async function getReleaseRequestsBoard() {
 }
 
 export async function getReleaseRequestCreationOptions(): Promise<ReleaseRequestCreationOptions> {
-  const [contracts, employees, allocations] = await Promise.all([
+  const [contracts, employees, allocations, user] = await Promise.all([
     getContracts(),
     getEmployees(),
     getAllocations(),
+    getCurrentUser(),
   ]);
+
+  const allowedContracts = user
+    ? contracts.filter((contract: Contract) => canInitiateReleaseRequest(user, contract.code))
+    : [];
+  const allowedContractIds = new Set(allowedContracts.map((contract) => contract.id));
 
   return {
     databaseEnabled: isDatabaseEnabled(),
-    contracts: contracts.map((contract: Contract) => ({
+    contracts: allowedContracts.map((contract: Contract) => ({
       id: contract.id,
       code: contract.code,
       name: contract.name,
@@ -33,6 +41,10 @@ export async function getReleaseRequestCreationOptions(): Promise<ReleaseRequest
     employeesByContract: allocations.reduce<
       ReleaseRequestCreationOptions["employeesByContract"]
     >((accumulator, allocation: EmployeeAllocation) => {
+      if (!allowedContractIds.has(allocation.contractId)) {
+        return accumulator;
+      }
+
       const employee = employees.find(
         (item: Employee) => item.id === allocation.employeeId,
       );

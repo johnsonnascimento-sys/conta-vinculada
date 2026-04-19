@@ -24,11 +24,17 @@ Escalate to a larger model only when the task involves:
 
 Use specialized agents only when the task justifies coordination overhead.
 
+## Communication
+
+- Always respond to the user in Brazilian Portuguese unless the user explicitly asks for another language.
+- Keep final answers concise, direct, and action-oriented.
+
 ### Use agents when
 - the task spans multiple domains, such as frontend, backend, database, security, or migration;
 - the work can be split into parallel, independent tracks;
 - the task requires different specialist viewpoints before a final decision;
 - the change is complex enough that synthesis and cross-review materially improve quality.
+- if the user has expressed a standing preference for delegated or parallel execution, honor that preference whenever the task has meaningful independent workstreams.
 
 ### Do not use agents when
 - the task is simple, local, and can be completed directly;
@@ -39,6 +45,7 @@ Use specialized agents only when the task justifies coordination overhead.
 - simple tasks: prefer `GPT-5.4-mini` and avoid subagents;
 - medium tasks: execute directly unless clear specialization is needed;
 - complex tasks: use an orchestrator pattern with specialized subagents.
+- when subagents are used, assign them non-overlapping scopes such as backend, frontend, testing, or documentation/review.
 
 ### Orchestration rules
 - define a clear responsibility for each agent before starting;

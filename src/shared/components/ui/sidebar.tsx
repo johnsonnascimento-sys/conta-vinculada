@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { logoutAction } from "@/features/auth/actions";
 import { getAllowedRoutes } from "@/features/auth/permissions";
-import type { AppUser } from "@/features/platform/types";
-import { tenant } from "@/features/platform/data";
+import type { AppUser, Tenant } from "@/features/platform/types";
 import { cn } from "@/shared/lib/utils";
 
 const allNavigation = [
@@ -17,9 +16,10 @@ const allNavigation = [
 interface SidebarProps {
   pathname: string;
   user: AppUser;
+  tenant: Tenant;
 }
 
-export function Sidebar({ pathname, user }: SidebarProps) {
+export function Sidebar({ pathname, user, tenant }: SidebarProps) {
   const navigation = allNavigation.filter((item) =>
     getAllowedRoutes(user.role).some(
       (route) => item.href === route || item.href.startsWith(`${route}/`),

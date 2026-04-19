@@ -219,7 +219,7 @@ O seed está em `prisma/seed.ts` e popula:
 - usuários
 - auditoria
 
-O arquivo `.env.example` já documenta `DATABASE_URL`, `NEXT_PUBLIC_APP_URL`, `AUTH_SECRET` e `AUTH_DEV_PASSWORD`.
+O arquivo `.env.example` existe na raiz do projeto e documenta `DATABASE_URL`, `NEXT_PUBLIC_APP_URL`, `AUTH_SECRET` e `AUTH_DEV_PASSWORD`.
 
 O que parece pronto:
 
@@ -307,7 +307,7 @@ Contém o schema relacional e o seed inicial do banco. Hoje funciona mais como f
 
 ### Inconsistências arquiteturais percebidas
 
-- `src/features/platform/data.ts` funciona como mock central do produto, mas alguns componentes ainda importam diretamente esse mock, como `src/shared/components/ui/sidebar.tsx` usando `tenant`, o que enfraquece a abstração do repositório
+- o projeto ainda depende de `src/features/platform/data.ts` como base do modo sem banco, mas o shell autenticado já deixou de importar `tenant` diretamente desse mock e passou a consumi-lo via repositório no layout
 - a modelagem do schema Prisma é mais rica do que a superfície funcional hoje usada pelas telas
 - há separação entre queries e repositório para leitura, mas ainda não existe a mesma disciplina para comandos de escrita porque eles ainda não foram implementados
 - o RBAC está expresso em rotas, mas não há uma camada de política de autorização por ação de domínio
@@ -423,7 +423,7 @@ O frontend não consome diretamente os tipos do Prisma; ele consome um contrato 
 
 - sessão caseira baseada em token assinado customizado, sem mecanismos mais robustos de revogação, refresh ou trilha de segurança
 - dependência de `AUTH_DEV_PASSWORD` para autenticação
-- acoplamento residual a mock em memória em partes da UI
+- acoplamento residual ao modo mock ainda existe no produto como estratégia de fallback, mas o vazamento direto do `tenant` para a `Sidebar` foi removido
 - agregação de dados montada para leitura; risco de duplicação se mutações forem implementadas diretamente em páginas ou APIs sem uma camada de comando
 - ausência de testes para proteger regressões durante a transição memória -> Prisma
 
@@ -444,7 +444,7 @@ O frontend não consome diretamente os tipos do Prisma; ele consome um contrato 
 - server actions: apenas login
 - rotas POST/PUT/DELETE: ausentes
 - auditoria persistida por mutação real: ausente
-- testes: ausentes no repositório
+- testes: existe cobertura mínima de validação para o fluxo inicial de criação de solicitação de liberação via `node:test`
 - CI/CD: não encontrado
 - validação de entrada: mínima, praticamente restrita ao login
 - segurança: básica para ambiente local; insuficiente para produção

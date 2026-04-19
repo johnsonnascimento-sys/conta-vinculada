@@ -26,6 +26,13 @@ export interface CreateReleaseRequestSuccess {
   createdAt: string;
 }
 
+export type CreateReleaseRequestErrorCode =
+  | "validation_error"
+  | "unauthorized"
+  | "database_unavailable"
+  | "not_found"
+  | "unexpected_error";
+
 export type CreateReleaseRequestCommandResult =
   | {
       ok: true;
@@ -33,18 +40,14 @@ export type CreateReleaseRequestCommandResult =
     }
   | {
       ok: false;
-      code:
-        | "validation_error"
-        | "unauthorized"
-        | "database_unavailable"
-        | "not_found"
-        | "unexpected_error";
+      code: CreateReleaseRequestErrorCode;
       message: string;
       fieldErrors?: CreateReleaseRequestFieldErrors;
     };
 
 export interface CreateReleaseRequestActionState {
   status: "idle" | "success" | "error";
+  code?: CreateReleaseRequestErrorCode;
   message?: string;
   fieldErrors?: CreateReleaseRequestFieldErrors;
   data?: CreateReleaseRequestSuccess;

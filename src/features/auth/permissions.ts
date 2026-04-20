@@ -6,24 +6,28 @@ const roleRoutes: Record<string, string[]> = {
     "/dashboard/reconciliation",
     "/dashboard/audit",
     "/dashboard/admin",
+    "/dashboard/manual",
   ],
   Analista: [
     "/dashboard",
     "/dashboard/contracts",
     "/dashboard/releases",
     "/dashboard/audit",
+    "/dashboard/manual",
   ],
   Financeiro: [
     "/dashboard",
     "/dashboard/contracts",
     "/dashboard/releases",
     "/dashboard/reconciliation",
+    "/dashboard/manual",
   ],
   "Auditoria interna": [
     "/dashboard",
     "/dashboard/contracts",
     "/dashboard/audit",
     "/dashboard/reconciliation",
+    "/dashboard/manual",
   ],
 };
 
@@ -36,3 +40,4 @@ export function canAccessRoute(role: string, pathname: string) {
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
 }
+

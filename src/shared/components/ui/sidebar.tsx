@@ -11,6 +11,7 @@ const allNavigation = [
   { href: "/dashboard/reconciliation", label: "Conciliação" },
   { href: "/dashboard/audit", label: "Auditoria" },
   { href: "/dashboard/admin", label: "Administração" },
+  { href: "/dashboard/manual", label: "Manual do usuario" },
 ];
 
 interface SidebarProps {
@@ -88,3 +89,4 @@ export function Sidebar({ pathname, user, tenant }: SidebarProps) {
     </aside>
   );
 }
+

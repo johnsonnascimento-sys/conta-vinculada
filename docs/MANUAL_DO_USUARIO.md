@@ -52,6 +52,7 @@ O menu lateral organiza o sistema por modulos:
 - Conciliacao
 - Auditoria
 - Administracao
+- Manual do usuario
 
 Cada modulo tem foco diferente:
 
@@ -60,7 +61,8 @@ Cada modulo tem foco diferente:
 - liberacoes concentra a fila de solicitacoes;
 - conciliacao destaca diferencas entre valores;
 - auditoria mostra a trilha de eventos;
-- administracao exibe usuarios e perfis internos.
+- administracao exibe usuarios e perfis internos;
+- manual do usuario apresenta a orientacao funcional de uso dentro do proprio sistema.
 
 ## 6. Painel principal
 

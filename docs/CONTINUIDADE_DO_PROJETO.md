@@ -35,7 +35,7 @@ Os usuários materializados no código são perfis internos do órgão, não usu
 
 O estágio atual do projeto é de MVP navegável com foco em consulta e demonstração operacional. O sistema já possui layout institucional, login local, autorização por perfil, páginas do backoffice, rotas `GET`, dados seed e leitura híbrida entre mock em memória e Prisma. Ainda não há fluxos transacionais completos de negócio.
 
-O primeiro fluxo transacional formalmente priorizado para sair desse estado é a criação de solicitação de liberação. Essa base já existe no código com validação, server action, comando server-side, persistência via Prisma, auditoria mínima e comportamento explícito de somente leitura quando não há `DATABASE_URL`. O recorte imediatamente seguinte, já iniciado nesta etapa, é a análise/decisão da solicitação por item, ainda sem entrar em execução financeira.
+O primeiro fluxo transacional formalmente priorizado para sair desse estado é a criação de solicitação de liberação. Essa base já existe no código com validação, server action, comando server-side, persistência via Prisma, auditoria mínima e comportamento explícito de somente leitura quando não há `DATABASE_URL`. O recorte imediatamente seguinte, já operável na própria fila do módulo de liberações, é a análise/decisão da solicitação por item, ainda sem entrar em execução financeira.
 
 ## 2. Estado atual implementado
 

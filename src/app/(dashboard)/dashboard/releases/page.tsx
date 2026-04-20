@@ -1,5 +1,7 @@
 import type { ReleaseRequest, ReleaseRequestItem } from "@/features/platform/types";
 import { CreateReleaseRequestForm } from "@/features/releases/components/create-release-request-form";
+import { ReviewReleaseRequestForm } from "@/features/releases/components/review-release-request-form";
+import { canReviewReleaseRequestItem } from "@/features/releases/policy";
 import {
   getReleaseRequestCreationOptions,
   getReleaseRequestsBoardData,
@@ -43,6 +45,7 @@ export default async function ReleasesPage() {
     getReleaseRequestCreationOptions(),
     getReleaseRequestsBoardData(),
   ]);
+  const reviewableRequestIds = new Set(boardData.reviewableRequestIds);
 
   return (
     <div className="space-y-4">
@@ -70,6 +73,8 @@ export default async function ReleasesPage() {
               (total, item) => total + item.approvedAmount,
               0,
             );
+            const canReviewRequest =
+              boardData.databaseEnabled && reviewableRequestIds.has(request.id);
 
             return (
               <div
@@ -184,6 +189,18 @@ export default async function ReleasesPage() {
                         <p className="mt-4 text-sm leading-6 text-[var(--color-muted)]">
                           {item.calculationMemory.notes}
                         </p>
+                      ) : null}
+
+                      {canReviewRequest &&
+                      canReviewReleaseRequestItem(
+                        request.status,
+                        item.decision,
+                      ) ? (
+                        <ReviewReleaseRequestForm
+                          requestId={request.id}
+                          itemId={item.id}
+                          requestedAmount={item.requestedAmount}
+                        />
                       ) : null}
                     </div>
                   ))}

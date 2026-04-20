@@ -1,5 +1,16 @@
-import type { AppUser } from "@/features/platform/types";
+import type {
+  AppUser,
+  ReleaseItemDecision,
+  ReleaseRequestStatus,
+} from "@/features/platform/types";
 import { canAccessRoute } from "@/features/auth/permissions";
+
+const REVIEWABLE_RELEASE_REQUEST_STATUSES = new Set<ReleaseRequestStatus>([
+  "em_elaboracao",
+  "enviada",
+  "em_exigencia",
+  "em_analise",
+]);
 
 function canOperateReleaseRequest(user: AppUser, contractCode: string) {
   if (!canAccessRoute(user.role, "/dashboard/releases")) {
@@ -23,4 +34,17 @@ export function canInitiateReleaseRequest(user: AppUser, contractCode: string) {
 
 export function canReviewReleaseRequest(user: AppUser, contractCode: string) {
   return canOperateReleaseRequest(user, contractCode);
+}
+
+export function isReviewableReleaseRequestStatus(
+  status: ReleaseRequestStatus,
+) {
+  return REVIEWABLE_RELEASE_REQUEST_STATUSES.has(status);
+}
+
+export function canReviewReleaseRequestItem(
+  status: ReleaseRequestStatus,
+  decision: ReleaseItemDecision,
+) {
+  return isReviewableReleaseRequestStatus(status) && decision === "pendente";
 }

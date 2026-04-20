@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { canInitiateReleaseRequest, canReviewReleaseRequest } from "@/features/releases/policy";
+import {
+  canInitiateReleaseRequest,
+  canReviewReleaseRequest,
+  canReviewReleaseRequestItem,
+  isReviewableReleaseRequestStatus,
+} from "@/features/releases/policy";
 import type { AppUser } from "@/features/platform/types";
 
 const adminUser: AppUser = {
@@ -46,4 +51,17 @@ test("canReviewReleaseRequest follows the same scoped authorization", () => {
 
 test("canReviewReleaseRequest denies read-only audit profile", () => {
   assert.equal(canReviewReleaseRequest(auditUser, "CT 07/2025"), false);
+});
+
+test("isReviewableReleaseRequestStatus allows only statuses open for analysis", () => {
+  assert.equal(isReviewableReleaseRequestStatus("enviada"), true);
+  assert.equal(isReviewableReleaseRequestStatus("em_analise"), true);
+  assert.equal(isReviewableReleaseRequestStatus("aprovada"), false);
+  assert.equal(isReviewableReleaseRequestStatus("rejeitada"), false);
+});
+
+test("canReviewReleaseRequestItem only allows pending item in reviewable request", () => {
+  assert.equal(canReviewReleaseRequestItem("enviada", "pendente"), true);
+  assert.equal(canReviewReleaseRequestItem("em_analise", "aprovado"), false);
+  assert.equal(canReviewReleaseRequestItem("aprovada", "pendente"), false);
 });

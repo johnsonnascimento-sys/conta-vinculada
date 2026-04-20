@@ -1,23 +1,21 @@
 import type { Prisma } from "@prisma/client";
 import { getCurrentUser } from "@/features/auth/queries";
 import type {
+  AppUser,
   ReleaseRequestItem,
   ReleaseRequestStatus,
 } from "@/features/platform/types";
-import { canReviewReleaseRequest } from "@/features/releases/policy";
+import {
+  canReviewReleaseRequest,
+  canReviewReleaseRequestItem,
+  isReviewableReleaseRequestStatus,
+} from "@/features/releases/policy";
 import type {
   ReviewReleaseRequestCommandResult,
   ReviewReleaseRequestInput,
 } from "@/features/releases/types";
 import { getPrismaClient, isDatabaseEnabled } from "@/server/db/prisma";
 import { validateReviewReleaseRequestInput } from "@/server/commands/releases/review-release-request.validation";
-
-const REVIEWABLE_REQUEST_STATUSES = new Set<ReleaseRequestStatus>([
-  "em_elaboracao",
-  "enviada",
-  "em_exigencia",
-  "em_analise",
-]);
 
 type PersistedApprovalDecision =
   | "aprovar"
@@ -124,6 +122,29 @@ function validateDecisionAmount(
 export async function reviewReleaseRequest(
   input: ReviewReleaseRequestInput,
 ): Promise<ReviewReleaseRequestCommandResult> {
+  return reviewReleaseRequestWithDependencies(input, defaultDependencies);
+}
+
+export interface ReviewReleaseRequestDependencies {
+  getCurrentUser(): Promise<AppUser | null>;
+  isDatabaseEnabled(): boolean;
+  getPrismaClient(): {
+    $transaction<T>(callback: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T>;
+  } | null;
+  canReviewReleaseRequest(user: AppUser, contractCode: string): boolean;
+}
+
+const defaultDependencies: ReviewReleaseRequestDependencies = {
+  getCurrentUser,
+  isDatabaseEnabled,
+  getPrismaClient,
+  canReviewReleaseRequest,
+};
+
+export async function reviewReleaseRequestWithDependencies(
+  input: ReviewReleaseRequestInput,
+  dependencies: ReviewReleaseRequestDependencies,
+): Promise<ReviewReleaseRequestCommandResult> {
   const normalizedInput: ReviewReleaseRequestInput = {
     requestId: input.requestId.trim(),
     itemId: input.itemId.trim(),
@@ -143,7 +164,7 @@ export async function reviewReleaseRequest(
     };
   }
 
-  const user = await getCurrentUser();
+  const user = await dependencies.getCurrentUser();
 
   if (!user) {
     return {
@@ -153,7 +174,7 @@ export async function reviewReleaseRequest(
     };
   }
 
-  if (!isDatabaseEnabled()) {
+  if (!dependencies.isDatabaseEnabled()) {
     return {
       ok: false,
       code: "database_unavailable",
@@ -162,7 +183,7 @@ export async function reviewReleaseRequest(
     };
   }
 
-  const prisma = getPrismaClient();
+  const prisma = dependencies.getPrismaClient();
 
   if (!prisma) {
     return {
@@ -208,7 +229,7 @@ export async function reviewReleaseRequest(
         } satisfies ReviewReleaseRequestCommandResult;
       }
 
-      if (!canReviewReleaseRequest(user, request.contract.code)) {
+      if (!dependencies.canReviewReleaseRequest(user, request.contract.code)) {
         return {
           ok: false,
           code: "unauthorized",
@@ -217,7 +238,7 @@ export async function reviewReleaseRequest(
         } satisfies ReviewReleaseRequestCommandResult;
       }
 
-      if (!REVIEWABLE_REQUEST_STATUSES.has(request.status)) {
+      if (!isReviewableReleaseRequestStatus(request.status)) {
         return {
           ok: false,
           code: "invalid_state",
@@ -250,6 +271,18 @@ export async function reviewReleaseRequest(
           code: "validation_error",
           message: "Verifique o valor aprovado informado para a decisão.",
           fieldErrors: amountValidation.fieldErrors,
+        } satisfies ReviewReleaseRequestCommandResult;
+      }
+
+      if (!canReviewReleaseRequestItem(request.status, item.decision)) {
+        return {
+          ok: false,
+          code: "invalid_state",
+          message:
+            "Este item ja recebeu decisao e nao pode ser analisado novamente nesta etapa.",
+          fieldErrors: {
+            itemId: "Item ja analisado nesta solicitacao.",
+          },
         } satisfies ReviewReleaseRequestCommandResult;
       }
 

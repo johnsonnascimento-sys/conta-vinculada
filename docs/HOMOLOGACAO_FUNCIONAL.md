@@ -102,6 +102,10 @@ Resultado:
 - [ ] A fila mostra protocolo, tipo de liberação, período, forma de movimentação, status e valores.
 - [ ] Os itens da solicitação mostram decisão e valores por item.
 - [ ] As pendências documentais aparecem na leitura da solicitação.
+- [ ] Itens pendentes exibem ação de decisão quando o perfil e o ambiente permitem.
+- [ ] A decisão por item pode ser registrada na própria fila de solicitações.
+- [ ] Aprovação total, aprovação parcial e rejeição ou glosa se comportam de forma coerente com os valores informados.
+- [ ] Item já decidido não volta a apresentar ação de decisão na mesma etapa.
 
 Observações:
 
@@ -180,6 +184,7 @@ Resultado:
 
 - [ ] O homologador verificou o comportamento do sistema sem base de gravação habilitada, quando aplicável.
 - [ ] A tela de liberações informa claramente quando a criação está indisponível.
+- [ ] A tela de liberações também impede decisão por item quando a gravação não está habilitada.
 - [ ] A fila de solicitações continua visível em modo somente leitura.
 - [ ] O sistema não induz o usuário a acreditar que a gravação está disponível nesse modo.
 - [ ] A leitura dos demais módulos permanece utilizável.

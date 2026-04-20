@@ -199,7 +199,8 @@ Funcionalmente, o usuário deve entender o fluxo assim:
 
 - a solicitação é registrada e passa a compor a fila interna;
 - os itens podem ser acompanhados pelo status e pelos valores;
-- a análise e o acompanhamento já aparecem na leitura do módulo;
+- quando o perfil tiver permissão e a gravação estiver habilitada, a decisão por item pode ser registrada na própria fila;
+- a aprovação total, a aprovação parcial e a rejeição ou glosa exigem conferência do valor aprovado e, quando necessário, justificativa;
 - a execução financeira completa ainda não está concluída no sistema.
 
 ### 8.5 Pendências documentais e acompanhamento
@@ -213,7 +214,31 @@ Neste momento do projeto:
 
 O usuário deve usar essa informação como sinalização operacional de acompanhamento.
 
-### 8.6 Modo somente leitura
+### 8.6 Análise e decisão por item
+
+Quando o usuário tiver perfil autorizado e o ambiente estiver com gravação habilitada, a própria fila de solicitações permite registrar a decisão dos itens ainda pendentes.
+
+Na prática, o usuário pode:
+
+- aprovar integralmente o item;
+- aprovar parcialmente o item;
+- rejeitar ou glosar o item.
+
+Na análise, o usuário deve observar:
+
+- valor solicitado;
+- valor validado;
+- valor aprovado;
+- justificativa informada na decisão, quando exigida.
+
+Regras funcionais importantes:
+
+- aprovação total exige valor aprovado igual ao valor solicitado;
+- aprovação parcial exige justificativa e valor aprovado menor que o solicitado;
+- rejeição ou glosa exige valor aprovado igual a zero e justificativa;
+- item já decidido não deve voltar para nova análise na mesma etapa.
+
+### 8.7 Modo somente leitura
 
 Quando o sistema estiver sem base de dados habilitada para gravação, a tela de liberações entra em modo somente leitura.
 

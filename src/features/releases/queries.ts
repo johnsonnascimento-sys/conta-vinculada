@@ -5,7 +5,10 @@ import {
   getReleaseRequests,
 } from "@/server/repositories/platform.repository";
 import { getCurrentUser } from "@/features/auth/queries";
-import { canInitiateReleaseRequest } from "@/features/releases/policy";
+import {
+  canInitiateReleaseRequest,
+  canReviewReleaseRequest,
+} from "@/features/releases/policy";
 import { isDatabaseEnabled } from "@/server/db/prisma";
 import type {
   Contract,
@@ -18,9 +21,28 @@ import type {
 } from "@/features/releases/types";
 
 export async function getReleaseRequestsBoardData(): Promise<ReleaseRequestsBoardData> {
+  const [requests, contracts, user] = await Promise.all([
+    getReleaseRequests(),
+    getContracts(),
+    getCurrentUser(),
+  ]);
+  const contractsById = new Map(
+    contracts.map((contract: Contract) => [contract.id, contract]),
+  );
+
   return {
-    requests: await getReleaseRequests(),
+    requests,
     databaseEnabled: isDatabaseEnabled(),
+    reviewableRequestIds: user
+      ? requests
+          .filter((request) => {
+            const contract = contractsById.get(request.contractId);
+            return contract
+              ? canReviewReleaseRequest(user, contract.code)
+              : false;
+          })
+          .map((request) => request.id)
+      : [],
   };
 }
 

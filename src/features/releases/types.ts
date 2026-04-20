@@ -129,6 +129,7 @@ export interface ReleaseRequestCreationOptions {
 export interface ReleaseRequestsBoardData {
   requests: ReleaseRequest[];
   databaseEnabled: boolean;
+  reviewableRequestIds: string[];
 }
 
 export type ReviewReleaseRequestDecision =

@@ -734,6 +734,7 @@ Lacunas que permanecem documentadas, sem implementacao completa nesta rodada:
 Regra permanente de continuidade:
 
 - toda funcionalidade criada, alterada ou removida que impacte a operacao do sistema deve atualizar o manual do usuario;
+- alteracoes funcionais relevantes para validacao operacional tambem devem revisar `docs/HOMOLOGACAO_FUNCIONAL.md`;
 - o manual deve permanecer em portugues do Brasil;
 - o manual deve descrever uso operacional, sem detalhes de implementacao tecnica;
 - mudancas de tela, fluxo, nomenclatura, campos, status, permissoes funcionais, alertas e comportamento operacional devem ser refletidas no manual;

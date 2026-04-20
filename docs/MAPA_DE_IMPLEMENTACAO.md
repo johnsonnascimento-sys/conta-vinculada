@@ -237,6 +237,8 @@ Proximo passo recomendado apos esta rodada:
 
 `docs/MANUAL_DO_USUARIO.md` deve ser atualizado em toda entrega que altere o comportamento funcional do sistema.
 
+`docs/HOMOLOGACAO_FUNCIONAL.md` deve acompanhar mudancas que afetem a validacao operacional do comportamento entregue.
+
 Isso inclui, no minimo:
 
 - novas telas ou remocao de telas;

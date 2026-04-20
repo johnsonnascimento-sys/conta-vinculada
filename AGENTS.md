@@ -32,6 +32,7 @@ Use specialized agents only when the task justifies coordination overhead.
 ## Functional Documentation Governance
 
 - Every feature created, changed, or removed that impacts system operation must update `docs/MANUAL_DO_USUARIO.md`.
+- Functional changes that materially affect acceptance, operation, or user verification should also update `docs/HOMOLOGACAO_FUNCIONAL.md`.
 - The user manual must always be kept in Brazilian Portuguese.
 - The user manual must describe operational behavior only and must not include implementation details such as programming choices, architecture, database structure, framework internals, APIs, folders, or terminal commands.
 - Changes to screens, flows, labels, fields, statuses, functional permissions, alerts, and user-facing operational behavior must be reflected in `docs/MANUAL_DO_USUARIO.md`.

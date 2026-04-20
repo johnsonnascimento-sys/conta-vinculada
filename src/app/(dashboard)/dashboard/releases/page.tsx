@@ -1,13 +1,12 @@
 import type { ReleaseRequest, ReleaseRequestItem } from "@/features/platform/types";
 import { CreateReleaseRequestForm } from "@/features/releases/components/create-release-request-form";
-import { ReviewReleaseRequestForm } from "@/features/releases/components/review-release-request-form";
 import {
   getReleaseRequestCreationOptions,
   getReleaseRequestsBoardData,
 } from "@/features/releases/queries";
 import { Badge } from "@/shared/components/ui/badge";
 import { TableCard } from "@/shared/components/ui/table-card";
-import { formatCurrency } from "@/shared/lib/formatters";
+import { formatCompetency, formatCurrency } from "@/shared/lib/formatters";
 
 function getRequestStatusTone(status: ReleaseRequest["status"]) {
   if (status === "aprovada" || status === "liberada") {
@@ -15,9 +14,11 @@ function getRequestStatusTone(status: ReleaseRequest["status"]) {
   }
 
   if (
-    status === "aprovada_parcial" ||
+    status === "enviada" ||
+    status === "em_exigencia" ||
     status === "em_analise" ||
-    status === "em_elaboracao"
+    status === "em_elaboracao" ||
+    status === "aprovada_parcial"
   ) {
     return "warning" as const;
   }
@@ -30,7 +31,7 @@ function getItemDecisionTone(decision: ReleaseRequestItem["decision"]) {
     return "success" as const;
   }
 
-  if (decision === "aprovado_parcial" || decision === "pendente") {
+  if (decision === "pendente" || decision === "aprovado_parcial") {
     return "warning" as const;
   }
 
@@ -46,53 +47,47 @@ export default async function ReleasesPage() {
   return (
     <div className="space-y-4">
       <TableCard
-        title="Iniciar solicitacao de liberacao"
-        description="Primeiro fluxo transacional formalizado do projeto. Nesta etapa, a solicitacao nasce em elaboracao com validacao, autorizacao backend e auditoria minima."
+        title="Criar solicitacao de liberacao"
+        description="Primeiro fluxo transacional real do projeto: validacao backend, autorizacao server-side, persistencia Prisma e auditoria obrigatoria."
       >
         <CreateReleaseRequestForm options={creationOptions} />
       </TableCard>
 
       <TableCard
-        title="Solicitacoes de liberacao"
-        description="Fila unica do MVP interno, agora com decisao minima por item para iniciar a etapa de analise sem abrir o escopo de execucao financeira."
+        title="Fila de solicitacoes"
+        description="Leitura consolidada das solicitacoes persistidas, mantendo compatibilidade com o modo hibrido mock/Prisma."
       >
         {!boardData.databaseEnabled ? (
           <div className="mb-4 rounded-[1.4rem] border border-[rgba(127,47,29,0.14)] bg-[rgba(127,47,29,0.08)] px-4 py-4 text-sm leading-6 text-[var(--color-danger)]">
-            A analise de solicitacoes exige `DATABASE_URL`. Sem banco, a fila
-            permanece disponivel apenas para leitura.
+            Sem `DATABASE_URL`, a fila continua disponivel para leitura com base
+            no mock. A criacao permanece indisponivel.
           </div>
         ) : null}
 
         <div className="grid gap-3">
-          {boardData.requests.map((request: ReleaseRequest) => {
-            const requestedAmount = request.items.reduce(
-              (total: number, item: ReleaseRequestItem) => total + item.requestedAmount,
-              0,
-            );
+          {boardData.requests.map((request) => {
             const approvedAmount = request.items.reduce(
-              (total: number, item: ReleaseRequestItem) => total + item.approvedAmount,
+              (total, item) => total + item.approvedAmount,
               0,
             );
-            const canReviewRequest = boardData.reviewableRequestIds.includes(request.id);
-            const reviewClosed =
-              request.status === "aprovada" ||
-              request.status === "aprovada_parcial" ||
-              request.status === "rejeitada" ||
-              request.status === "liberada" ||
-              request.status === "cancelada";
 
             return (
-              <div key={request.id} className="rounded-[1.5rem] border border-black/8 bg-white px-5 py-5 shadow-[0_16px_30px_rgba(17,32,47,0.06)]">
+              <div
+                key={request.id}
+                className="rounded-[1.5rem] border border-black/8 bg-white px-5 py-5 shadow-[0_16px_30px_rgba(17,32,47,0.06)]"
+              >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
                       {request.protocol}
                     </p>
                     <h2 className="text-xl font-semibold text-[var(--color-ink)]">
-                      {request.requestedBy}
+                      {request.releaseType.replaceAll("_", " ")}
                     </h2>
                     <p className="text-sm text-[var(--color-muted)]">
-                      Analista: {request.analyst ?? "pendente"}
+                      Criada por {request.requestedBy} • Periodo{" "}
+                      {formatCompetency(request.competencyStart)} a{" "}
+                      {formatCompetency(request.competencyEnd)}
                     </p>
                   </div>
                   <Badge tone={getRequestStatusTone(request.status)}>
@@ -106,7 +101,7 @@ export default async function ReleasesPage() {
                       Valor solicitado
                     </span>
                     <strong className="mt-2 block text-lg text-[var(--color-ink)]">
-                      {formatCurrency(requestedAmount)}
+                      {formatCurrency(request.requestedTotalAmount)}
                     </strong>
                   </div>
                   <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
@@ -127,19 +122,27 @@ export default async function ReleasesPage() {
                   </div>
                 </div>
 
-                <div className="mt-5 grid gap-4">
-                  {request.items.map((item: ReleaseRequestItem) => (
+                <div className="mt-5 space-y-2">
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
+                    Itens
+                  </h3>
+
+                  {request.items.map((item) => (
                     <div
                       key={item.id}
                       className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-4"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <h3 className="text-base font-semibold text-[var(--color-ink)]">
-                            {item.rubric}
-                          </h3>
+                          <h4 className="text-base font-semibold text-[var(--color-ink)]">
+                            {item.releaseRubric.replaceAll("_", " ")}
+                          </h4>
                           <p className="text-sm text-[var(--color-muted)]">
-                            Competencia {item.competency} • Empregado {item.employeeId}
+                            Competencia {formatCompetency(item.competencyRef)} •
+                            Empregado {item.employeeId}
+                          </p>
+                          <p className="mt-1 text-sm text-[var(--color-muted)]">
+                            Fato gerador em {formatDateLabel(item.factOccurredOn)}
                           </p>
                         </div>
                         <Badge tone={getItemDecisionTone(item.decision)}>
@@ -147,13 +150,21 @@ export default async function ReleasesPage() {
                         </Badge>
                       </div>
 
-                      <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      <div className="mt-4 grid gap-3 md:grid-cols-3">
                         <div>
                           <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
                             Solicitado
                           </span>
                           <strong className="mt-2 block text-base text-[var(--color-ink)]">
                             {formatCurrency(item.requestedAmount)}
+                          </strong>
+                        </div>
+                        <div>
+                          <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                            Validado
+                          </span>
+                          <strong className="mt-2 block text-base text-[var(--color-ink)]">
+                            {formatCurrency(item.validatedAmount)}
                           </strong>
                         </div>
                         <div>
@@ -166,12 +177,10 @@ export default async function ReleasesPage() {
                         </div>
                       </div>
 
-                      {boardData.databaseEnabled && canReviewRequest && !reviewClosed ? (
-                        <ReviewReleaseRequestForm
-                          requestId={request.id}
-                          itemId={item.id}
-                          requestedAmount={item.requestedAmount}
-                        />
+                      {item.calculationMemory?.notes ? (
+                        <p className="mt-4 text-sm leading-6 text-[var(--color-muted)]">
+                          {item.calculationMemory.notes}
+                        </p>
                       ) : null}
                     </div>
                   ))}
@@ -183,4 +192,12 @@ export default async function ReleasesPage() {
       </TableCard>
     </div>
   );
+}
+
+function formatDateLabel(value: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(value));
 }

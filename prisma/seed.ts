@@ -8,8 +8,8 @@ async function main() {
     update: {},
     create: {
       id: "tenant-jmu",
-      name: "Justiça Militar da União",
-      jurisdiction: "2ª Circunscrição Judiciária Militar",
+      name: "Justica Militar da Uniao",
+      jurisdiction: "2a Circunscricao Judiciaria Militar",
     },
   });
 
@@ -19,7 +19,7 @@ async function main() {
     create: {
       id: "org-2cjm",
       tenantId: tenant.id,
-      name: "2ª Circunscrição Judiciária Militar",
+      name: "2a Circunscricao Judiciaria Militar",
       code: "2CJM",
     },
   });
@@ -30,8 +30,8 @@ async function main() {
     create: {
       id: "company-atlas",
       tenantId: tenant.id,
-      legalName: "Atlas Serviços Integrados Ltda.",
-      tradeName: "Atlas Serviços",
+      legalName: "Atlas Servicos Integrados Ltda.",
+      tradeName: "Atlas Servicos",
       cnpj: "12.345.678/0001-90",
     },
   });
@@ -42,7 +42,7 @@ async function main() {
     create: {
       id: "company-vigil",
       tenantId: tenant.id,
-      legalName: "Vigil Prime Segurança Patrimonial S.A.",
+      legalName: "Vigil Prime Seguranca Patrimonial S.A.",
       tradeName: "Vigil Prime",
       cnpj: "98.765.432/0001-10",
     },
@@ -57,9 +57,9 @@ async function main() {
       organizationId: organization.id,
       companyId: atlas.id,
       code: "CT 07/2025",
-      name: "Apoio administrativo e recepção",
+      name: "Apoio administrativo e recepcao",
       object:
-        "Prestação continuada com dedicação exclusiva de mão de obra para recepção e apoio administrativo.",
+        "Prestacao continuada com dedicacao exclusiva de mao de obra para recepcao e apoio administrativo.",
       startDate: new Date("2025-02-01"),
       endDate: new Date("2027-01-31"),
       status: "ativo",
@@ -75,8 +75,8 @@ async function main() {
       organizationId: organization.id,
       companyId: vigil.id,
       code: "CT 12/2024",
-      name: "Vigilância armada e desarmada",
-      object: "Serviços continuados de vigilância armada e desarmada.",
+      name: "Vigilancia armada e desarmada",
+      object: "Servicos continuados de vigilancia armada e desarmada.",
       startDate: new Date("2024-08-01"),
       endDate: new Date("2026-07-31"),
       status: "ativo",
@@ -102,7 +102,7 @@ async function main() {
     create: {
       id: "bank-002",
       contractId: contractTwo.id,
-      bankName: "Caixa Econômica Federal",
+      bankName: "Caixa Economica Federal",
       branch: "0021",
       accountNumber: "778899-0",
       currentBalance: 232904.12,
@@ -191,7 +191,7 @@ async function main() {
       employeeId: "emp-001",
       contractId: contractOne.id,
       startDate: new Date("2025-02-01"),
-      costCenter: "Recepção",
+      costCenter: "Recepcao",
     },
   });
 
@@ -215,7 +215,7 @@ async function main() {
       employeeId: "emp-003",
       contractId: contractTwo.id,
       startDate: new Date("2024-08-01"),
-      costCenter: "Vigilância armada",
+      costCenter: "Vigilancia armada",
     },
   });
 
@@ -228,7 +228,7 @@ async function main() {
       contractId: contractTwo.id,
       startDate: new Date("2024-08-01"),
       endDate: new Date("2026-03-20"),
-      costCenter: "Vigilância desarmada",
+      costCenter: "Vigilancia desarmada",
     },
   });
 
@@ -272,14 +272,23 @@ async function main() {
   }
 
   const balances = [
-    ["pb-001", contractOne.id, "comp-2026-03-c1", "emp-001", "13º salário", 6840, 0, 1260],
-    ["pb-002", contractOne.id, "comp-2026-03-c1", "emp-001", "Férias + 1/3", 9120, 1560, 880],
-    ["pb-003", contractOne.id, "comp-2026-03-c1", "emp-002", "Férias + 1/3", 10830, 0, 2310],
-    ["pb-004", contractTwo.id, "comp-2026-03-c2", "emp-003", "13º salário", 7740, 0, 0],
+    ["pb-001", contractOne.id, "comp-2026-03-c1", "emp-001", "13o salario", 6840, 0, 1260],
+    ["pb-002", contractOne.id, "comp-2026-03-c1", "emp-001", "Ferias + 1/3", 9120, 1560, 880],
+    ["pb-003", contractOne.id, "comp-2026-03-c1", "emp-002", "Ferias + 1/3", 10830, 0, 2310],
+    ["pb-004", contractTwo.id, "comp-2026-03-c2", "emp-003", "13o salario", 7740, 0, 0],
     ["pb-005", contractTwo.id, "comp-2026-03-c2", "emp-004", "Multa FGTS", 3920, 3920, 0],
   ] as const;
 
-  for (const [id, contractId, competencyId, employeeId, rubric, balance, reservedAmount, releasedAmount] of balances) {
+  for (const [
+    id,
+    contractId,
+    competencyId,
+    employeeId,
+    rubric,
+    balance,
+    reservedAmount,
+    releasedAmount,
+  ] of balances) {
     await prisma.provisionBalance.upsert({
       where: { id },
       update: {},
@@ -297,14 +306,24 @@ async function main() {
   }
 
   const provisionEntries = [
-    ["pe-001", contractOne.id, "comp-2026-03-c1", "emp-001", "13º salário", parameterOne.id, 6840, 0, 1260],
-    ["pe-002", contractOne.id, "comp-2026-03-c1", "emp-001", "Férias + 1/3", parameterOne.id, 9120, 1560, 880],
-    ["pe-003", contractOne.id, "comp-2026-03-c1", "emp-002", "Férias + 1/3", parameterOne.id, 10830, 0, 2310],
-    ["pe-004", contractTwo.id, "comp-2026-03-c2", "emp-003", "13º salário", parameterTwo.id, 7740, 0, 0],
+    ["pe-001", contractOne.id, "comp-2026-03-c1", "emp-001", "13o salario", parameterOne.id, 6840, 0, 1260],
+    ["pe-002", contractOne.id, "comp-2026-03-c1", "emp-001", "Ferias + 1/3", parameterOne.id, 9120, 1560, 880],
+    ["pe-003", contractOne.id, "comp-2026-03-c1", "emp-002", "Ferias + 1/3", parameterOne.id, 10830, 0, 2310],
+    ["pe-004", contractTwo.id, "comp-2026-03-c2", "emp-003", "13o salario", parameterTwo.id, 7740, 0, 0],
     ["pe-005", contractTwo.id, "comp-2026-03-c2", "emp-004", "Multa FGTS", parameterTwo.id, 3920, 3920, 0],
   ] as const;
 
-  for (const [id, contractId, competencyId, employeeId, rubric, parameterVersionId, amount, reservedAmount, releasedAmount] of provisionEntries) {
+  for (const [
+    id,
+    contractId,
+    competencyId,
+    employeeId,
+    rubric,
+    parameterVersionId,
+    amount,
+    reservedAmount,
+    releasedAmount,
+  ] of provisionEntries) {
     await prisma.provisionEntry.upsert({
       where: { id },
       update: {},
@@ -331,9 +350,16 @@ async function main() {
       contractId: contractOne.id,
       companyId: atlas.id,
       protocol: "RR-2026-00018",
+      releaseType: "ferias",
       status: "em_analise",
       requestedByName: "Marina Gomes",
+      requestedByUserId: "user-002",
       analystName: "Felipe Costa",
+      factualBasis: "Ferias vencidas com concessao prevista para abril de 2026.",
+      competencyStart: "2026-03",
+      competencyEnd: "2026-03",
+      requestedTotalAmount: 1560,
+      notes: "Solicitacao seed para fila de analise.",
     },
   });
 
@@ -345,10 +371,17 @@ async function main() {
       contractId: contractTwo.id,
       companyId: vigil.id,
       protocol: "RR-2026-00021",
+      releaseType: "rescisao",
       status: "aprovada_parcial",
       requestedByName: "Priscila Moraes",
+      requestedByUserId: "user-001",
       analystName: "Guilherme Nunes",
       approverName: "Cap. Rodrigo Neves",
+      factualBasis: "Desligamento do empregado com verbas rescisorias e multa de FGTS.",
+      competencyStart: "2026-03",
+      competencyEnd: "2026-03",
+      requestedTotalAmount: 3920,
+      notes: "Solicitacao seed parcialmente aprovada.",
     },
   });
 
@@ -359,11 +392,22 @@ async function main() {
       id: "rr-item-001",
       releaseRequestId: requestOne.id,
       employeeId: "emp-001",
-      rubric: "Férias + 1/3",
+      releaseRubric: "ferias",
       competencyRef: "2026-03",
+      allocationStartDate: new Date("2025-02-01"),
+      employmentStartDate: new Date("2024-03-10"),
+      factOccurredOn: new Date("2026-03-15"),
+      calculationMemory: {
+        baseAmount: 1170,
+        proportionalFraction: 1,
+        referenceMonths: 12,
+        notes: "Ferias vencidas no periodo com base integral.",
+      },
       requestedAmount: 1560,
+      validatedAmount: 1560,
       approvedAmount: 0,
       decision: "pendente",
+      notes: "Item seed em analise.",
     },
   });
 
@@ -374,11 +418,23 @@ async function main() {
       id: "rr-item-002",
       releaseRequestId: requestTwo.id,
       employeeId: "emp-004",
-      rubric: "Multa FGTS",
+      releaseRubric: "multa_fgts_rescisoria",
       competencyRef: "2026-03",
+      allocationStartDate: new Date("2024-08-01"),
+      allocationEndDate: new Date("2026-03-20"),
+      employmentStartDate: new Date("2024-08-14"),
+      factOccurredOn: new Date("2026-03-20"),
+      calculationMemory: {
+        baseAmount: 3920,
+        proportionalFraction: 1,
+        referenceMonths: 19,
+        notes: "Multa rescisoria com memoria validada parcialmente.",
+      },
       requestedAmount: 3920,
+      validatedAmount: 3920,
       approvedAmount: 3650,
       decision: "aprovado_parcial",
+      notes: "Glosa parcial aplicada em analise.",
     },
   });
 
@@ -408,8 +464,17 @@ async function main() {
     ["rec-001", contractOne.id, "comp-2026-03-c1", 148320.48, 142990, 1560, 2827.3, 943.18, "nao_explicada"],
     ["rec-002", contractTwo.id, "comp-2026-03-c2", 232904.12, 230810, 3650, 444.12, 0, "explicada"],
   ] as const) {
-    const [id, contractId, competencyId, bankBalance, provisionBalance, approvedPendingExecution, explainedDifference, unexplainedDifference, differenceType] =
-      reconciliation;
+    const [
+      id,
+      contractId,
+      competencyId,
+      bankBalance,
+      provisionBalance,
+      approvedPendingExecution,
+      explainedDifference,
+      unexplainedDifference,
+      differenceType,
+    ] = reconciliation;
 
     await prisma.bankReconciliation.upsert({
       where: { id },
@@ -435,6 +500,7 @@ async function main() {
     ["user-004", "Henrique Dias", "henrique.dias@jmu.mil.br", "Auditoria interna", "Leitura institucional"],
   ] as const) {
     const [id, name, email, role, scope] = user;
+
     await prisma.user.upsert({
       where: { id },
       update: {},
@@ -451,11 +517,36 @@ async function main() {
   }
 
   for (const audit of [
-    ["audit-001", contractOne.id, "user-002", "Felipe Costa", "Solicitação em exigência", "release_request", "Folha da competência 03/2026 não anexada. Pedido devolvido para complementação."],
-    ["audit-002", contractTwo.id, "user-001", "Cap. Rodrigo Neves", "Aprovação parcial", "release_request_item", "Glosa de R$ 270,00 por divergência em memória de cálculo da multa FGTS."],
-    ["audit-003", contractTwo.id, "user-001", "Beatriz Campos", "Reabertura de competência", "competency", "Competência 03/2026 reaberta para reprocessamento após desligamento retroativo."],
+    [
+      "audit-001",
+      contractOne.id,
+      "user-002",
+      "Felipe Costa",
+      "Solicitacao em exigencia",
+      "release_request",
+      "Folha da competencia 03/2026 nao anexada. Pedido devolvido para complementacao.",
+    ],
+    [
+      "audit-002",
+      contractTwo.id,
+      "user-001",
+      "Cap. Rodrigo Neves",
+      "Aprovacao parcial",
+      "release_request_item",
+      "Glosa de R$ 270,00 por divergencia em memoria de calculo da multa FGTS.",
+    ],
+    [
+      "audit-003",
+      contractTwo.id,
+      "user-001",
+      "Beatriz Campos",
+      "Reabertura de competencia",
+      "competency",
+      "Competencia 03/2026 reaberta para reprocessamento apos desligamento retroativo.",
+    ],
   ] as const) {
     const [id, contractId, userId, actorName, action, entity, details] = audit;
+
     await prisma.auditLog.upsert({
       where: { id },
       update: {},

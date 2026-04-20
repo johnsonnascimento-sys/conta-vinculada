@@ -2,102 +2,93 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { validateCreateReleaseRequestInput } from "@/server/commands/releases/create-release-request.validation";
 
+function buildValidInput() {
+  return {
+    contractId: "c-2cjm-001",
+    releaseType: "ferias" as const,
+    factualBasis: "Ferias vencidas com programacao para abril.",
+    competencyStart: "2026-03",
+    competencyEnd: "2026-03",
+    requestedTotalAmount: 1560,
+    items: [
+      {
+        employeeId: "emp-001",
+        releaseRubric: "ferias" as const,
+        competencyRef: "2026-03",
+        employmentStartDate: "2024-03-10",
+        allocationStartDate: "2025-02-01",
+        factOccurredOn: "2026-03-15",
+        requestedAmount: 1560,
+        calculationMemory: {
+          notes: "Base integral da competencia.",
+        },
+      },
+    ],
+  };
+}
+
 test("validateCreateReleaseRequestInput rejects missing contract", () => {
-  const result = validateCreateReleaseRequestInput({
-    contractId: "",
-    employeeId: "emp-001",
-    competency: "2026-03",
-    rubric: "Ferias + 1/3",
-    requestedAmount: 1560,
-  });
+  const input = buildValidInput();
+  input.contractId = "";
+
+  const result = validateCreateReleaseRequestInput(input);
 
   assert.equal(result.valid, false);
   assert.equal(result.fieldErrors.contractId, "Selecione um contrato.");
 });
 
 test("validateCreateReleaseRequestInput rejects missing employee", () => {
-  const result = validateCreateReleaseRequestInput({
-    contractId: "c-2cjm-001",
-    employeeId: "",
-    competency: "2026-03",
-    rubric: "Ferias + 1/3",
-    requestedAmount: 1560,
-  });
+  const input = buildValidInput();
+  input.items[0].employeeId = "";
+
+  const result = validateCreateReleaseRequestInput(input);
 
   assert.equal(result.valid, false);
-  assert.equal(result.fieldErrors.employeeId, "Selecione um empregado.");
+  assert.equal(result.fieldErrors.itemErrors?.[0]?.employeeId, "Selecione um empregado.");
 });
 
 test("validateCreateReleaseRequestInput rejects invalid competency", () => {
-  const result = validateCreateReleaseRequestInput({
-    contractId: "c-2cjm-001",
-    employeeId: "emp-001",
-    competency: "03/2026",
-    rubric: "Ferias + 1/3",
-    requestedAmount: 1560,
-  });
+  const input = buildValidInput();
+  input.items[0].competencyRef = "03/2026";
+
+  const result = validateCreateReleaseRequestInput(input);
 
   assert.equal(result.valid, false);
   assert.equal(
-    result.fieldErrors.competency,
-    "Informe a competencia no formato AAAA-MM.",
+    result.fieldErrors.itemErrors?.[0]?.competencyRef,
+    "Informe a competência do item no formato AAAA-MM.",
   );
 });
 
 test("validateCreateReleaseRequestInput rejects empty rubric", () => {
-  const result = validateCreateReleaseRequestInput({
-    contractId: "c-2cjm-001",
-    employeeId: "emp-001",
-    competency: "2026-03",
-    rubric: "",
-    requestedAmount: 1560,
-  });
+  const input = buildValidInput();
+  input.items[0].releaseRubric = "" as never;
 
-  assert.equal(result.valid, false);
-  assert.equal(result.fieldErrors.rubric, "Informe a rubrica.");
-});
-
-test("validateCreateReleaseRequestInput rejects invalid amount", () => {
-  const result = validateCreateReleaseRequestInput({
-    contractId: "c-2cjm-001",
-    employeeId: "emp-001",
-    competency: "2026-03",
-    rubric: "Ferias + 1/3",
-    requestedAmount: 0,
-  });
+  const result = validateCreateReleaseRequestInput(input);
 
   assert.equal(result.valid, false);
   assert.equal(
-    result.fieldErrors.requestedAmount,
+    result.fieldErrors.itemErrors?.[0]?.releaseRubric,
+    "Selecione uma rubrica compatível com o tipo de liberação.",
+  );
+});
+
+test("validateCreateReleaseRequestInput rejects invalid amount", () => {
+  const input = buildValidInput();
+  input.items[0].requestedAmount = 0;
+  input.requestedTotalAmount = 0;
+
+  const result = validateCreateReleaseRequestInput(input);
+
+  assert.equal(result.valid, false);
+  assert.equal(
+    result.fieldErrors.itemErrors?.[0]?.requestedAmount,
     "Informe um valor solicitado maior que zero.",
   );
 });
 
-test("validateCreateReleaseRequestInput rejects empty required fields together", () => {
-  const result = validateCreateReleaseRequestInput({
-    contractId: "",
-    employeeId: "",
-    competency: "",
-    rubric: "",
-    requestedAmount: 0,
-  });
-
-  assert.equal(result.valid, false);
-  assert.equal(result.fieldErrors.contractId, "Selecione um contrato.");
-  assert.equal(result.fieldErrors.employeeId, "Selecione um empregado.");
-  assert.equal(result.fieldErrors.competency, "Informe a competencia no formato AAAA-MM.");
-  assert.equal(result.fieldErrors.rubric, "Informe a rubrica.");
-  assert.equal(result.fieldErrors.requestedAmount, "Informe um valor solicitado maior que zero.");
-});
-
-test("validateCreateReleaseRequestInput accepts a minimal valid payload", () => {
-  const result = validateCreateReleaseRequestInput({
-    contractId: "c-2cjm-001",
-    employeeId: "emp-001",
-    competency: "2026-03",
-    rubric: "Ferias + 1/3",
-    requestedAmount: 1560,
-  });
+test("validateCreateReleaseRequestInput accepts a valid payload", () => {
+  const result = validateCreateReleaseRequestInput(buildValidInput());
 
   assert.equal(result.valid, true);
   assert.deepEqual(result.fieldErrors, {});

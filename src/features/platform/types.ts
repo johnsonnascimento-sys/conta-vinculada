@@ -57,6 +57,19 @@ export type ReleaseItemDecision =
   | "aprovado_parcial"
   | "glosado";
 
+export type ReleaseType = "ferias" | "decimo_terceiro" | "rescisao";
+
+export type ReleaseRubric =
+  | "ferias"
+  | "terco_constitucional_ferias"
+  | "encargos_ferias"
+  | "decimo_terceiro"
+  | "encargos_decimo_terceiro"
+  | "ferias_proporcionais"
+  | "decimo_terceiro_proporcional"
+  | "multa_fgts_rescisoria"
+  | "encargos_rescisorios";
+
 export interface Tenant {
   id: string;
   name: string;
@@ -152,12 +165,27 @@ export interface BankEntry {
 
 export interface ReleaseRequestItem {
   id: string;
+  releaseRequestId: string;
   employeeId: string;
-  rubric: string;
-  competency: string;
+  releaseRubric: ReleaseRubric;
+  competencyRef: string;
+  allocationStartDate: string;
+  allocationEndDate?: string;
+  employmentStartDate: string;
+  factOccurredOn: string;
+  calculationMemory?: {
+    baseAmount?: number;
+    proportionalFraction?: number;
+    referenceMonths?: number;
+    notes?: string;
+  };
   requestedAmount: number;
+  validatedAmount: number;
   approvedAmount: number;
   decision: ReleaseItemDecision;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ReleaseRequest {
@@ -165,11 +193,19 @@ export interface ReleaseRequest {
   contractId: string;
   companyId: string;
   protocol: string;
+  releaseType: ReleaseType;
   status: ReleaseRequestStatus;
   createdAt: string;
+  updatedAt: string;
   requestedBy: string;
+  requestedByUserId?: string;
   analyst?: string;
   approver?: string;
+  factualBasis: string;
+  competencyStart: string;
+  competencyEnd: string;
+  requestedTotalAmount: number;
+  notes?: string;
   items: ReleaseRequestItem[];
   requiredDocuments: DocumentKind[];
   missingDocuments: DocumentKind[];

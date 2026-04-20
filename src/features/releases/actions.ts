@@ -5,6 +5,7 @@ import { createReleaseRequest } from "@/server/commands/releases/create-release-
 import { reviewReleaseRequest } from "@/server/commands/releases/review-release-request";
 import type {
   CreateReleaseRequestActionState,
+  CreateReleaseRequestItemInput,
   ReviewReleaseRequestActionState,
   ReviewReleaseRequestDecision,
 } from "@/features/releases/types";
@@ -13,16 +14,34 @@ export async function createReleaseRequestAction(
   _: CreateReleaseRequestActionState,
   formData: FormData,
 ): Promise<CreateReleaseRequestActionState> {
-  const requestedAmount = Number(
-    String(formData.get("requestedAmount") ?? "").replace(",", "."),
-  );
+  let items: CreateReleaseRequestItemInput[] = [];
+
+  try {
+    const rawItems = String(formData.get("itemsPayload") ?? "[]");
+    const parsed = JSON.parse(rawItems);
+    items = Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return {
+      status: "error",
+      code: "validation_error",
+      message: "Não foi possível interpretar os itens da solicitação.",
+      fieldErrors: {
+        items: "Revise os itens informados antes de enviar a solicitação.",
+      },
+    };
+  }
 
   const result = await createReleaseRequest({
     contractId: String(formData.get("contractId") ?? "").trim(),
-    employeeId: String(formData.get("employeeId") ?? "").trim(),
-    competency: String(formData.get("competency") ?? "").trim(),
-    rubric: String(formData.get("rubric") ?? "").trim(),
-    requestedAmount,
+    releaseType: String(formData.get("releaseType") ?? "").trim() as never,
+    factualBasis: String(formData.get("factualBasis") ?? "").trim(),
+    competencyStart: String(formData.get("competencyStart") ?? "").trim(),
+    competencyEnd: String(formData.get("competencyEnd") ?? "").trim(),
+    requestedTotalAmount: Number(
+      String(formData.get("requestedTotalAmount") ?? "").replace(",", "."),
+    ),
+    notes: String(formData.get("notes") ?? "").trim(),
+    items,
   });
 
   if (!result.ok) {
@@ -40,7 +59,7 @@ export async function createReleaseRequestAction(
 
   return {
     status: "success",
-    message: `Solicitação ${result.data.protocol} criada em elaboração.`,
+    message: `Solicitação ${result.data.protocol} enviada com ${result.data.itemCount} item(ns).`,
     data: result.data,
   };
 }

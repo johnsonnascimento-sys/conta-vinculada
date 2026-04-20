@@ -1,5 +1,3 @@
-import "server-only";
-
 import type { Prisma } from "@prisma/client";
 import { getCurrentUser } from "@/features/auth/queries";
 import type {
@@ -28,7 +26,7 @@ type PersistedApprovalDecision =
 
 type ReviewableItemRecord = {
   id: string;
-  rubric: string;
+  releaseRubric: string;
   competencyRef: string;
   requestedAmount: { toNumber(): number };
   approvedAmount: { toNumber(): number };
@@ -191,7 +189,7 @@ export async function reviewReleaseRequest(
           items: {
             select: {
               id: true,
-              rubric: true,
+              releaseRubric: true,
               competencyRef: true,
               requestedAmount: true,
               approvedAmount: true,
@@ -321,7 +319,7 @@ export async function reviewReleaseRequest(
           },
           details:
             normalizedInput.notes ||
-            `Decisão ${normalizedInput.decision} registrada para ${item.rubric} na competência ${item.competencyRef}.`,
+            `Decisão ${normalizedInput.decision} registrada para ${item.releaseRubric} na competência ${item.competencyRef}.`,
         },
       });
 

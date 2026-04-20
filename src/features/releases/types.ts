@@ -1,9 +1,130 @@
+import type {
+  ReleaseRequest,
+  ReleaseRequestStatus,
+  ReleaseRubric,
+  ReleaseType,
+} from "@/features/platform/types";
+
+export interface CreateReleaseRequestItemInput {
+  employeeId: string;
+  releaseRubric: ReleaseRubric;
+  competencyRef: string;
+  employmentStartDate: string;
+  allocationStartDate: string;
+  allocationEndDate?: string;
+  factOccurredOn: string;
+  calculationMemory?: {
+    baseAmount?: number;
+    proportionalFraction?: number;
+    referenceMonths?: number;
+    notes?: string;
+  };
+  requestedAmount: number;
+  notes?: string;
+}
+
 export interface CreateReleaseRequestInput {
   contractId: string;
-  employeeId: string;
-  competency: string;
-  rubric: string;
-  requestedAmount: number;
+  releaseType: ReleaseType;
+  factualBasis: string;
+  competencyStart: string;
+  competencyEnd: string;
+  requestedTotalAmount: number;
+  notes?: string;
+  items: CreateReleaseRequestItemInput[];
+}
+
+export interface CreateReleaseRequestItemFieldErrors {
+  employeeId?: string;
+  releaseRubric?: string;
+  competencyRef?: string;
+  employmentStartDate?: string;
+  allocationStartDate?: string;
+  allocationEndDate?: string;
+  factOccurredOn?: string;
+  requestedAmount?: string;
+  calculationMemory?: string;
+  notes?: string;
+}
+
+export interface CreateReleaseRequestFieldErrors {
+  contractId?: string;
+  releaseType?: string;
+  factualBasis?: string;
+  competencyStart?: string;
+  competencyEnd?: string;
+  requestedTotalAmount?: string;
+  notes?: string;
+  items?: string;
+  itemErrors?: Record<number, CreateReleaseRequestItemFieldErrors>;
+}
+
+export interface CreateReleaseRequestSuccess {
+  releaseRequestId: string;
+  protocol: string;
+  status: "enviada";
+  releaseType: ReleaseType;
+  contractId: string;
+  companyId: string;
+  competencyStart: string;
+  competencyEnd: string;
+  requestedTotalAmount: number;
+  itemCount: number;
+  createdAt: string;
+}
+
+export type CreateReleaseRequestErrorCode =
+  | "validation_error"
+  | "unauthorized"
+  | "database_unavailable"
+  | "not_found"
+  | "duplicate_request"
+  | "unexpected_error";
+
+export type CreateReleaseRequestCommandResult =
+  | {
+      ok: true;
+      data: CreateReleaseRequestSuccess;
+    }
+  | {
+      ok: false;
+      code: CreateReleaseRequestErrorCode;
+      message: string;
+      fieldErrors?: CreateReleaseRequestFieldErrors;
+    };
+
+export interface CreateReleaseRequestActionState {
+  status: "idle" | "success" | "error";
+  code?: CreateReleaseRequestErrorCode;
+  message?: string;
+  fieldErrors?: CreateReleaseRequestFieldErrors;
+  data?: CreateReleaseRequestSuccess;
+}
+
+export interface ReleaseRequestCreationContractOption {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface ReleaseRequestCreationEmployeeOption {
+  id: string;
+  name: string;
+  role: string;
+  admissionDate: string;
+  allocationStartDate: string;
+  allocationEndDate?: string;
+}
+
+export interface ReleaseRequestCreationOptions {
+  contracts: ReleaseRequestCreationContractOption[];
+  employeesByContract: Record<string, ReleaseRequestCreationEmployeeOption[]>;
+  databaseEnabled: boolean;
+}
+
+export interface ReleaseRequestsBoardData {
+  requests: ReleaseRequest[];
+  databaseEnabled: boolean;
 }
 
 export type ReviewReleaseRequestDecision =
@@ -19,32 +140,12 @@ export interface ReviewReleaseRequestInput {
   notes: string;
 }
 
-export interface CreateReleaseRequestFieldErrors {
-  contractId?: string;
-  employeeId?: string;
-  competency?: string;
-  rubric?: string;
-  requestedAmount?: string;
-}
-
 export interface ReviewReleaseRequestFieldErrors {
   requestId?: string;
   itemId?: string;
   decision?: string;
   approvedAmount?: string;
   notes?: string;
-}
-
-export interface CreateReleaseRequestSuccess {
-  releaseRequestId: string;
-  protocol: string;
-  status: "em_elaboracao";
-  contractId: string;
-  employeeId: string;
-  competency: string;
-  rubric: string;
-  requestedAmount: number;
-  createdAt: string;
 }
 
 export interface ReviewReleaseRequestSuccess {
@@ -62,13 +163,6 @@ export interface ReviewReleaseRequestSuccess {
   decidedAt: string;
 }
 
-export type CreateReleaseRequestErrorCode =
-  | "validation_error"
-  | "unauthorized"
-  | "database_unavailable"
-  | "not_found"
-  | "unexpected_error";
-
 export type ReviewReleaseRequestErrorCode =
   | "validation_error"
   | "unauthorized"
@@ -76,18 +170,6 @@ export type ReviewReleaseRequestErrorCode =
   | "not_found"
   | "invalid_state"
   | "unexpected_error";
-
-export type CreateReleaseRequestCommandResult =
-  | {
-      ok: true;
-      data: CreateReleaseRequestSuccess;
-    }
-  | {
-      ok: false;
-      code: CreateReleaseRequestErrorCode;
-      message: string;
-      fieldErrors?: CreateReleaseRequestFieldErrors;
-    };
 
 export type ReviewReleaseRequestCommandResult =
   | {
@@ -101,14 +183,6 @@ export type ReviewReleaseRequestCommandResult =
       fieldErrors?: ReviewReleaseRequestFieldErrors;
     };
 
-export interface CreateReleaseRequestActionState {
-  status: "idle" | "success" | "error";
-  code?: CreateReleaseRequestErrorCode;
-  message?: string;
-  fieldErrors?: CreateReleaseRequestFieldErrors;
-  data?: CreateReleaseRequestSuccess;
-}
-
 export interface ReviewReleaseRequestActionState {
   status: "idle" | "success" | "error";
   code?: ReviewReleaseRequestErrorCode;
@@ -117,27 +191,8 @@ export interface ReviewReleaseRequestActionState {
   data?: ReviewReleaseRequestSuccess;
 }
 
-export interface ReleaseRequestCreationContractOption {
+export interface OpenReleaseRequestDuplicate {
   id: string;
-  code: string;
-  name: string;
+  status: ReleaseRequestStatus;
+  matchingItemCount: number;
 }
-
-export interface ReleaseRequestCreationEmployeeOption {
-  id: string;
-  name: string;
-  role: string;
-}
-
-export interface ReleaseRequestCreationOptions {
-  contracts: ReleaseRequestCreationContractOption[];
-  employeesByContract: Record<string, ReleaseRequestCreationEmployeeOption[]>;
-  databaseEnabled: boolean;
-}
-
-export interface ReleaseRequestsBoardData {
-  requests: ReleaseRequest[];
-  databaseEnabled: boolean;
-  reviewableRequestIds: string[];
-}
-import type { ReleaseRequest } from "@/features/platform/types";

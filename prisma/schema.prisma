@@ -254,10 +254,17 @@ model ReleaseRequest {
   contractId        String
   companyId         String
   protocol          String               @unique
+  releaseType       ReleaseType
   status            ReleaseRequestStatus
   requestedByName   String
+  requestedByUserId String?
   analystName       String?
   approverName      String?
+  factualBasis      String
+  competencyStart   String
+  competencyEnd     String
+  requestedTotalAmount Decimal           @db.Decimal(12, 2)
+  notes             String?
   contract          Contract             @relation(fields: [contractId], references: [id], onDelete: Cascade)
   company           Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
   items             ReleaseRequestItem[]
@@ -272,11 +279,18 @@ model ReleaseRequestItem {
   id               String              @id @default(cuid())
   releaseRequestId String
   employeeId       String
-  rubric           String
+  releaseRubric    ReleaseRubric
   competencyRef    String
+  allocationStartDate DateTime
+  allocationEndDate   DateTime?
+  employmentStartDate DateTime
+  factOccurredOn      DateTime
+  calculationMemory   Json?
   requestedAmount  Decimal             @db.Decimal(12, 2)
+  validatedAmount  Decimal             @db.Decimal(12, 2)
   approvedAmount   Decimal             @db.Decimal(12, 2) @default(0)
   decision         ReleaseItemDecision
+  notes            String?
   releaseRequest   ReleaseRequest      @relation(fields: [releaseRequestId], references: [id], onDelete: Cascade)
   employee         Employee            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   createdAt        DateTime            @default(now())
@@ -434,6 +448,24 @@ enum ReleaseItemDecision {
   aprovado
   aprovado_parcial
   glosado
+}
+
+enum ReleaseType {
+  ferias
+  decimo_terceiro
+  rescisao
+}
+
+enum ReleaseRubric {
+  ferias
+  terco_constitucional_ferias
+  encargos_ferias
+  decimo_terceiro
+  encargos_decimo_terceiro
+  ferias_proporcionais
+  decimo_terceiro_proporcional
+  multa_fgts_rescisoria
+  encargos_rescisorios
 }
 
 enum ProvisionSourceType {

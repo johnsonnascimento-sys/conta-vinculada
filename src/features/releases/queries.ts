@@ -5,10 +5,7 @@ import {
   getReleaseRequests,
 } from "@/server/repositories/platform.repository";
 import { getCurrentUser } from "@/features/auth/queries";
-import {
-  canInitiateReleaseRequest,
-  canReviewReleaseRequest,
-} from "@/features/releases/policy";
+import { canInitiateReleaseRequest } from "@/features/releases/policy";
 import { isDatabaseEnabled } from "@/server/db/prisma";
 import type {
   Contract,
@@ -21,29 +18,9 @@ import type {
 } from "@/features/releases/types";
 
 export async function getReleaseRequestsBoardData(): Promise<ReleaseRequestsBoardData> {
-  const [requests, contracts, user] = await Promise.all([
-    getReleaseRequests(),
-    getContracts(),
-    getCurrentUser(),
-  ]);
-
-  const contractCodeById = new Map(
-    contracts.map((contract: Contract) => [contract.id, contract.code]),
-  );
-
   return {
-    requests,
+    requests: await getReleaseRequests(),
     databaseEnabled: isDatabaseEnabled(),
-    reviewableRequestIds: user
-      ? requests
-          .filter((request) => {
-            const contractCode = contractCodeById.get(request.contractId);
-            return contractCode
-              ? canReviewReleaseRequest(user, contractCode)
-              : false;
-          })
-          .map((request) => request.id)
-      : [],
   };
 }
 
@@ -56,7 +33,9 @@ export async function getReleaseRequestCreationOptions(): Promise<ReleaseRequest
   ]);
 
   const allowedContracts = user
-    ? contracts.filter((contract: Contract) => canInitiateReleaseRequest(user, contract.code))
+    ? contracts.filter((contract: Contract) =>
+        canInitiateReleaseRequest(user, contract.code),
+      )
     : [];
   const allowedContractIds = new Set(allowedContracts.map((contract) => contract.id));
 
@@ -84,11 +63,16 @@ export async function getReleaseRequestCreationOptions(): Promise<ReleaseRequest
 
       accumulator[allocation.contractId] ??= [];
 
-      if (!accumulator[allocation.contractId].some((item) => item.id === employee.id)) {
+      if (
+        !accumulator[allocation.contractId].some((item) => item.id === employee.id)
+      ) {
         accumulator[allocation.contractId].push({
           id: employee.id,
           name: employee.name,
           role: employee.role,
+          admissionDate: employee.admissionDate,
+          allocationStartDate: allocation.startDate,
+          allocationEndDate: allocation.endDate,
         });
       }
 

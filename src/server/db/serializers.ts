@@ -11,6 +11,29 @@ import type {
   ReleaseRequest,
   Tenant,
 } from "@/features/platform/types";
+import { getExpectedDocumentsForReleaseType } from "@/features/releases/rules";
+
+function serializeCalculationMemory(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return undefined;
+  }
+
+  const record = value as Record<string, unknown>;
+
+  return {
+    baseAmount:
+      typeof record.baseAmount === "number" ? record.baseAmount : undefined,
+    proportionalFraction:
+      typeof record.proportionalFraction === "number"
+        ? record.proportionalFraction
+        : undefined,
+    referenceMonths:
+      typeof record.referenceMonths === "number"
+        ? record.referenceMonths
+        : undefined,
+    notes: typeof record.notes === "string" ? record.notes : undefined,
+  };
+}
 
 export function serializeTenant(tenant: {
   id: string;
@@ -132,44 +155,84 @@ export function serializeReleaseRequest(request: {
   contractId: string;
   companyId: string;
   protocol: string;
+  releaseType: ReleaseRequest["releaseType"];
   status: ReleaseRequest["status"];
-  createdAt: Date;
   requestedByName: string;
+  requestedByUserId: string | null;
   analystName: string | null;
   approverName: string | null;
+  factualBasis: string;
+  competencyStart: string;
+  competencyEnd: string;
+  requestedTotalAmount: { toNumber(): number };
+  notes: string | null;
+  createdAt: Date;
+  updatedAt: Date;
   items: Array<{
     id: string;
+    releaseRequestId: string;
     employeeId: string;
-    rubric: string;
+    releaseRubric: ReleaseRequest["items"][number]["releaseRubric"];
     competencyRef: string;
+    allocationStartDate: Date;
+    allocationEndDate: Date | null;
+    employmentStartDate: Date;
+    factOccurredOn: Date;
+    calculationMemory: unknown;
     requestedAmount: { toNumber(): number };
+    validatedAmount: { toNumber(): number };
     approvedAmount: { toNumber(): number };
     decision: ReleaseRequest["items"][number]["decision"];
+    notes: string | null;
+    createdAt: Date;
+    updatedAt: Date;
   }>;
   documents: Array<{ kind: ReleaseRequest["requiredDocuments"][number] }>;
 }): ReleaseRequest {
-  const requiredDocuments = [...new Set(request.documents.map((item) => item.kind))];
+  const providedDocuments = [...new Set(request.documents.map((item) => item.kind))];
+  const requiredDocuments = getExpectedDocumentsForReleaseType(request.releaseType);
+  const missingDocuments = requiredDocuments.filter(
+    (kind) => !providedDocuments.includes(kind),
+  );
 
   return {
     id: request.id,
     contractId: request.contractId,
     companyId: request.companyId,
     protocol: request.protocol,
+    releaseType: request.releaseType,
     status: request.status,
     createdAt: request.createdAt.toISOString(),
+    updatedAt: request.updatedAt.toISOString(),
     requestedBy: request.requestedByName,
+    requestedByUserId: request.requestedByUserId ?? undefined,
     analyst: request.analystName ?? undefined,
     approver: request.approverName ?? undefined,
+    factualBasis: request.factualBasis,
+    competencyStart: request.competencyStart,
+    competencyEnd: request.competencyEnd,
+    requestedTotalAmount: request.requestedTotalAmount.toNumber(),
+    notes: request.notes ?? undefined,
     requiredDocuments,
-    missingDocuments: [],
+    missingDocuments,
     items: request.items.map((item) => ({
       id: item.id,
+      releaseRequestId: item.releaseRequestId,
       employeeId: item.employeeId,
-      rubric: item.rubric,
-      competency: item.competencyRef,
+      releaseRubric: item.releaseRubric,
+      competencyRef: item.competencyRef,
+      allocationStartDate: item.allocationStartDate.toISOString().slice(0, 10),
+      allocationEndDate: item.allocationEndDate?.toISOString().slice(0, 10),
+      employmentStartDate: item.employmentStartDate.toISOString().slice(0, 10),
+      factOccurredOn: item.factOccurredOn.toISOString().slice(0, 10),
+      calculationMemory: serializeCalculationMemory(item.calculationMemory),
       requestedAmount: item.requestedAmount.toNumber(),
+      validatedAmount: item.validatedAmount.toNumber(),
       approvedAmount: item.approvedAmount.toNumber(),
       decision: item.decision,
+      notes: item.notes ?? undefined,
+      createdAt: item.createdAt.toISOString(),
+      updatedAt: item.updatedAt.toISOString(),
     })),
   };
 }

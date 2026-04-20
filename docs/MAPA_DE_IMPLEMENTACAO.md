@@ -64,8 +64,9 @@ Fora de escopo neste ciclo:
 
 ### Épico 5: Exposição controlada no app
 
-- [ ] Conectar a UI existente ao fluxo persistido.
-- [ ] Atualizar consultas e telas impactadas pelo novo dado transacional.
+- [x] Conectar a UI existente ao fluxo persistido.
+- [x] Atualizar consultas e telas impactadas pelo novo dado transacional.
+- [x] Consolidar a leitura documental da solicitação com distinção entre documentos esperados na etapa atual, pendências atuais e documentos previstos para etapa posterior.
 - [ ] Evitar duplicar regra entre página, API e comando.
 - [ ] Se houver rota HTTP nova, manter a mesma regra de negócio centralizada no servidor.
 

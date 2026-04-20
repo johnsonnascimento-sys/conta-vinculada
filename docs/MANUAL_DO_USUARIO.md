@@ -205,14 +205,30 @@ Funcionalmente, o usuário deve entender o fluxo assim:
 
 ### 8.5 Pendências documentais e acompanhamento
 
-O sistema já indica documentos obrigatórios e pendências documentais na leitura das solicitações. Isso ajuda o usuário a perceber se a instrução do pedido ainda está incompleta.
+O sistema passou a organizar a leitura documental da solicitação por etapa do fluxo. Isso ajuda o usuário a perceber com mais clareza o que já deveria estar instruído agora e o que só será exigido em momento posterior.
 
 Neste momento do projeto:
 
-- o acompanhamento das pendências existe na leitura;
+- a fila e o detalhe do contrato mostram os documentos esperados na etapa atual;
+- a fila e o detalhe do contrato mostram as pendências documentais da etapa atual;
+- o sistema também pode indicar documentos previstos para etapa posterior, como operação bancária ou encerramento;
 - o upload e a gestão completa de documentos ainda não estão concluídos.
 
-O usuário deve usar essa informação como sinalização operacional de acompanhamento.
+Na prática, o usuário deve interpretar essa leitura assim:
+
+- `Documentos esperados nesta etapa`: conjunto mínimo de documentos que a solicitação já deveria apresentar no estágio atual;
+- `Pendências documentais desta etapa`: documentos ainda faltantes para a etapa atual;
+- `Documentos previstos para etapa posterior`: documentos ligados a fases futuras, que ainda não entram como pendência imediata.
+
+Quando disponível, essa leitura também aparece agrupada por natureza do documento, como:
+
+- fato gerador;
+- cálculo;
+- quitação;
+- operação;
+- encerramento.
+
+O usuário deve usar essa informação como sinalização operacional de acompanhamento, e não como substituto da gestão documental completa.
 
 ### 8.6 Análise e decisão por item
 
@@ -405,7 +421,11 @@ Sim. O formulário permite adicionar mais de um item.
 
 ### O que significa pendência documental?
 
-É a indicação de que a solicitação ainda demanda comprovação obrigatória esperada para o pedido.
+É a indicação de que a solicitação ainda demanda documento esperado para a etapa atual do pedido.
+
+### O que significa “documento previsto para etapa posterior”?
+
+É um documento que o sistema já reconhece como parte do fluxo, mas que ainda não é tratado como pendência imediata naquele estágio da solicitação.
 
 ### O sistema já faz a execução financeira completa?
 
@@ -428,6 +448,6 @@ Hoje ele serve principalmente para leitura e acompanhamento das diferenças.
 - `Solicitação de liberação`: pedido registrado no sistema para liberar valores ligados ao contrato.
 - `Rubrica`: natureza da verba registrada em um item da solicitação.
 - `Fato gerador`: evento que justifica o pedido, como férias, décimo terceiro ou rescisão.
-- `Pendência documental`: indicação de documento esperado que ainda não está considerado completo na leitura do pedido.
+- `Pendência documental`: indicação de documento esperado para a etapa atual que ainda não está considerado completo na leitura do pedido.
 - `Conciliação`: comparação entre valores bancários e valores gerenciais.
 - `Auditoria`: histórico de eventos relevantes do sistema.

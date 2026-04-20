@@ -14,6 +14,7 @@ import type {
   ReleaseRequest,
   Tenant,
 } from "@/features/platform/types";
+import { getReleaseDocumentPlan } from "@/features/releases/rules";
 
 export const tenant: Tenant = {
   id: "tenant-jmu",
@@ -305,6 +306,20 @@ export const bankEntries: BankEntry[] = [
   },
 ];
 
+const releaseRequestOneDocumentPlan = getReleaseDocumentPlan(
+  "ferias",
+  "resgate_contratada",
+  "enviada",
+  ["ferias", "comprovante_pagamento"],
+);
+
+const releaseRequestTwoDocumentPlan = getReleaseDocumentPlan(
+  "rescisao",
+  "resgate_contratada",
+  "aprovada_parcial",
+  ["rescisao", "fgts", "comprovante_pagamento"],
+);
+
 export const releaseRequests: ReleaseRequest[] = [
   {
     id: "rr-001",
@@ -348,8 +363,16 @@ export const releaseRequests: ReleaseRequest[] = [
         updatedAt: "2026-04-11T12:45:00Z",
       },
     ],
-    requiredDocuments: ["ferias", "folha", "comprovante_pagamento"],
-    missingDocuments: ["folha", "comprovante_pagamento"],
+    requiredDocuments: releaseRequestOneDocumentPlan.expectedCurrentStage,
+    missingDocuments: releaseRequestOneDocumentPlan.missingCurrentStage,
+    documentSummary: {
+      provided: releaseRequestOneDocumentPlan.provided,
+      expectedCurrentStage: releaseRequestOneDocumentPlan.expectedCurrentStage,
+      missingCurrentStage: releaseRequestOneDocumentPlan.missingCurrentStage,
+      expectedByCategory: releaseRequestOneDocumentPlan.expectedByCategory,
+      missingByCategory: releaseRequestOneDocumentPlan.missingByCategory,
+      deferredByCategory: releaseRequestOneDocumentPlan.deferredByCategory,
+    },
   },
   {
     id: "rr-002",
@@ -395,8 +418,16 @@ export const releaseRequests: ReleaseRequest[] = [
         updatedAt: "2026-04-10T15:04:00Z",
       },
     ],
-    requiredDocuments: ["rescisao", "fgts", "folha", "comprovante_pagamento"],
-    missingDocuments: ["comprovante_pagamento"],
+    requiredDocuments: releaseRequestTwoDocumentPlan.expectedCurrentStage,
+    missingDocuments: releaseRequestTwoDocumentPlan.missingCurrentStage,
+    documentSummary: {
+      provided: releaseRequestTwoDocumentPlan.provided,
+      expectedCurrentStage: releaseRequestTwoDocumentPlan.expectedCurrentStage,
+      missingCurrentStage: releaseRequestTwoDocumentPlan.missingCurrentStage,
+      expectedByCategory: releaseRequestTwoDocumentPlan.expectedByCategory,
+      missingByCategory: releaseRequestTwoDocumentPlan.missingByCategory,
+      deferredByCategory: releaseRequestTwoDocumentPlan.deferredByCategory,
+    },
   },
 ];
 

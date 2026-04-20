@@ -74,6 +74,8 @@ Resultado:
 - [ ] O detalhe do contrato apresenta provisões por empregado e rubrica.
 - [ ] O detalhe do contrato apresenta conta vinculada e eventos bancários.
 - [ ] O detalhe do contrato apresenta solicitações de liberação ligadas ao contrato.
+- [ ] O detalhe do contrato mostra documentos esperados na etapa atual das solicitações vinculadas.
+- [ ] O detalhe do contrato mostra pendências documentais das solicitações vinculadas.
 - [ ] O detalhe do contrato apresenta trilha de auditoria ligada ao contrato.
 
 Observações:
@@ -101,7 +103,10 @@ Resultado:
 - [ ] O envio da solicitação está funcional no ambiente de gravação.
 - [ ] A fila mostra protocolo, tipo de liberação, período, forma de movimentação, status e valores.
 - [ ] Os itens da solicitação mostram decisão e valores por item.
-- [ ] As pendências documentais aparecem na leitura da solicitação.
+- [ ] A leitura da solicitação mostra documentos esperados na etapa atual.
+- [ ] A leitura da solicitação mostra pendências documentais da etapa atual.
+- [ ] Quando aplicável, a leitura da solicitação distingue documentos previstos para etapa posterior.
+- [ ] Quando aplicável, a leitura documental aparece agrupada por natureza, como fato gerador, cálculo, quitação, operação ou encerramento.
 - [ ] Itens pendentes exibem ação de decisão quando o perfil e o ambiente permitem.
 - [ ] A decisão por item pode ser registrada na própria fila de solicitações.
 - [ ] Aprovação total, aprovação parcial e rejeição ou glosa se comportam de forma coerente com os valores informados.
@@ -202,6 +207,7 @@ Resultado:
 - [ ] O painel principal corresponde ao que o manual descreve.
 - [ ] O módulo de contratos corresponde ao que o manual descreve.
 - [ ] O módulo de liberações corresponde ao que o manual descreve.
+- [ ] A apresentação de documentos esperados, pendências da etapa e documentos previstos para depois corresponde ao que o manual descreve.
 - [ ] O módulo de conciliação corresponde ao que o manual descreve.
 - [ ] O módulo de auditoria corresponde ao que o manual descreve.
 - [ ] O módulo de administração corresponde ao que o manual descreve.

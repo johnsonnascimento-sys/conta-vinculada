@@ -15,6 +15,10 @@ import { SectionCard } from "@/shared/components/ui/section-card";
 import { TableCard } from "@/shared/components/ui/table-card";
 import { formatCompetency, formatCurrency } from "@/shared/lib/formatters";
 
+function formatDocumentKinds(values: string[]) {
+  return values.length > 0 ? values.join(", ") : "nenhum";
+}
+
 interface ContractPageProps {
   params: Promise<{ contractId: string }>;
 }
@@ -183,10 +187,24 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                   </Badge>
                 </div>
                 <div className="mt-4 grid gap-2 text-sm text-[var(--color-muted)]">
-                  <p>Documentos obrigatórios: {request.requiredDocuments.join(", ")}</p>
                   <p>
-                    Pendências documentais: {request.missingDocuments.length > 0 ? request.missingDocuments.join(", ") : "nenhuma"}
+                    Documentos esperados nesta etapa:{" "}
+                    {formatDocumentKinds(request.requiredDocuments)}
                   </p>
+                  <p>
+                    Pendências documentais:{" "}
+                    {formatDocumentKinds(request.missingDocuments)}
+                  </p>
+                  {request.documentSummary.deferredByCategory.operation.length > 0 ||
+                  request.documentSummary.deferredByCategory.closure.length > 0 ? (
+                    <p>
+                      Documentos previstos para etapa posterior:{" "}
+                      {formatDocumentKinds([
+                        ...request.documentSummary.deferredByCategory.operation,
+                        ...request.documentSummary.deferredByCategory.closure,
+                      ])}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             ))}
@@ -215,3 +233,5 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
     </div>
   );
 }
+
+

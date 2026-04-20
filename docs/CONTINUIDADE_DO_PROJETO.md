@@ -506,7 +506,7 @@ Tarefas:
 - criar comandos de escrita no `src/server` para solicitações de liberação
 - implementar formulários e server actions para criação e atualização desses fluxos
 - adicionar rotas transacionais quando necessário
-- persistir documentos obrigatórios e pendências documentais de forma consistente
+- consolidar a leitura documental por solicitação com documentos esperados por etapa, pendências atuais e documentos previstos para etapa posterior
 - registrar auditoria a cada mutação relevante
 
 Dependências:
@@ -593,7 +593,7 @@ Resultado esperado:
 - [x] Implementar análise/decisão mínima por item da solicitação de liberação.
 - [ ] Expandir a decisão de solicitação para múltiplos itens, revisão controlada e etapas posteriores do workflow.
 - [ ] Implementar execução financeira vinculada a lançamento bancário.
-- [ ] Persistir pendências documentais derivadas de documentos obrigatórios.
+- [x] Consolidar pendências documentais derivadas da matriz de documentos por tipo, etapa e modo de movimentação.
 
 ### Conciliação
 

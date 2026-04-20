@@ -1,6 +1,8 @@
 import type {
   DocumentKind,
+  ReleaseDocumentCategoryMap,
   ReleaseMovementMode,
+  ReleaseRequestStatus,
   ReleaseRubric,
   ReleaseType,
 } from "@/features/platform/types";
@@ -17,6 +19,14 @@ export interface ReleaseTypeRule {
   rubrics: ReleaseRubric[];
   documents: ReleaseDocumentExpectation;
 }
+
+const DOCUMENT_CATEGORIES = [
+  "fact",
+  "calculation",
+  "settlement",
+  "operation",
+  "closure",
+] as const satisfies Array<keyof ReleaseDocumentCategoryMap>;
 
 export const RELEASE_TYPE_RULES: Record<ReleaseType, ReleaseTypeRule> = {
   ferias: {
@@ -111,4 +121,125 @@ export function getExpectedOperationDocumentsForRelease(
   movementMode: ReleaseMovementMode,
 ): DocumentKind[] {
   return RELEASE_MOVEMENT_MODE_DOCUMENTS[movementMode];
+}
+
+function createEmptyDocumentCategoryMap(): ReleaseDocumentCategoryMap {
+  return {
+    fact: [],
+    calculation: [],
+    settlement: [],
+    operation: [],
+    closure: [],
+  };
+}
+
+function uniqueDocumentKinds(values: DocumentKind[]) {
+  return [...new Set(values)];
+}
+
+function mergeDocumentCategories(
+  left: ReleaseDocumentCategoryMap,
+  right: Partial<ReleaseDocumentCategoryMap>,
+): ReleaseDocumentCategoryMap {
+  const merged = createEmptyDocumentCategoryMap();
+
+  for (const category of DOCUMENT_CATEGORIES) {
+    merged[category] = uniqueDocumentKinds([
+      ...left[category],
+      ...(right[category] ?? []),
+    ]);
+  }
+
+  return merged;
+}
+
+function flattenDocumentCategories(groups: ReleaseDocumentCategoryMap) {
+  return uniqueDocumentKinds(
+    DOCUMENT_CATEGORIES.flatMap((category) => groups[category]),
+  );
+}
+
+function pickCategories(
+  groups: ReleaseDocumentCategoryMap,
+  categories: Array<keyof ReleaseDocumentCategoryMap>,
+) {
+  const picked = createEmptyDocumentCategoryMap();
+
+  for (const category of categories) {
+    picked[category] = [...groups[category]];
+  }
+
+  return picked;
+}
+
+function subtractProvidedDocuments(
+  groups: ReleaseDocumentCategoryMap,
+  provided: DocumentKind[],
+) {
+  const providedSet = new Set(provided);
+  const result = createEmptyDocumentCategoryMap();
+
+  for (const category of DOCUMENT_CATEGORIES) {
+    result[category] = groups[category].filter(
+      (documentKind) => !providedSet.has(documentKind),
+    );
+  }
+
+  return result;
+}
+
+function getCurrentStageDocumentCategories(
+  status: ReleaseRequestStatus,
+): Array<keyof ReleaseDocumentCategoryMap> {
+  if (status === "rejeitada" || status === "cancelada") {
+    return [];
+  }
+
+  if (status === "liberada") {
+    return ["fact", "calculation", "settlement", "operation"];
+  }
+
+  return ["fact", "calculation", "settlement"];
+}
+
+export function getReleaseDocumentPlan(
+  releaseType: ReleaseType,
+  movementMode: ReleaseMovementMode,
+  status: ReleaseRequestStatus,
+  providedDocuments: DocumentKind[],
+) {
+  const baseGroups = mergeDocumentCategories(
+    RELEASE_TYPE_RULES[releaseType].documents,
+    {
+      operation: getExpectedOperationDocumentsForRelease(movementMode),
+    },
+  );
+  const currentStageCategories = getCurrentStageDocumentCategories(status);
+  const expectedCurrentStageByCategory = pickCategories(
+    baseGroups,
+    currentStageCategories,
+  );
+  const deferredByCategory = createEmptyDocumentCategoryMap();
+
+  for (const category of DOCUMENT_CATEGORIES) {
+    if (!currentStageCategories.includes(category)) {
+      deferredByCategory[category] = [...baseGroups[category]];
+    }
+  }
+
+  const normalizedProvidedDocuments = uniqueDocumentKinds(providedDocuments);
+  const missingByCategory = subtractProvidedDocuments(
+    expectedCurrentStageByCategory,
+    normalizedProvidedDocuments,
+  );
+
+  return {
+    provided: normalizedProvidedDocuments,
+    expectedByCategory: baseGroups,
+    expectedCurrentStageByCategory,
+    expectedCurrentStage: flattenDocumentCategories(expectedCurrentStageByCategory),
+    missingByCategory,
+    missingCurrentStage: flattenDocumentCategories(missingByCategory),
+    deferredByCategory,
+  };
 }

@@ -81,6 +81,23 @@ export type ReleaseRubric =
   | "multa_fgts_rescisoria"
   | "encargos_rescisorios";
 
+export interface ReleaseDocumentCategoryMap {
+  fact: DocumentKind[];
+  calculation: DocumentKind[];
+  settlement: DocumentKind[];
+  operation: DocumentKind[];
+  closure: DocumentKind[];
+}
+
+export interface ReleaseRequestDocumentSummary {
+  provided: DocumentKind[];
+  expectedCurrentStage: DocumentKind[];
+  missingCurrentStage: DocumentKind[];
+  expectedByCategory: ReleaseDocumentCategoryMap;
+  missingByCategory: ReleaseDocumentCategoryMap;
+  deferredByCategory: ReleaseDocumentCategoryMap;
+}
+
 export interface Tenant {
   id: string;
   name: string;
@@ -225,6 +242,7 @@ export interface ReleaseRequest {
   items: ReleaseRequestItem[];
   requiredDocuments: DocumentKind[];
   missingDocuments: DocumentKind[];
+  documentSummary: ReleaseRequestDocumentSummary;
 }
 
 export interface ReconciliationRecord {

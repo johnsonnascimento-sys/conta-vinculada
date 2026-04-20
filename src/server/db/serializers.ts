@@ -11,7 +11,7 @@ import type {
   ReleaseRequest,
   Tenant,
 } from "@/features/platform/types";
-import { getExpectedDocumentsForReleaseType } from "@/features/releases/rules";
+import { getReleaseDocumentPlan } from "@/features/releases/rules";
 
 function serializeCalculationMemory(value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -194,9 +194,11 @@ export function serializeReleaseRequest(request: {
   documents: Array<{ kind: ReleaseRequest["requiredDocuments"][number] }>;
 }): ReleaseRequest {
   const providedDocuments = [...new Set(request.documents.map((item) => item.kind))];
-  const requiredDocuments = getExpectedDocumentsForReleaseType(request.releaseType);
-  const missingDocuments = requiredDocuments.filter(
-    (kind) => !providedDocuments.includes(kind),
+  const documentPlan = getReleaseDocumentPlan(
+    request.releaseType,
+    request.movementMode,
+    request.status,
+    providedDocuments,
   );
 
   return {
@@ -218,8 +220,16 @@ export function serializeReleaseRequest(request: {
     competencyEnd: request.competencyEnd,
     requestedTotalAmount: request.requestedTotalAmount.toNumber(),
     notes: request.notes ?? undefined,
-    requiredDocuments,
-    missingDocuments,
+    requiredDocuments: documentPlan.expectedCurrentStage,
+    missingDocuments: documentPlan.missingCurrentStage,
+    documentSummary: {
+      provided: documentPlan.provided,
+      expectedCurrentStage: documentPlan.expectedCurrentStage,
+      missingCurrentStage: documentPlan.missingCurrentStage,
+      expectedByCategory: documentPlan.expectedByCategory,
+      missingByCategory: documentPlan.missingByCategory,
+      deferredByCategory: documentPlan.deferredByCategory,
+    },
     items: request.items.map((item) => ({
       id: item.id,
       releaseRequestId: item.releaseRequestId,

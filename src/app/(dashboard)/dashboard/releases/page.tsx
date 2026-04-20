@@ -40,6 +40,41 @@ function getItemDecisionTone(decision: ReleaseRequestItem["decision"]) {
   return "danger" as const;
 }
 
+function formatDocumentKinds(values: string[]) {
+  return values.length > 0 ? values.join(", ") : "nenhum";
+}
+
+function renderDocumentCategoryList(
+  title: string,
+  categories: ReleaseRequest["documentSummary"]["expectedByCategory"],
+) {
+  const entries = [
+    ["Fato gerador", categories.fact],
+    ["Cálculo", categories.calculation],
+    ["Quitação", categories.settlement],
+    ["Operação", categories.operation],
+    ["Encerramento/sucessão", categories.closure],
+  ] as const;
+
+  return (
+    <div className="space-y-2">
+      <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
+        {title}
+      </h3>
+      <div className="grid gap-2">
+        {entries.map(([label, values]) =>
+          values.length > 0 ? (
+            <p key={label} className="text-sm leading-6 text-[var(--color-muted)]">
+              <strong className="text-[var(--color-ink)]">{label}:</strong>{" "}
+              {formatDocumentKinds(values)}
+            </p>
+          ) : null,
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default async function ReleasesPage() {
   const [creationOptions, boardData] = await Promise.all([
     getReleaseRequestCreationOptions(),
@@ -127,6 +162,31 @@ export default async function ReleasesPage() {
                     <strong className="mt-2 block text-lg text-[var(--color-ink)]">
                       {request.missingDocuments.length}
                     </strong>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                  <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-4">
+                    {renderDocumentCategoryList(
+                      "Documentos esperados nesta etapa",
+                      request.documentSummary.expectedByCategory,
+                    )}
+                  </div>
+                  <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-4">
+                    {renderDocumentCategoryList(
+                      "Pendências documentais desta etapa",
+                      request.documentSummary.missingByCategory,
+                    )}
+                    {(request.documentSummary.deferredByCategory.operation.length > 0 ||
+                      request.documentSummary.deferredByCategory.closure.length > 0) && (
+                      <p className="mt-4 text-sm leading-6 text-[var(--color-muted)]">
+                        Documentos previstos para etapa posterior:{" "}
+                        {formatDocumentKinds([
+                          ...request.documentSummary.deferredByCategory.operation,
+                          ...request.documentSummary.deferredByCategory.closure,
+                        ])}
+                      </p>
+                    )}
                   </div>
                 </div>
 

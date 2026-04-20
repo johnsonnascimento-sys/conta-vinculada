@@ -53,9 +53,11 @@ model Contract {
   code                String
   name                String
   object              String
+  signedAt            DateTime
   startDate           DateTime
   endDate             DateTime
   status              ContractStatus
+  normativeRegime     ContractNormativeRegime
   tenant              Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   organization        Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   company             Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -194,6 +196,8 @@ model LinkedAccount {
   id             String         @id @default(cuid())
   contractId     String
   bankName       String
+  isOfficialPublicBank Boolean  @default(false)
+  cooperationTermRef String?
   branch         String
   accountNumber  String
   currentBalance Decimal        @db.Decimal(12, 2)
@@ -255,6 +259,7 @@ model ReleaseRequest {
   companyId         String
   protocol          String               @unique
   releaseType       ReleaseType
+  movementMode      ReleaseMovementMode
   status            ReleaseRequestStatus
   requestedByName   String
   requestedByUserId String?
@@ -375,6 +380,11 @@ enum ContractStatus {
   suspenso
 }
 
+enum ContractNormativeRegime {
+  cnj_169_2013
+  cnj_651_2025
+}
+
 enum EmployeeStatus {
   ativo
   afastado
@@ -420,6 +430,7 @@ enum ApprovalDecision {
 
 enum DocumentKind {
   comprovante_pagamento
+  comprovante_operacao_bancaria
   folha
   ferias
   rescisao
@@ -428,6 +439,10 @@ enum DocumentKind {
   parecer
   despacho
   importacao
+  encerramento_contratual
+  sucessao_contratual
+  termo_cooperacao
+  garantia_rescisoria
 }
 
 enum ReconciliationDifferenceType {
@@ -454,6 +469,11 @@ enum ReleaseType {
   ferias
   decimo_terceiro
   rescisao
+}
+
+enum ReleaseMovementMode {
+  pagamento_direto_empregado
+  resgate_contratada
 }
 
 enum ReleaseRubric {

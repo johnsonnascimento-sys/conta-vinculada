@@ -89,6 +89,9 @@ export default async function ReleasesPage() {
                       {formatCompetency(request.competencyStart)} a{" "}
                       {formatCompetency(request.competencyEnd)}
                     </p>
+                    <p className="text-sm text-[var(--color-muted)]">
+                      Movimentacao: {request.movementMode.replaceAll("_", " ")}
+                    </p>
                   </div>
                   <Badge tone={getRequestStatusTone(request.status)}>
                     {request.status}

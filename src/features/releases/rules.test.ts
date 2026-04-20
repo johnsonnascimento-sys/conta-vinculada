@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   getAllowedRubricsForReleaseType,
+  getExpectedOperationDocumentsForRelease,
   getExpectedDocumentsForReleaseType,
   isRubricAllowedForReleaseType,
 } from "@/features/releases/rules";
@@ -32,4 +33,11 @@ test("release rules expose expected documents grouped by category", () => {
     "folha",
     "comprovante_pagamento",
   ]);
+});
+
+test("release rules expose movement-specific operation documents", () => {
+  assert.deepEqual(
+    getExpectedOperationDocumentsForRelease("pagamento_direto_empregado"),
+    ["comprovante_operacao_bancaria"],
+  );
 });

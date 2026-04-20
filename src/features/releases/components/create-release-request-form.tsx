@@ -1,10 +1,14 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import type { ReleaseType } from "@/features/platform/types";
+import type {
+  ReleaseMovementMode,
+  ReleaseType,
+} from "@/features/platform/types";
 import { createReleaseRequestAction } from "@/features/releases/actions";
 import {
   getAllowedRubricsForReleaseType,
+  RELEASE_MOVEMENT_MODES,
   RELEASE_TYPES,
 } from "@/features/releases/rules";
 import type {
@@ -53,9 +57,12 @@ export function CreateReleaseRequestForm({
 }: CreateReleaseRequestFormProps) {
   const initialContractId = options.contracts[0]?.id ?? "";
   const initialReleaseType: ReleaseType = "ferias";
+  const initialMovementMode: ReleaseMovementMode = "resgate_contratada";
   const [selectedContractId, setSelectedContractId] = useState(initialContractId);
   const [selectedReleaseType, setSelectedReleaseType] =
     useState<ReleaseType>(initialReleaseType);
+  const [selectedMovementMode, setSelectedMovementMode] =
+    useState<ReleaseMovementMode>(initialMovementMode);
   const [state, formAction, isPending] = useActionState(
     createReleaseRequestAction,
     initialState,
@@ -179,7 +186,7 @@ export function CreateReleaseRequestForm({
         readOnly
       />
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         <label className="block space-y-2">
           <span className="text-sm font-semibold text-[var(--color-ink)]">
             Contrato
@@ -234,6 +241,33 @@ export function CreateReleaseRequestForm({
           {state.fieldErrors?.releaseType ? (
             <p className="text-sm text-[var(--color-danger)]">
               {state.fieldErrors.releaseType}
+            </p>
+          ) : null}
+        </label>
+
+        <label className="block space-y-2">
+          <span className="text-sm font-semibold text-[var(--color-ink)]">
+            Movimentacao
+          </span>
+          <select
+            name="movementMode"
+            value={selectedMovementMode}
+            onChange={(event) =>
+              setSelectedMovementMode(
+                event.target.value as ReleaseMovementMode,
+              )
+            }
+            className="h-12 w-full rounded-2xl border border-black/10 bg-white px-4 outline-none transition focus:border-[var(--color-accent)]"
+          >
+            {RELEASE_MOVEMENT_MODES.map((movementMode) => (
+              <option key={movementMode} value={movementMode}>
+                {movementMode.replaceAll("_", " ")}
+              </option>
+            ))}
+          </select>
+          {state.fieldErrors?.movementMode ? (
+            <p className="text-sm text-[var(--color-danger)]">
+              {state.fieldErrors.movementMode}
             </p>
           ) : null}
         </label>

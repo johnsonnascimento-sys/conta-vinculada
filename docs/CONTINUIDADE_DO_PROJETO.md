@@ -1,5 +1,25 @@
 # Continuidade do Projeto
 
+## Atualizacao normativa obrigatoria
+
+Desde 20 de abril de 2026, a referencia normativa principal deste projeto passou a ser:
+
+- Lei no 14.133/2021, especialmente art. 121, caput, paragrafos 2o, 3o e 4o
+- Resolucao CNJ no 651, de 29 de setembro de 2025
+
+Consequencia pratica para o sistema:
+
+- contratos assinados ate 29 de setembro de 2025 devem permanecer identificaveis como sujeitos ao regime da Resolucao CNJ no 169/2013, conforme art. 18 da Resolucao CNJ no 651/2025;
+- contratos assinados apos 29 de setembro de 2025 devem ser tratados sob o regime da Resolucao CNJ no 651/2025;
+- o Caderno de Logistica de 2018 deixa de ser fonte normativa principal e passa a ser apenas referencia operacional subsidiaria, no que nao contrariar a Lei no 14.133/2021 e a Resolucao CNJ no 651/2025.
+
+Esta rodada ajustou o schema, o contrato tipado e o fluxo de `ReleaseRequest` para refletir:
+
+- regime normativo por contrato;
+- modo de movimentacao da conta vinculada;
+- preparacao para banco publico oficial e termo de cooperacao;
+- matriz documental mais aderente ao novo marco normativo.
+
 ## 1. Visão geral do projeto
 
 Este repositório implementa um MVP web para gestão institucional de conta vinculada em contratos administrativos com dedicação exclusiva de mão de obra. O sistema organiza a visão operacional de contratos, provisões por empregado e rubrica, solicitações de liberação, conciliação bancária e eventos de auditoria em um backoffice único.
@@ -684,3 +704,25 @@ Dependências técnicas relevantes:
 - O sistema já entrega valor como backoffice navegável, mas ainda não deve ser interpretado como produto transacional completo.
 - A prioridade correta não é criar mais páginas primeiro; é transformar um fluxo crítico em fluxo persistido, auditável e autorizado de ponta a ponta.
 - Sempre partir do código real. O schema Prisma sugere mais capacidade do que a aplicação realmente usa hoje.
+
+## Adequacao normativa 2026-04-20
+
+Base normativa principal no projeto a partir desta rodada:
+
+- Lei no 14.133/2021, art. 121, caput e paragrafos 2o, 3o e 4o
+- Resolucao CNJ no 651, de 29 de setembro de 2025
+- Resolucao CNJ no 169/2013 apenas para contratos assinados antes de 29 de setembro de 2025, conforme art. 18 da Resolucao CNJ no 651/2025
+- Caderno de Logistica de 2018 apenas como referencia operacional subsidiaria
+
+Impacto direto na continuidade:
+
+- `Contract` passa a registrar `signedAt` e `normativeRegime`, para distinguir contratos ainda sujeitos a CNJ 169/2013 dos contratos sujeitos a CNJ 651/2025.
+- `ReleaseRequest` passa a registrar `movementMode`, distinguindo pagamento direto aos empregados e resgate/reembolso a contratada, em linha com o art. 5o da Resolucao CNJ no 651/2025.
+- `LinkedAccount` passa a registrar se a conta esta em banco publico oficial e o identificador do termo de cooperacao, em linha com os arts. 3o, 7o e 8o da Resolucao CNJ no 651/2025.
+- O vocabulario documental foi ampliado para incluir comprovante de operacao bancaria, encerramento contratual, sucessao contratual, termo de cooperacao e garantia rescisoria.
+
+Lacunas que permanecem documentadas, sem implementacao completa nesta rodada:
+
+- workflow operacional dos prazos de 10 dias uteis para autorizacao e comprovacao da operacao, previstos nos arts. 5o e 6o da Resolucao CNJ no 651/2025;
+- tratamento transacional do saldo remanescente proporcional para empregados remanescentes e da sucessao contratual com a mesma empresa, conforme arts. 14 e 15;
+- exigencia facultativa de garantia especifica para verbas rescisorias inadimplidas, prevista no art. 8o, paragrafo 3o, mantida como backlog normativo.

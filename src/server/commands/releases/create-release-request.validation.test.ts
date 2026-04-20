@@ -6,6 +6,7 @@ function buildValidInput() {
   return {
     contractId: "c-2cjm-001",
     releaseType: "ferias" as const,
+    movementMode: "resgate_contratada" as const,
     factualBasis: "Ferias vencidas com programacao para abril.",
     competencyStart: "2026-03",
     competencyEnd: "2026-03",

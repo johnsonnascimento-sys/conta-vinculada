@@ -148,6 +148,8 @@ export async function getBankAccounts(): Promise<BankAccount[]> {
     id: string;
     contractId: string;
     bankName: string;
+    isOfficialPublicBank: boolean;
+    cooperationTermRef: string | null;
     branch: string;
     accountNumber: string;
     currentBalance: { toNumber(): number };
@@ -155,6 +157,8 @@ export async function getBankAccounts(): Promise<BankAccount[]> {
     id: account.id,
     contractId: account.contractId,
     bankName: account.bankName,
+    isOfficialPublicBank: account.isOfficialPublicBank,
+    cooperationTermRef: account.cooperationTermRef ?? undefined,
     branch: account.branch,
     accountNumber: account.accountNumber,
     currentBalance: account.currentBalance.toNumber(),

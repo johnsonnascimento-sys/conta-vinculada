@@ -5,6 +5,7 @@ import type {
 } from "@/features/releases/types";
 import {
   getAllowedRubricsForReleaseType,
+  isReleaseMovementMode,
   isReleaseType,
 } from "@/features/releases/rules";
 
@@ -80,6 +81,11 @@ export function validateCreateReleaseRequestInput(input: CreateReleaseRequestInp
 
   if (!isReleaseType(input.releaseType)) {
     fieldErrors.releaseType = "Selecione um tipo de liberação válido.";
+  }
+
+  if (!isReleaseMovementMode(input.movementMode)) {
+    fieldErrors.movementMode =
+      "Selecione uma forma de movimentacao valida.";
   }
 
   if (!input.factualBasis.trim()) {

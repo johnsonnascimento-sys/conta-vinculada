@@ -1,4 +1,5 @@
 import type {
+  ReleaseMovementMode,
   ReleaseRequest,
   ReleaseRequestStatus,
   ReleaseRubric,
@@ -26,6 +27,7 @@ export interface CreateReleaseRequestItemInput {
 export interface CreateReleaseRequestInput {
   contractId: string;
   releaseType: ReleaseType;
+  movementMode: ReleaseMovementMode;
   factualBasis: string;
   competencyStart: string;
   competencyEnd: string;
@@ -50,6 +52,7 @@ export interface CreateReleaseRequestItemFieldErrors {
 export interface CreateReleaseRequestFieldErrors {
   contractId?: string;
   releaseType?: string;
+  movementMode?: string;
   factualBasis?: string;
   competencyStart?: string;
   competencyEnd?: string;
@@ -64,6 +67,7 @@ export interface CreateReleaseRequestSuccess {
   protocol: string;
   status: "enviada";
   releaseType: ReleaseType;
+  movementMode: ReleaseMovementMode;
   contractId: string;
   companyId: string;
   competencyStart: string;

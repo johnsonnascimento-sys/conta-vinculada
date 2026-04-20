@@ -37,6 +37,7 @@ function normalizeInput(input: CreateReleaseRequestInput): CreateReleaseRequestI
   return {
     contractId: input.contractId.trim(),
     releaseType: input.releaseType,
+    movementMode: input.movementMode,
     factualBasis: input.factualBasis.trim(),
     competencyStart: input.competencyStart.trim(),
     competencyEnd: input.competencyEnd.trim(),
@@ -191,6 +192,7 @@ interface CreateReleaseRequestTransaction {
         companyId: string;
         protocol: string;
         releaseType: CreateReleaseRequestInput["releaseType"];
+        movementMode: CreateReleaseRequestInput["movementMode"];
         status: "enviada";
         requestedByName: string;
         requestedByUserId: string;
@@ -521,6 +523,7 @@ export async function createReleaseRequestWithDependencies(
           companyId: contract.companyId,
           protocol,
           releaseType: normalizedInput.releaseType,
+          movementMode: normalizedInput.movementMode,
           status: "enviada",
           requestedByName: user.name,
           requestedByUserId: user.id,
@@ -562,6 +565,7 @@ export async function createReleaseRequestWithDependencies(
             releaseRequestId: request.id,
             protocol: request.protocol,
             releaseType: normalizedInput.releaseType,
+            movementMode: normalizedInput.movementMode,
             status: request.status,
             companyId: contract.companyId,
             competencyStart: normalizedInput.competencyStart,
@@ -588,6 +592,7 @@ export async function createReleaseRequestWithDependencies(
           protocol: request.protocol,
           status: "enviada",
           releaseType: normalizedInput.releaseType,
+          movementMode: normalizedInput.movementMode,
           contractId: contract.id,
           companyId: contract.companyId,
           competencyStart: normalizedInput.competencyStart,

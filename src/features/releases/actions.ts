@@ -34,6 +34,7 @@ export async function createReleaseRequestAction(
   const result = await createReleaseRequest({
     contractId: String(formData.get("contractId") ?? "").trim(),
     releaseType: String(formData.get("releaseType") ?? "").trim() as never,
+    movementMode: String(formData.get("movementMode") ?? "").trim() as never,
     factualBasis: String(formData.get("factualBasis") ?? "").trim(),
     competencyStart: String(formData.get("competencyStart") ?? "").trim(),
     competencyEnd: String(formData.get("competencyEnd") ?? "").trim(),

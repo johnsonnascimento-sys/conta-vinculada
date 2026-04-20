@@ -24,6 +24,7 @@ function buildInput(): CreateReleaseRequestInput {
   return {
     contractId: "c-2cjm-001",
     releaseType: "ferias",
+    movementMode: "resgate_contratada",
     factualBasis: "Ferias vencidas de dois empregados com memoria proporcional.",
     competencyStart: "2026-03",
     competencyEnd: "2026-03",

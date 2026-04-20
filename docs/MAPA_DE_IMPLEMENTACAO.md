@@ -212,3 +212,23 @@ Cada decisão registrada deve conter:
 - Antes de implementar mutações, revise `src/server/repositories/platform.repository.ts`, `src/server/db/serializers.ts`, `src/features/platform/types.ts` e `prisma/schema.prisma`.
 - Antes de alterar comportamento sensível do Next.js, consulte `AGENTS.md` e a documentação local em `node_modules/next/dist/docs`.
 - Se surgir dúvida entre “entregar UI” e “fechar comando e auditoria”, priorize comando e auditoria.
+
+## Adequacao normativa 2026-04-20
+
+Hierarquia normativa a observar neste mapa:
+
+1. Lei no 14.133/2021, art. 121
+2. Resolucao CNJ no 651, de 29 de setembro de 2025
+3. Resolucao CNJ no 169/2013 apenas para contratos assinados antes de 29 de setembro de 2025
+4. Caderno de Logistica de 2018 apenas como referencia operacional subsidiaria
+
+Ajuste de ordem de execucao:
+
+- nenhum fluxo novo deve ignorar o `normativeRegime` do contrato;
+- nenhuma evolucao do modulo de liberacoes deve assumir um unico modo de movimentacao da conta vinculada;
+- banco publico oficial, termo de cooperacao e documentos de operacao bancaria devem ser tratados como preparacao obrigatoria do dominio, ainda que sem integracao bancaria real;
+- saldo remanescente, sucessao contratual, garantia rescisoria e prazos de 10 dias uteis ficam no backlog normativo explicito e nao devem ser implementados de forma ad hoc fora da camada de comandos e da documentacao correspondente.
+
+Proximo passo recomendado apos esta rodada:
+
+- consolidar a analise/decisao da solicitacao considerando `movementMode` e regime normativo do contrato, antes de qualquer tentativa de execucao financeira.

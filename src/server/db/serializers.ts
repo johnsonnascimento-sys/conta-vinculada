@@ -51,13 +51,16 @@ export function serializeContract(contract: {
   code: string;
   name: string;
   object: string;
+  signedAt: Date;
   startDate: Date;
   endDate: Date;
   status: "ativo" | "encerrado" | "suspenso";
+  normativeRegime: Contract["normativeRegime"];
   linkedAccounts?: Array<{ id: string }>;
 }): Contract {
   return {
     ...contract,
+    signedAt: contract.signedAt.toISOString().slice(0, 10),
     startDate: contract.startDate.toISOString().slice(0, 10),
     endDate: contract.endDate.toISOString().slice(0, 10),
     bankAccountId: contract.linkedAccounts?.[0]?.id ?? "",
@@ -156,6 +159,7 @@ export function serializeReleaseRequest(request: {
   companyId: string;
   protocol: string;
   releaseType: ReleaseRequest["releaseType"];
+  movementMode: ReleaseRequest["movementMode"];
   status: ReleaseRequest["status"];
   requestedByName: string;
   requestedByUserId: string | null;
@@ -201,6 +205,7 @@ export function serializeReleaseRequest(request: {
     companyId: request.companyId,
     protocol: request.protocol,
     releaseType: request.releaseType,
+    movementMode: request.movementMode,
     status: request.status,
     createdAt: request.createdAt.toISOString(),
     updatedAt: request.updatedAt.toISOString(),

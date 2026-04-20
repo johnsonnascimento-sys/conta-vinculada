@@ -33,6 +33,7 @@ export type ApprovalDecision =
 
 export type DocumentKind =
   | "comprovante_pagamento"
+  | "comprovante_operacao_bancaria"
   | "folha"
   | "ferias"
   | "rescisao"
@@ -40,7 +41,11 @@ export type DocumentKind =
   | "extrato"
   | "parecer"
   | "despacho"
-  | "importacao";
+  | "importacao"
+  | "encerramento_contratual"
+  | "sucessao_contratual"
+  | "termo_cooperacao"
+  | "garantia_rescisoria";
 
 export type ReconciliationDifferenceType = "explicada" | "nao_explicada";
 
@@ -58,6 +63,12 @@ export type ReleaseItemDecision =
   | "glosado";
 
 export type ReleaseType = "ferias" | "decimo_terceiro" | "rescisao";
+
+export type ReleaseMovementMode =
+  | "pagamento_direto_empregado"
+  | "resgate_contratada";
+
+export type ContractNormativeRegime = "cnj_169_2013" | "cnj_651_2025";
 
 export type ReleaseRubric =
   | "ferias"
@@ -99,9 +110,11 @@ export interface Contract {
   code: string;
   name: string;
   object: string;
+  signedAt: string;
   startDate: string;
   endDate: string;
   status: "ativo" | "encerrado" | "suspenso";
+  normativeRegime: ContractNormativeRegime;
   bankAccountId: string;
   riskLevel: "alto" | "medio" | "baixo";
 }
@@ -147,6 +160,8 @@ export interface BankAccount {
   id: string;
   contractId: string;
   bankName: string;
+  isOfficialPublicBank: boolean;
+  cooperationTermRef?: string;
   branch: string;
   accountNumber: string;
   currentBalance: number;
@@ -194,6 +209,7 @@ export interface ReleaseRequest {
   companyId: string;
   protocol: string;
   releaseType: ReleaseType;
+  movementMode: ReleaseMovementMode;
   status: ReleaseRequestStatus;
   createdAt: string;
   updatedAt: string;

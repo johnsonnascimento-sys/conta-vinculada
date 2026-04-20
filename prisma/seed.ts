@@ -60,9 +60,11 @@ async function main() {
       name: "Apoio administrativo e recepcao",
       object:
         "Prestacao continuada com dedicacao exclusiva de mao de obra para recepcao e apoio administrativo.",
+      signedAt: new Date("2025-01-15"),
       startDate: new Date("2025-02-01"),
       endDate: new Date("2027-01-31"),
       status: "ativo",
+      normativeRegime: "cnj_651_2025",
     },
   });
 
@@ -77,9 +79,11 @@ async function main() {
       code: "CT 12/2024",
       name: "Vigilancia armada e desarmada",
       object: "Servicos continuados de vigilancia armada e desarmada.",
+      signedAt: new Date("2024-07-15"),
       startDate: new Date("2024-08-01"),
       endDate: new Date("2026-07-31"),
       status: "ativo",
+      normativeRegime: "cnj_169_2013",
     },
   });
 
@@ -90,6 +94,8 @@ async function main() {
       id: "bank-001",
       contractId: contractOne.id,
       bankName: "Banco do Brasil",
+      isOfficialPublicBank: true,
+      cooperationTermRef: "TCT-CNJ-BB-2025",
       branch: "1234-5",
       accountNumber: "98765-4",
       currentBalance: 148320.48,
@@ -103,6 +109,8 @@ async function main() {
       id: "bank-002",
       contractId: contractTwo.id,
       bankName: "Caixa Economica Federal",
+      isOfficialPublicBank: true,
+      cooperationTermRef: "TCT-CNJ-CEF-2024",
       branch: "0021",
       accountNumber: "778899-0",
       currentBalance: 232904.12,
@@ -351,6 +359,7 @@ async function main() {
       companyId: atlas.id,
       protocol: "RR-2026-00018",
       releaseType: "ferias",
+      movementMode: "resgate_contratada",
       status: "em_analise",
       requestedByName: "Marina Gomes",
       requestedByUserId: "user-002",
@@ -372,6 +381,7 @@ async function main() {
       companyId: vigil.id,
       protocol: "RR-2026-00021",
       releaseType: "rescisao",
+      movementMode: "resgate_contratada",
       status: "aprovada_parcial",
       requestedByName: "Priscila Moraes",
       requestedByUserId: "user-001",

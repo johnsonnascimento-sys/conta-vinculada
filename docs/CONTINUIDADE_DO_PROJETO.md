@@ -726,3 +726,15 @@ Lacunas que permanecem documentadas, sem implementacao completa nesta rodada:
 - workflow operacional dos prazos de 10 dias uteis para autorizacao e comprovacao da operacao, previstos nos arts. 5o e 6o da Resolucao CNJ no 651/2025;
 - tratamento transacional do saldo remanescente proporcional para empregados remanescentes e da sucessao contratual com a mesma empresa, conforme arts. 14 e 15;
 - exigencia facultativa de garantia especifica para verbas rescisorias inadimplidas, prevista no art. 8o, paragrafo 3o, mantida como backlog normativo.
+
+## Governanca de documentacao funcional
+
+`docs/MANUAL_DO_USUARIO.md` passa a ser a referencia funcional de uso do sistema para usuarios internos.
+
+Regra permanente de continuidade:
+
+- toda funcionalidade criada, alterada ou removida que impacte a operacao do sistema deve atualizar o manual do usuario;
+- o manual deve permanecer em portugues do Brasil;
+- o manual deve descrever uso operacional, sem detalhes de implementacao tecnica;
+- mudancas de tela, fluxo, nomenclatura, campos, status, permissoes funcionais, alertas e comportamento operacional devem ser refletidas no manual;
+- entregas funcionais nao devem ser consideradas completas se deixarem o manual desatualizado.

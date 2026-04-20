@@ -232,3 +232,18 @@ Ajuste de ordem de execucao:
 Proximo passo recomendado apos esta rodada:
 
 - consolidar a analise/decisao da solicitacao considerando `movementMode` e regime normativo do contrato, antes de qualquer tentativa de execucao financeira.
+
+## Sincronizacao obrigatoria com o manual do usuario
+
+`docs/MANUAL_DO_USUARIO.md` deve ser atualizado em toda entrega que altere o comportamento funcional do sistema.
+
+Isso inclui, no minimo:
+
+- novas telas ou remocao de telas;
+- mudanca de campos, filtros ou nomenclaturas;
+- mudanca de status, pendencias ou alertas;
+- alteracao de fluxo operacional;
+- alteracao de permissao funcional por perfil;
+- disponibilizacao ou retirada de operacoes para o usuario final.
+
+Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao documental nao acontecer no mesmo ciclo.

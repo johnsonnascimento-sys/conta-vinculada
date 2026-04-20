@@ -29,6 +29,14 @@ Use specialized agents only when the task justifies coordination overhead.
 - Always respond to the user in Brazilian Portuguese unless the user explicitly asks for another language.
 - Keep final answers concise, direct, and action-oriented.
 
+## Functional Documentation Governance
+
+- Every feature created, changed, or removed that impacts system operation must update `docs/MANUAL_DO_USUARIO.md`.
+- The user manual must always be kept in Brazilian Portuguese.
+- The user manual must describe operational behavior only and must not include implementation details such as programming choices, architecture, database structure, framework internals, APIs, folders, or terminal commands.
+- Changes to screens, flows, labels, fields, statuses, functional permissions, alerts, and user-facing operational behavior must be reflected in `docs/MANUAL_DO_USUARIO.md`.
+- A delivery is not complete if it leaves `docs/MANUAL_DO_USUARIO.md` out of sync with the current functional behavior of the system.
+
 ### Use agents when
 - the task spans multiple domains, such as frontend, backend, database, security, or migration;
 - the work can be split into parallel, independent tracks;

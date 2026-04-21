@@ -78,6 +78,8 @@ Resultado:
 - [ ] O detalhe do contrato mostra pendências documentais das solicitações vinculadas.
 - [ ] O detalhe do contrato mostra a situação de aprovação administrativa das solicitações vinculadas.
 - [ ] O detalhe do contrato mostra a leitura de aptidão para futura etapa financeira sem indicar execução bancária concluída.
+- [ ] O detalhe do contrato mostra a situação de preparo da futura execução financeira das solicitações vinculadas.
+- [ ] O detalhe do contrato mostra o valor apto à futura execução e o movimento esperado.
 - [ ] O detalhe do contrato apresenta trilha de auditoria ligada ao contrato.
 
 Observações:
@@ -117,6 +119,11 @@ Resultado:
 - [ ] A fila informa quando a solicitação já está pronta para aprovação administrativa.
 - [ ] A fila informa a decisão administrativa consolidada quando ela já existir.
 - [ ] A fila informa a aptidão para futura etapa financeira sem indicar que a execução financeira já ocorreu.
+- [ ] A fila informa quando a solicitação ainda não está apta para preparo da futura execução financeira.
+- [ ] A fila informa quando a solicitação já está pronta para preparo da futura execução financeira.
+- [ ] A fila mostra o valor apto à futura execução financeira.
+- [ ] A fila mostra as evidências mínimas da etapa de preparo e o que ainda falta.
+- [ ] A fila mostra a leitura mínima de saldo e conciliação usada para essa etapa.
 - [ ] Itens pendentes exibem ação de decisão quando o perfil e o ambiente permitem.
 - [ ] A decisão por item pode ser registrada na própria fila de solicitações.
 - [ ] Solicitação em exigência documental não apresenta ação de decisão por item.
@@ -124,6 +131,9 @@ Resultado:
 - [ ] Solicitação sem consolidação suficiente dos itens não apresenta ação de aprovação administrativa.
 - [ ] A aprovação administrativa pode ser registrada por perfil autorizado no ambiente com gravação habilitada.
 - [ ] A aprovação administrativa parcial e a rejeição exigem fundamentação.
+- [ ] Solicitação ainda sem preparo suficiente não apresenta ação de registro do preparo financeiro.
+- [ ] A ação de registro do preparo financeiro não cria execução bancária efetiva no sistema.
+- [ ] O preparo financeiro pode ser registrado por perfil autorizado no ambiente com gravação habilitada.
 - [ ] Aprovação total, aprovação parcial e rejeição ou glosa se comportam de forma coerente com os valores informados.
 - [ ] Item já decidido não volta a apresentar ação de decisão na mesma etapa.
 
@@ -226,6 +236,8 @@ Resultado:
 - [ ] A separação entre exigência documental, análise e decisão agregada corresponde ao que o manual descreve.
 - [ ] A leitura de aprovação administrativa posterior corresponde ao que o manual descreve.
 - [ ] A distinção entre aprovação administrativa e futura etapa financeira corresponde ao que o manual descreve.
+- [ ] A leitura de preparo da futura execução financeira corresponde ao que o manual descreve.
+- [ ] A distinção entre preparo da futura execução e execução financeira efetiva corresponde ao que o manual descreve.
 - [ ] O módulo de conciliação corresponde ao que o manual descreve.
 - [ ] O módulo de auditoria corresponde ao que o manual descreve.
 - [ ] O módulo de administração corresponde ao que o manual descreve.

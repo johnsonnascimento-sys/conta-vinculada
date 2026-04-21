@@ -132,6 +132,7 @@ export interface ReleaseRequestsBoardData {
   databaseEnabled: boolean;
   reviewableRequestIds: string[];
   administrativelyApprovableRequestIds: string[];
+  financiallyPreparableRequestIds: string[];
 }
 
 export type ReviewReleaseRequestDecision =
@@ -244,6 +245,52 @@ export interface AdministrativeApproveReleaseRequestActionState {
   message?: string;
   fieldErrors?: AdministrativeApproveReleaseRequestFieldErrors;
   data?: AdministrativeApproveReleaseRequestSuccess;
+}
+
+export interface PrepareReleaseRequestForExecutionInput {
+  requestId: string;
+  notes: string;
+}
+
+export interface PrepareReleaseRequestForExecutionFieldErrors {
+  requestId?: string;
+  notes?: string;
+}
+
+export interface PrepareReleaseRequestForExecutionSuccess {
+  releaseRequestId: string;
+  contractId: string;
+  preparedBy: string;
+  preparedAt: string;
+  eligibleAmount: number;
+}
+
+export type PrepareReleaseRequestForExecutionErrorCode =
+  | "validation_error"
+  | "unauthorized"
+  | "database_unavailable"
+  | "not_found"
+  | "invalid_state"
+  | "unexpected_error";
+
+export type PrepareReleaseRequestForExecutionCommandResult =
+  | {
+      ok: true;
+      data: PrepareReleaseRequestForExecutionSuccess;
+    }
+  | {
+      ok: false;
+      code: PrepareReleaseRequestForExecutionErrorCode;
+      message: string;
+      fieldErrors?: PrepareReleaseRequestForExecutionFieldErrors;
+    };
+
+export interface PrepareReleaseRequestForExecutionActionState {
+  status: "idle" | "success" | "error";
+  code?: PrepareReleaseRequestForExecutionErrorCode;
+  message?: string;
+  fieldErrors?: PrepareReleaseRequestForExecutionFieldErrors;
+  data?: PrepareReleaseRequestForExecutionSuccess;
 }
 
 export interface OpenReleaseRequestDuplicate {

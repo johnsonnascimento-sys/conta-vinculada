@@ -67,6 +67,18 @@ function getAdministrativeApprovalLabel(request: ReleaseRequest) {
   return "ainda não apta para aprovação administrativa";
 }
 
+function getFinancialPreparationLabel(request: ReleaseRequest) {
+  if (request.workflow.financialPreparation.state === "preparada") {
+    return "preparo interno já registrado";
+  }
+
+  if (request.workflow.financialPreparation.state === "apta") {
+    return "pronta para preparo da futura execução";
+  }
+
+  return "ainda não apta para preparo da futura execução";
+}
+
 interface ContractPageProps {
   params: Promise<{ contractId: string }>;
 }
@@ -80,11 +92,13 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
   }
 
   const totalProvisionBalance = detail.provisionBalances.reduce(
-    (total: number, item: ProvisionBalance & { employee?: Employee }) => total + item.balance,
+    (total: number, item: ProvisionBalance & { employee?: Employee }) =>
+      total + item.balance,
     0,
   );
   const totalReservedBalance = detail.provisionBalances.reduce(
-    (total: number, item: ProvisionBalance & { employee?: Employee }) => total + item.reserved,
+    (total: number, item: ProvisionBalance & { employee?: Employee }) =>
+      total + item.reserved,
     0,
   );
 
@@ -96,9 +110,18 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
         description={detail.contract.object}
       >
         <div className="grid gap-3 lg:grid-cols-5">
-          <MetricChip label="Saldo bancário" value={formatCurrency(detail.account?.currentBalance ?? 0)} />
-          <MetricChip label="Provisões líquidas" value={formatCurrency(totalProvisionBalance)} />
-          <MetricChip label="Valor reservado" value={formatCurrency(totalReservedBalance)} />
+          <MetricChip
+            label="Saldo bancário"
+            value={formatCurrency(detail.account?.currentBalance ?? 0)}
+          />
+          <MetricChip
+            label="Provisões líquidas"
+            value={formatCurrency(totalProvisionBalance)}
+          />
+          <MetricChip
+            label="Valor reservado"
+            value={formatCurrency(totalReservedBalance)}
+          />
           <MetricChip
             label="Diferença não explicada"
             value={formatCurrency(detail.reconciliation?.unexplainedDifference ?? 0)}
@@ -112,7 +135,9 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                 {detail.contract.status}
               </Badge>
             </div>
-            <p className="mt-3 text-sm text-[var(--color-muted)]">{detail.company?.tradeName}</p>
+            <p className="mt-3 text-sm text-[var(--color-muted)]">
+              {detail.company?.tradeName}
+            </p>
           </div>
         </div>
       </SectionCard>
@@ -166,31 +191,36 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
           description="Vínculo contratual temporal utilizado para cálculo e elegibilidade de liberação."
         >
           <div className="grid gap-3">
-            {detail.employees.map((allocation: EmployeeAllocation & { employee?: Employee }) => (
-              <div key={allocation.id} className="rounded-[1.3rem] border border-black/8 bg-white px-4 py-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <h3 className="text-lg font-semibold text-[var(--color-ink)]">
-                      {allocation.employee?.name}
-                    </h3>
-                    <p className="text-sm text-[var(--color-muted)]">
-                      {allocation.employee?.role} • {allocation.costCenter}
-                    </p>
+            {detail.employees.map(
+              (allocation: EmployeeAllocation & { employee?: Employee }) => (
+                <div
+                  key={allocation.id}
+                  className="rounded-[1.3rem] border border-black/8 bg-white px-4 py-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-lg font-semibold text-[var(--color-ink)]">
+                        {allocation.employee?.name}
+                      </h3>
+                      <p className="text-sm text-[var(--color-muted)]">
+                        {allocation.employee?.role} • {allocation.costCenter}
+                      </p>
+                    </div>
+                    <Badge
+                      tone={
+                        allocation.employee?.status === "ativo"
+                          ? "success"
+                          : allocation.employee?.status === "afastado"
+                            ? "warning"
+                            : "danger"
+                      }
+                    >
+                      {allocation.employee?.status ?? "sem status"}
+                    </Badge>
                   </div>
-                  <Badge
-                    tone={
-                      allocation.employee?.status === "ativo"
-                        ? "success"
-                        : allocation.employee?.status === "afastado"
-                          ? "warning"
-                          : "danger"
-                    }
-                  >
-                    {allocation.employee?.status ?? "sem status"}
-                  </Badge>
                 </div>
-              </div>
-            ))}
+              ),
+            )}
           </div>
         </TableCard>
       </div>
@@ -212,23 +242,27 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/8 bg-white">
-                {detail.provisionBalances.map((item: ProvisionBalance & { employee?: Employee }) => (
-                  <tr key={`${item.employeeId}-${item.rubric}`}>
-                    <td className="px-4 py-4 font-semibold text-[var(--color-ink)]">
-                      {item.employee?.name}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-[var(--color-muted)]">{item.rubric}</td>
-                    <td className="px-4 py-4 text-sm text-[var(--color-ink)]">
-                      {formatCurrency(item.balance)}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-[var(--color-warning)]">
-                      {formatCurrency(item.reserved)}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-[var(--color-success)]">
-                      {formatCurrency(item.released)}
-                    </td>
-                  </tr>
-                ))}
+                {detail.provisionBalances.map(
+                  (item: ProvisionBalance & { employee?: Employee }) => (
+                    <tr key={`${item.employeeId}-${item.rubric}`}>
+                      <td className="px-4 py-4 font-semibold text-[var(--color-ink)]">
+                        {item.employee?.name}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-[var(--color-muted)]">
+                        {item.rubric}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-[var(--color-ink)]">
+                        {formatCurrency(item.balance)}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-[var(--color-warning)]">
+                        {formatCurrency(item.reserved)}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-[var(--color-success)]">
+                        {formatCurrency(item.released)}
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
           </div>
@@ -263,8 +297,12 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                   className="flex items-start justify-between gap-4 border-b border-black/8 pb-3 last:border-b-0 last:pb-0"
                 >
                   <div>
-                    <p className="font-semibold text-[var(--color-ink)]">{entry.description}</p>
-                    <p className="text-sm text-[var(--color-muted)]">{entry.occurredOn}</p>
+                    <p className="font-semibold text-[var(--color-ink)]">
+                      {entry.description}
+                    </p>
+                    <p className="text-sm text-[var(--color-muted)]">
+                      {entry.occurredOn}
+                    </p>
                   </div>
                   <Badge
                     tone={
@@ -287,11 +325,14 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
       <div className="grid gap-4 xl:grid-cols-2">
         <TableCard
           title="Solicitações de liberação"
-          description="No MVP, protocolo interno com checagem de saldo, documentos, decisão item a item e consolidação administrativa."
+          description="No MVP, protocolo interno com checagem documental, decisão item a item, consolidação administrativa e preparo da futura execução."
         >
           <div className="grid gap-3">
             {detail.releaseRequests.map((request: ReleaseRequest) => (
-              <div key={request.id} className="rounded-[1.4rem] border border-black/8 bg-white px-4 py-4">
+              <div
+                key={request.id}
+                className="rounded-[1.4rem] border border-black/8 bg-white px-4 py-4"
+              >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
@@ -350,9 +391,51 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                     {getAdministrativeApprovalLabel(request)}
                   </p>
                   <p>
-                    Futura etapa financeira:{" "}
+                    Preparo da futura execução:{" "}
+                    {getFinancialPreparationLabel(request)}
+                  </p>
+                  <p>
+                    Valor apto à futura execução:{" "}
+                    {formatCurrency(request.workflow.financialPreparation.eligibleAmount)}
+                  </p>
+                  <p>
+                    Movimento esperado:{" "}
+                    {request.workflow.financialPreparation.expectedMovement}
+                  </p>
+                  <p>
+                    Evidências mínimas:{" "}
+                    {formatDocumentKinds(
+                      request.workflow.financialPreparation.requiredEvidence,
+                    )}
+                  </p>
+                  <p>
+                    Evidências faltantes:{" "}
+                    {formatDocumentKinds(
+                      request.workflow.financialPreparation.missingEvidence,
+                    )}
+                  </p>
+                  <p>
+                    Leitura financeira:{" "}
                     {request.workflow.administrativeApproval.financialNextStep}
                   </p>
+                  {request.workflow.financialPreparation.currentBalance !== undefined ? (
+                    <p>
+                      Saldo considerado:{" "}
+                      {formatCurrency(
+                        request.workflow.financialPreparation.currentBalance,
+                      )}
+                    </p>
+                  ) : null}
+                  {request.workflow.financialPreparation.approvedPendingExecution !==
+                  undefined ? (
+                    <p>
+                      Pendente na conciliação:{" "}
+                      {formatCurrency(
+                        request.workflow.financialPreparation
+                          .approvedPendingExecution,
+                      )}
+                    </p>
+                  ) : null}
                   <p>
                     Documentos esperados nesta etapa:{" "}
                     {formatDocumentKinds(request.requiredDocuments)}
@@ -367,6 +450,18 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                       {request.workflow.administrativeApproval.approver}
                     </p>
                   ) : null}
+                  {request.workflow.financialPreparation.preparedBy ? (
+                    <p>
+                      Último registro de preparo:{" "}
+                      {request.workflow.financialPreparation.preparedBy}
+                    </p>
+                  ) : null}
+                  <p>
+                    Execução financeira efetiva registrada:{" "}
+                    {request.workflow.financialPreparation.effectiveExecutionRecorded
+                      ? "sim"
+                      : "não"}
+                  </p>
                   {request.documentSummary.deferredByCategory.operation.length > 0 ||
                   request.documentSummary.deferredByCategory.closure.length > 0 ? (
                     <p>
@@ -389,17 +484,24 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
         >
           <div className="space-y-3">
             {detail.auditEvents.map((event: AuditEvent) => (
-              <div key={event.id} className="rounded-[1.4rem] border border-black/8 bg-white px-4 py-4">
+              <div
+                key={event.id}
+                className="rounded-[1.4rem] border border-black/8 bg-white px-4 py-4"
+              >
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="font-semibold text-[var(--color-ink)]">{event.action}</p>
+                    <p className="font-semibold text-[var(--color-ink)]">
+                      {event.action}
+                    </p>
                     <p className="text-sm text-[var(--color-muted)]">
                       {event.actor} • {event.happenedAt}
                     </p>
                   </div>
                   <Badge tone="neutral">{event.entity}</Badge>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-[var(--color-muted)]">{event.details}</p>
+                <p className="mt-3 text-sm leading-6 text-[var(--color-muted)]">
+                  {event.details}
+                </p>
               </div>
             ))}
           </div>

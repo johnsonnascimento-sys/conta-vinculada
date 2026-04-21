@@ -8,6 +8,7 @@ import { getCurrentUser } from "@/features/auth/queries";
 import {
   canApproveReleaseRequestAdministratively,
   canInitiateReleaseRequest,
+  canPrepareReleaseRequestForExecution,
   canReviewReleaseRequest,
 } from "@/features/releases/policy";
 import { isDatabaseEnabled } from "@/server/db/prisma";
@@ -52,6 +53,14 @@ export async function getReleaseRequestsBoardData(): Promise<ReleaseRequestsBoar
               ? canApproveReleaseRequestAdministratively(user, contract.code)
               : false;
           })
+          .map((request) => request.id)
+      : [],
+    financiallyPreparableRequestIds: user
+      ? requests
+          .filter((request) =>
+            canPrepareReleaseRequestForExecution(user) &&
+            request.workflow.financialPreparation.canPrepare,
+          )
           .map((request) => request.id)
       : [],
   };

@@ -189,12 +189,36 @@ export async function getReleaseRequests(): Promise<ReleaseRequest[]> {
       contract: {
         select: {
           normativeRegime: true,
+          linkedAccounts: {
+            select: {
+              isOfficialPublicBank: true,
+              cooperationTermRef: true,
+              currentBalance: true,
+            },
+            take: 1,
+          },
+          reconciliations: {
+            select: {
+              approvedPendingExecution: true,
+              unexplainedDifference: true,
+              competency: {
+                select: {
+                  competency: true,
+                },
+              },
+            },
+          },
         },
       },
       items: {
         orderBy: [{ competencyRef: "asc" }, { createdAt: "asc" }],
       },
       documents: true,
+      releaseExecutions: {
+        select: {
+          id: true,
+        },
+      },
       approvals: {
         orderBy: { createdAt: "desc" },
       },

@@ -318,7 +318,7 @@ const releaseRequestTwoDocumentPlan = getReleaseDocumentPlan(
   "rescisao",
   "resgate_contratada",
   "aprovada_parcial",
-  ["rescisao", "fgts", "comprovante_pagamento"],
+  ["rescisao", "fgts", "comprovante_pagamento", "despacho"],
 );
 
 const releaseRequestOneItems: ReleaseRequest["items"] = [
@@ -408,6 +408,18 @@ export const releaseRequests: ReleaseRequest[] = [
       itemDecisions: releaseRequestOneItems.map((item) => item.decision),
       movementMode: "resgate_contratada",
       normativeRegime: "cnj_651_2025",
+      providedDocuments: releaseRequestOneDocumentPlan.provided,
+      approvedAmount: releaseRequestOneItems.reduce(
+        (total, item) => total + item.approvedAmount,
+        0,
+      ),
+      currentBalance: 148320.48,
+      approvedPendingExecution: 1560,
+      unexplainedDifference: 943.18,
+      linkedAccount: {
+        isOfficialPublicBank: true,
+        cooperationTermRef: "TCT-CNJ-BB-2025",
+      },
     }),
   },
   {
@@ -446,6 +458,18 @@ export const releaseRequests: ReleaseRequest[] = [
       itemDecisions: releaseRequestTwoItems.map((item) => item.decision),
       movementMode: "resgate_contratada",
       normativeRegime: "cnj_169_2013",
+      providedDocuments: releaseRequestTwoDocumentPlan.provided,
+      approvedAmount: releaseRequestTwoItems.reduce(
+        (total, item) => total + item.approvedAmount,
+        0,
+      ),
+      currentBalance: 232904.12,
+      approvedPendingExecution: 3650,
+      unexplainedDifference: 0,
+      linkedAccount: {
+        isOfficialPublicBank: true,
+        cooperationTermRef: "TCT-CNJ-CEF-2024",
+      },
       latestAdministrativeApproval: {
         decision: "aprovar_parcial",
         decidedBy: "Cap. Rodrigo Neves",

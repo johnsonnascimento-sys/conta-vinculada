@@ -99,6 +99,104 @@ test("workflow summary exposes recorded administrative approval and future finan
   );
 });
 
+test("workflow summary blocks financial preparation when operation evidence is missing", () => {
+  const summary = buildSummary({
+    status: "aprovada_parcial",
+    itemDecisions: ["aprovado_parcial"],
+    approvedAmount: 3650,
+    providedDocuments: ["rescisao", "fgts", "comprovante_pagamento"],
+    currentBalance: 232904.12,
+    approvedPendingExecution: 3650,
+    unexplainedDifference: 0,
+    linkedAccount: {
+      isOfficialPublicBank: true,
+      cooperationTermRef: "TCT-CNJ-CEF-2024",
+    },
+    latestAdministrativeApproval: {
+      decision: "aprovar_parcial",
+      decidedBy: "Beatriz Campos",
+      decidedAt: "2026-04-21T12:00:00.000Z",
+    },
+  });
+
+  assert.equal(summary.financialPreparation.state, "nao_apta");
+  assert.equal(summary.financialPreparation.canPrepare, false);
+  assert.deepEqual(summary.financialPreparation.requiredEvidence, [
+    "despacho",
+    "parecer",
+  ]);
+  assert.deepEqual(summary.financialPreparation.missingEvidence, [
+    "despacho",
+    "parecer",
+  ]);
+});
+
+test("workflow summary marks request as ready for future execution preparation when conditions are met", () => {
+  const summary = buildSummary({
+    status: "aprovada_parcial",
+    itemDecisions: ["aprovado_parcial"],
+    approvedAmount: 3650,
+    providedDocuments: [
+      "rescisao",
+      "fgts",
+      "comprovante_pagamento",
+      "despacho",
+      "parecer",
+    ],
+    currentBalance: 232904.12,
+    approvedPendingExecution: 3650,
+    unexplainedDifference: 0,
+    linkedAccount: {
+      isOfficialPublicBank: true,
+      cooperationTermRef: "TCT-CNJ-CEF-2024",
+    },
+    latestAdministrativeApproval: {
+      decision: "aprovar_parcial",
+      decidedBy: "Beatriz Campos",
+      decidedAt: "2026-04-21T12:00:00.000Z",
+    },
+  });
+
+  assert.equal(summary.financialPreparation.state, "apta");
+  assert.equal(summary.financialPreparation.canPrepare, true);
+  assert.equal(summary.financialPreparation.eligibleAmount, 3650);
+  assert.equal(summary.financialPreparation.balanceCheck, "suficiente");
+  assert.equal(summary.financialPreparation.reconciliationCheck, "regular");
+  assert.equal(summary.financialPreparation.effectiveExecutionRecorded, false);
+});
+
+test("workflow summary keeps preparation distinct from effective financial execution", () => {
+  const summary = buildSummary({
+    status: "aprovada",
+    itemDecisions: ["aprovado"],
+    approvedAmount: 1560,
+    providedDocuments: ["ferias", "folha", "comprovante_pagamento", "despacho", "parecer"],
+    currentBalance: 148320.48,
+    approvedPendingExecution: 1560,
+    unexplainedDifference: 0,
+    linkedAccount: {
+      isOfficialPublicBank: true,
+      cooperationTermRef: "TCT-CNJ-BB-2025",
+    },
+    latestAdministrativeApproval: {
+      decision: "aprovar",
+      decidedBy: "Beatriz Campos",
+      decidedAt: "2026-04-21T12:00:00.000Z",
+    },
+    latestFinancialPreparationApproval: {
+      decision: "aprovar",
+      decidedBy: "Rafaela Vasques",
+      decidedAt: "2026-04-21T14:00:00.000Z",
+      notes: "Checklist financeiro interno concluído.",
+    },
+  });
+
+  assert.equal(summary.financialPreparation.state, "preparada");
+  assert.equal(summary.financialPreparation.canPrepare, false);
+  assert.equal(summary.financialPreparation.preparedBy, "Rafaela Vasques");
+  assert.equal(summary.financialPreparation.effectiveExecutionRecorded, false);
+});
+
 test("allowed administrative decisions follow the consolidated item result", () => {
   assert.deepEqual(getAllowedAdministrativeApprovalDecisions("aprovada"), [
     "aprovar",

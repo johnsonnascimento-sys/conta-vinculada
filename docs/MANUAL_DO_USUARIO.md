@@ -241,6 +241,42 @@ Quando houver permissão e ambiente de gravação habilitado, a fila permite reg
 
 O sistema também passa a informar a `Aptidão para futura etapa financeira`. Essa mensagem serve apenas para mostrar se a solicitação ficou preparada para a etapa posterior, considerando a forma de movimentação e o regime normativo do contrato. Ela não representa pagamento, resgate ou operação bancária já executada.
 
+### 8.4.3 Preparo da futura execução financeira
+
+Depois da aprovação administrativa, o sistema passa a mostrar também a leitura de `Preparo da futura execução financeira`.
+
+Essa leitura serve para o usuário entender:
+
+- se a solicitação já pode seguir para um preparo interno da etapa financeira;
+- qual valor consolidado está apto para a futura movimentação;
+- qual é o movimento esperado;
+- quais evidências mínimas ainda faltam;
+- se a leitura de saldo e conciliação já permite avançar com segurança;
+- e se já existe registro interno desse preparo.
+
+Na prática, o sistema considera essa etapa distinta da execução efetiva. O registro de preparo:
+
+- não cria movimentação bancária real;
+- não gera extrato bancário verdadeiro;
+- não significa que a liberação foi executada;
+- apenas registra que a solicitação foi preparada internamente para a futura execução.
+
+O usuário deve interpretar essa etapa assim:
+
+- `Ainda não apta`: ainda falta condição mínima para o preparo;
+- `Pronta para preparo da futura execução`: a solicitação já pode receber o registro interno de preparo;
+- `Preparo interno já registrado`: o preparo da futura execução já foi lançado internamente, mas a execução bancária efetiva continua separada.
+
+O sistema também passa a mostrar:
+
+- `Valor apto à futura execução`;
+- `Movimento esperado`;
+- `Evidências mínimas desta etapa`;
+- `Evidências ainda faltantes`;
+- leitura de saldo considerada;
+- leitura da conciliação considerada;
+- indicação explícita de que não existe execução financeira efetiva registrada, quando for o caso.
+
 ### 8.5 Pendências documentais e acompanhamento
 
 O sistema passou a organizar a leitura documental da solicitação por etapa do fluxo. Isso ajuda o usuário a perceber com mais clareza o que já deveria estar instruído agora e o que só será exigido em momento posterior.
@@ -413,6 +449,8 @@ Leitura complementar importante:
 - a aprovação administrativa deve ser lida separadamente da decisão agregada dos itens;
 - uma solicitação pode estar com decisão agregada suficiente e ainda não ter aprovação administrativa registrada;
 - a aptidão para futura etapa financeira depende da consolidação administrativa e não deve ser confundida com liberação bancária efetivamente realizada;
+- o preparo da futura execução financeira também deve ser lido separadamente da execução bancária efetiva;
+- uma solicitação pode estar preparada internamente para a etapa financeira e, ainda assim, continuar sem execução financeira registrada;
 - a decisão agregada só deve ser considerada consolidada quando os itens necessários já tiverem recebido decisão suficiente;
 - o usuário deve observar também a contagem de itens ainda pendentes e as pendências documentais da etapa.
 
@@ -486,6 +524,10 @@ Não. O sistema já cobre o registro e o acompanhamento inicial das solicitaçõ
 ### O que significa “aprovação administrativa”?
 
 É a consolidação administrativa da solicitação depois da análise dos itens. Ela confirma a leitura global do pedido, mas ainda não executa financeiramente a liberação.
+
+### O que significa “preparo da futura execução financeira”?
+
+É o registro interno de que a solicitação já reuniu condições mínimas para seguir à próxima etapa financeira. Esse preparo continua diferente da execução bancária efetiva e não substitui lançamento bancário real.
 
 ### O módulo de administração já permite gerir tudo sobre usuários?
 

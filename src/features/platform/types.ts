@@ -129,6 +129,21 @@ export type ReleaseRequestFinancialReadinessState =
   | "nao_apta"
   | "apta_para_execucao_futura";
 
+export type ReleaseRequestFinancialPreparationState =
+  | "nao_apta"
+  | "apta"
+  | "preparada";
+
+export type ReleaseRequestBalanceCheckState =
+  | "nao_avaliado"
+  | "suficiente"
+  | "insuficiente";
+
+export type ReleaseRequestReconciliationCheckState =
+  | "nao_avaliado"
+  | "regular"
+  | "com_atencao";
+
 export interface ReleaseRequestAdministrativeApprovalSummary {
   state: ReleaseRequestAdministrativeApprovalState;
   decision?: AdministrativeApprovalDecision;
@@ -139,6 +154,25 @@ export interface ReleaseRequestAdministrativeApprovalSummary {
   reason?: string;
   financialReadiness: ReleaseRequestFinancialReadinessState;
   financialNextStep: string;
+}
+
+export interface ReleaseRequestFinancialPreparationSummary {
+  state: ReleaseRequestFinancialPreparationState;
+  canPrepare: boolean;
+  eligibleAmount: number;
+  expectedMovement: string;
+  requiredEvidence: DocumentKind[];
+  missingEvidence: DocumentKind[];
+  balanceCheck: ReleaseRequestBalanceCheckState;
+  reconciliationCheck: ReleaseRequestReconciliationCheckState;
+  currentBalance?: number;
+  approvedPendingExecution?: number;
+  unexplainedDifference?: number;
+  preparedBy?: string;
+  preparedAt?: string;
+  notes?: string;
+  reason?: string;
+  effectiveExecutionRecorded: boolean;
 }
 
 export interface ReleaseRequestWorkflowSummary {
@@ -152,6 +186,7 @@ export interface ReleaseRequestWorkflowSummary {
   decidedItemCount: number;
   canAggregateDecision: boolean;
   administrativeApproval: ReleaseRequestAdministrativeApprovalSummary;
+  financialPreparation: ReleaseRequestFinancialPreparationSummary;
 }
 
 export interface Tenant {

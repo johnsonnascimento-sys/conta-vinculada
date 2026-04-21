@@ -1,6 +1,7 @@
 import type { ReleaseRequest, ReleaseRequestItem } from "@/features/platform/types";
 import { AdministrativeApprovalForm } from "@/features/releases/components/administrative-approval-form";
 import { CreateReleaseRequestForm } from "@/features/releases/components/create-release-request-form";
+import { FinancialPreparationForm } from "@/features/releases/components/financial-preparation-form";
 import { ReviewReleaseRequestForm } from "@/features/releases/components/review-release-request-form";
 import { canReviewReleaseRequestItem } from "@/features/releases/policy";
 import {
@@ -129,6 +130,44 @@ function getAdministrativeApprovalStateLabel(request: ReleaseRequest) {
   return "Ainda não apta para aprovação administrativa";
 }
 
+function getFinancialPreparationStateLabel(request: ReleaseRequest) {
+  if (request.workflow.financialPreparation.state === "preparada") {
+    return "Preparo interno já registrado";
+  }
+
+  if (request.workflow.financialPreparation.state === "apta") {
+    return "Pronta para preparo da futura execução";
+  }
+
+  return "Ainda não apta para preparo da futura execução";
+}
+
+function getBalanceCheckLabel(request: ReleaseRequest) {
+  if (request.workflow.financialPreparation.balanceCheck === "suficiente") {
+    return "Saldo suficiente para o valor apto";
+  }
+
+  if (request.workflow.financialPreparation.balanceCheck === "insuficiente") {
+    return "Saldo insuficiente para o valor apto";
+  }
+
+  return "Saldo ainda não avaliado para esta etapa";
+}
+
+function getReconciliationCheckLabel(request: ReleaseRequest) {
+  if (request.workflow.financialPreparation.reconciliationCheck === "regular") {
+    return "Conciliação sem diferença não explicada";
+  }
+
+  if (
+    request.workflow.financialPreparation.reconciliationCheck === "com_atencao"
+  ) {
+    return "Conciliação ainda com diferença não explicada";
+  }
+
+  return "Conciliação ainda não avaliada para esta etapa";
+}
+
 function getItemDecisionTone(decision: ReleaseRequestItem["decision"]) {
   if (decision === "aprovado") {
     return "success" as const;
@@ -185,6 +224,9 @@ export default async function ReleasesPage() {
   const administrativelyApprovableRequestIds = new Set(
     boardData.administrativelyApprovableRequestIds,
   );
+  const financiallyPreparableRequestIds = new Set(
+    boardData.financiallyPreparableRequestIds,
+  );
 
   return (
     <div className="space-y-4">
@@ -218,6 +260,10 @@ export default async function ReleasesPage() {
               boardData.databaseEnabled &&
               administrativelyApprovableRequestIds.has(request.id) &&
               request.workflow.administrativeApproval.canApprove;
+            const canPrepareFinancially =
+              boardData.databaseEnabled &&
+              financiallyPreparableRequestIds.has(request.id) &&
+              request.workflow.financialPreparation.canPrepare;
 
             return (
               <div
@@ -273,10 +319,10 @@ export default async function ReleasesPage() {
                   </div>
                   <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
                     <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                      Aprovação administrativa
+                      Preparo financeiro
                     </span>
                     <p className="mt-2 text-sm leading-6 text-[var(--color-ink)]">
-                      {getAdministrativeApprovalStateLabel(request)}
+                      {getFinancialPreparationStateLabel(request)}
                     </p>
                   </div>
                 </div>
@@ -322,7 +368,7 @@ export default async function ReleasesPage() {
                       Situação: {getAdministrativeApprovalStateLabel(request)}
                     </p>
                     <p>
-                      Aptidão para futura etapa financeira:{" "}
+                      Próxima leitura financeira:{" "}
                       {request.workflow.administrativeApproval.financialNextStep}
                     </p>
                     {request.workflow.administrativeApproval.reason ? (
@@ -358,6 +404,104 @@ export default async function ReleasesPage() {
                       requestId={request.id}
                       decisionState={request.workflow.decisionState}
                     />
+                  ) : null}
+                </div>
+
+                <div className="mt-5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-4">
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
+                    Preparo da futura execução financeira
+                  </h3>
+                  <div className="mt-3 grid gap-2 text-sm leading-6 text-[var(--color-muted)]">
+                    <p>
+                      Situação: {getFinancialPreparationStateLabel(request)}
+                    </p>
+                    <p>
+                      Valor apto à futura execução:{" "}
+                      {formatCurrency(request.workflow.financialPreparation.eligibleAmount)}
+                    </p>
+                    <p>
+                      Movimento esperado:{" "}
+                      {request.workflow.financialPreparation.expectedMovement}
+                    </p>
+                    <p>
+                      Evidências mínimas desta etapa:{" "}
+                      {formatDocumentKinds(
+                        request.workflow.financialPreparation.requiredEvidence,
+                      )}
+                    </p>
+                    <p>
+                      Evidências ainda faltantes:{" "}
+                      {formatDocumentKinds(
+                        request.workflow.financialPreparation.missingEvidence,
+                      )}
+                    </p>
+                    <p>{getBalanceCheckLabel(request)}</p>
+                    <p>{getReconciliationCheckLabel(request)}</p>
+                    {request.workflow.financialPreparation.currentBalance !== undefined ? (
+                      <p>
+                        Saldo atual considerado:{" "}
+                        {formatCurrency(
+                          request.workflow.financialPreparation.currentBalance,
+                        )}
+                      </p>
+                    ) : null}
+                    {request.workflow.financialPreparation.approvedPendingExecution !==
+                    undefined ? (
+                      <p>
+                        Valor já pendente na conciliação:{" "}
+                        {formatCurrency(
+                          request.workflow.financialPreparation
+                            .approvedPendingExecution,
+                        )}
+                      </p>
+                    ) : null}
+                    {request.workflow.financialPreparation.unexplainedDifference !==
+                    undefined ? (
+                      <p>
+                        Diferença não explicada considerada:{" "}
+                        {formatCurrency(
+                          request.workflow.financialPreparation
+                            .unexplainedDifference,
+                        )}
+                      </p>
+                    ) : null}
+                    {request.workflow.financialPreparation.reason ? (
+                      <p>
+                        Condição atual:{" "}
+                        {request.workflow.financialPreparation.reason}
+                      </p>
+                    ) : null}
+                    {request.workflow.financialPreparation.preparedBy ? (
+                      <p>
+                        Preparado por:{" "}
+                        {request.workflow.financialPreparation.preparedBy}
+                      </p>
+                    ) : null}
+                    {request.workflow.financialPreparation.preparedAt ? (
+                      <p>
+                        Registro do preparo em:{" "}
+                        {formatDateTimeLabel(
+                          request.workflow.financialPreparation.preparedAt,
+                        )}
+                      </p>
+                    ) : null}
+                    {request.workflow.financialPreparation.notes ? (
+                      <p>
+                        Observações registradas:{" "}
+                        {request.workflow.financialPreparation.notes}
+                      </p>
+                    ) : null}
+                    <p>
+                      Execução financeira efetiva registrada:{" "}
+                      {request.workflow.financialPreparation
+                        .effectiveExecutionRecorded
+                        ? "sim"
+                        : "não"}
+                    </p>
+                  </div>
+
+                  {canPrepareFinancially ? (
+                    <FinancialPreparationForm requestId={request.id} />
                   ) : null}
                 </div>
 

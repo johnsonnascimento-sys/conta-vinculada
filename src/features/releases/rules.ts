@@ -1,4 +1,5 @@
 import type {
+  ContractNormativeRegime,
   DocumentKind,
   ReleaseDocumentCategoryMap,
   ReleaseMovementMode,
@@ -121,6 +122,22 @@ export function getExpectedOperationDocumentsForRelease(
   movementMode: ReleaseMovementMode,
 ): DocumentKind[] {
   return RELEASE_MOVEMENT_MODE_DOCUMENTS[movementMode];
+}
+
+export function getExpectedFinancialPreparationEvidence(input: {
+  movementMode: ReleaseMovementMode;
+  normativeRegime: ContractNormativeRegime;
+}) {
+  const required: DocumentKind[] = ["despacho"];
+
+  if (
+    input.movementMode === "pagamento_direto_empregado" ||
+    input.normativeRegime === "cnj_651_2025"
+  ) {
+    required.push("parecer");
+  }
+
+  return uniqueDocumentKinds(required);
 }
 
 function createEmptyDocumentCategoryMap(): ReleaseDocumentCategoryMap {

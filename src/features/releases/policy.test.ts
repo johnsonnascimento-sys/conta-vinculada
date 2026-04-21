@@ -4,6 +4,7 @@ import type { AppUser } from "@/features/platform/types";
 import {
   canApproveReleaseRequestAdministratively,
   canInitiateReleaseRequest,
+  canPrepareReleaseRequestForExecution,
   canReviewReleaseRequest,
   canReviewReleaseRequestItem,
   isReviewableReleaseRequestStatus,
@@ -76,6 +77,12 @@ test("canApproveReleaseRequestAdministratively allows administrative consolidati
     canApproveReleaseRequestAdministratively(analystUser, "CT 07/2025"),
     false,
   );
+});
+
+test("canPrepareReleaseRequestForExecution allows financial preparation only for admin and financeiro", () => {
+  assert.equal(canPrepareReleaseRequestForExecution(adminUser), true);
+  assert.equal(canPrepareReleaseRequestForExecution(financialUser), true);
+  assert.equal(canPrepareReleaseRequestForExecution(analystUser), false);
 });
 
 test("isReviewableReleaseRequestStatus allows only statuses open for analysis", () => {

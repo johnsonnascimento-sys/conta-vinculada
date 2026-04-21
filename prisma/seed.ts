@@ -469,6 +469,7 @@ async function main() {
     ["doc-003", requestTwo.id, contractTwo.id, "rescisao", "trct-marcos.pdf"],
     ["doc-004", requestTwo.id, contractTwo.id, "fgts", "fgts-marcos.pdf"],
     ["doc-005", requestTwo.id, contractTwo.id, "comprovante_pagamento", "comprovante-rescisao.pdf"],
+    ["doc-006", requestTwo.id, contractTwo.id, "despacho", "despacho-preparo-rescisao.pdf"],
   ] as const) {
     await prisma.document.upsert({
       where: { id },

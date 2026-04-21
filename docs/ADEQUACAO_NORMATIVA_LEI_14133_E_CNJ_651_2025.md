@@ -44,6 +44,8 @@ Apos esta rodada, o sistema passou a atender estruturalmente os seguintes pontos
   - termo de cooperacao
   - garantia rescisoria
 - manutencao do fluxo ja implementado de criacao de `ReleaseRequest` e `ReleaseRequestItem`, sem destruir a arquitetura nem o modo hibrido mock/Prisma.
+- consolidacao da aprovacao administrativa posterior da solicitacao, sem confundir essa etapa com execucao bancaria.
+- leitura e registro interno do preparo da futura execucao financeira, considerando forma de movimentacao, regime normativo, evidencias minimas, saldo e conciliacao, sem criar integracao bancaria real.
 
 ## 4. O que ainda nao atende
 
@@ -52,6 +54,7 @@ O sistema ainda nao atende integralmente, nesta rodada, os seguintes pontos norm
 - workflow completo dos prazos de 10 dias uteis da Resolucao CNJ no 651/2025 para autorizacao e comprovacao da movimentacao;
 - fluxo operacional de pagamento direto aos empregados com comprovacao bancaria posterior;
 - fluxo operacional de resgate/reembolso com conferencias especificas por etapa;
+- execucao financeira efetiva com vinculacao a lancamento bancario real e baixa correspondente;
 - uso proporcional do saldo remanescente para empregados remanescentes, com calculo e autorizacao formal;
 - sucessao contratual com a mesma empresa e reaproveitamento do saldo remanescente, com planilhas individualizadas por empregado;
 - garantia contratual especifica para verbas rescisorias inadimplidas como parte do cadastro/gestao contratual;
@@ -72,6 +75,9 @@ Fluxo de liberacao:
 - a validacao backend passou a validar o modo de movimentacao.
 - o comando `createReleaseRequest` passou a persistir `movementMode` e a registrar o dado na auditoria.
 - a UI minima de criacao passou a permitir a escolha do modo de movimentacao.
+- o workflow passou a separar aprovacao administrativa, preparo da futura execucao e execucao financeira efetiva.
+- o preparo financeiro passou a considerar conta vinculada, saldo, diferenca nao explicada da conciliacao e evidencias minimas da etapa.
+- o registro do preparo financeiro passou a ser interno e auditavel, sem gerar `BankEntry` ficticio nem `ReleaseExecution` efetiva.
 
 Leitura e mocks:
 

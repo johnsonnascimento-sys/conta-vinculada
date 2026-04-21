@@ -25,6 +25,40 @@ function isAdministrativeApprovalDecision(
   );
 }
 
+function getLatestWorkflowApproval(
+  approvals: Array<{
+    stage:
+      | "analise_documental"
+      | "aprovacao_administrativa"
+      | "triagem"
+      | "execucao_financeira"
+      | "conciliacao";
+    decision: "aprovar" | "aprovar_parcial" | "rejeitar" | "devolver";
+    decidedBy: string;
+    notes: string | null;
+    createdAt: Date;
+  }>,
+  stage: "aprovacao_administrativa" | "execucao_financeira",
+) {
+  const latestApproval = approvals
+    .filter(
+      (item) =>
+        item.stage === stage && isAdministrativeApprovalDecision(item.decision),
+    )
+    .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())[0];
+
+  if (!latestApproval) {
+    return undefined;
+  }
+
+  return {
+    decision: latestApproval.decision as AdministrativeApprovalDecision,
+    decidedBy: latestApproval.decidedBy,
+    notes: latestApproval.notes,
+    createdAt: latestApproval.createdAt,
+  };
+}
+
 function getLatestAdministrativeApproval(
   approvals: Array<{
     stage:
@@ -44,24 +78,24 @@ function getLatestAdministrativeApproval(
   notes: string | null;
   createdAt: Date;
 } | undefined {
-  const latestApproval = approvals
-    .filter(
-      (item) =>
-        item.stage === "aprovacao_administrativa" &&
-        isAdministrativeApprovalDecision(item.decision),
-    )
-    .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())[0];
+  return getLatestWorkflowApproval(approvals, "aprovacao_administrativa");
+}
 
-  if (!latestApproval) {
-    return undefined;
-  }
-
-  return {
-    decision: latestApproval.decision as AdministrativeApprovalDecision,
-    decidedBy: latestApproval.decidedBy,
-    notes: latestApproval.notes,
-    createdAt: latestApproval.createdAt,
-  };
+function getLatestFinancialPreparationApproval(
+  approvals: Array<{
+    stage:
+      | "analise_documental"
+      | "aprovacao_administrativa"
+      | "triagem"
+      | "execucao_financeira"
+      | "conciliacao";
+    decision: "aprovar" | "aprovar_parcial" | "rejeitar" | "devolver";
+    decidedBy: string;
+    notes: string | null;
+    createdAt: Date;
+  }>,
+) {
+  return getLatestWorkflowApproval(approvals, "execucao_financeira");
 }
 
 function serializeCalculationMemory(value: unknown) {
@@ -218,6 +252,16 @@ export function serializeReleaseRequest(request: {
   approverName: string | null;
   contract: {
     normativeRegime: Contract["normativeRegime"];
+    linkedAccounts?: Array<{
+      isOfficialPublicBank: boolean;
+      cooperationTermRef: string | null;
+      currentBalance: { toNumber(): number };
+    }>;
+    reconciliations?: Array<{
+      approvedPendingExecution: { toNumber(): number };
+      unexplainedDifference: { toNumber(): number };
+      competency: { competency: string };
+    }>;
   };
   factualBasis: string;
   competencyStart: string;
@@ -253,6 +297,9 @@ export function serializeReleaseRequest(request: {
     notes: string | null;
     createdAt: Date;
   }>;
+  releaseExecutions?: Array<{
+    id: string;
+  }>;
 }): ReleaseRequest {
   const providedDocuments = [...new Set(request.documents.map((item) => item.kind))];
   const documentPlan = getReleaseDocumentPlan(
@@ -283,12 +330,39 @@ export function serializeReleaseRequest(request: {
   const latestAdministrativeApproval = getLatestAdministrativeApproval(
     request.approvals,
   );
+  const latestFinancialPreparationApproval = getLatestFinancialPreparationApproval(
+    request.approvals,
+  );
+  const linkedAccount = request.contract.linkedAccounts?.[0];
+  const reconciliation = request.contract.reconciliations?.find(
+    (item) => item.competency.competency === request.competencyEnd,
+  );
   const workflow = summarizeReleaseRequestWorkflow({
     status: request.status,
     missingDocumentCount: documentPlan.missingCurrentStage.length,
     itemDecisions: items.map((item) => item.decision),
     movementMode: request.movementMode,
     normativeRegime: request.contract.normativeRegime,
+    providedDocuments,
+    approvedAmount: items.reduce((total, item) => total + item.approvedAmount, 0),
+    currentBalance: linkedAccount?.currentBalance.toNumber(),
+    approvedPendingExecution: reconciliation?.approvedPendingExecution.toNumber(),
+    unexplainedDifference: reconciliation?.unexplainedDifference.toNumber(),
+    linkedAccount: linkedAccount
+      ? {
+          isOfficialPublicBank: linkedAccount.isOfficialPublicBank,
+          cooperationTermRef: linkedAccount.cooperationTermRef ?? undefined,
+        }
+      : undefined,
+    latestFinancialPreparationApproval: latestFinancialPreparationApproval
+      ? {
+          decision: latestFinancialPreparationApproval.decision,
+          decidedBy: latestFinancialPreparationApproval.decidedBy,
+          decidedAt: latestFinancialPreparationApproval.createdAt.toISOString(),
+          notes: latestFinancialPreparationApproval.notes ?? undefined,
+        }
+      : undefined,
+    hasEffectiveExecution: (request.releaseExecutions?.length ?? 0) > 0,
     latestAdministrativeApproval: latestAdministrativeApproval
       ? {
           decision: latestAdministrativeApproval.decision,

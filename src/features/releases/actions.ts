@@ -3,11 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { approveReleaseRequestAdministratively } from "@/server/commands/releases/approve-release-request-administratively";
 import { createReleaseRequest } from "@/server/commands/releases/create-release-request";
+import { prepareReleaseRequestForExecution } from "@/server/commands/releases/prepare-release-request-for-execution";
 import { reviewReleaseRequest } from "@/server/commands/releases/review-release-request";
 import type {
   AdministrativeApproveReleaseRequestActionState,
   CreateReleaseRequestActionState,
   CreateReleaseRequestItemInput,
+  PrepareReleaseRequestForExecutionActionState,
   ReviewReleaseRequestActionState,
   ReviewReleaseRequestDecision,
 } from "@/features/releases/types";
@@ -131,6 +133,36 @@ export async function approveReleaseRequestAdministrativelyAction(
   return {
     status: "success",
     message: `Aprovação administrativa ${result.data.decision} registrada para a solicitação.`,
+    data: result.data,
+  };
+}
+
+export async function prepareReleaseRequestForExecutionAction(
+  _: PrepareReleaseRequestForExecutionActionState,
+  formData: FormData,
+): Promise<PrepareReleaseRequestForExecutionActionState> {
+  const result = await prepareReleaseRequestForExecution({
+    requestId: String(formData.get("requestId") ?? "").trim(),
+    notes: String(formData.get("notes") ?? "").trim(),
+  });
+
+  if (!result.ok) {
+    return {
+      status: "error",
+      code: result.code,
+      message: result.message,
+      fieldErrors: result.fieldErrors,
+    };
+  }
+
+  revalidatePath("/dashboard/releases");
+  revalidatePath(`/dashboard/contracts/${result.data.contractId}`);
+  revalidatePath("/dashboard/reconciliation");
+  revalidatePath("/dashboard");
+
+  return {
+    status: "success",
+    message: `Preparo interno registrado para futura execução do valor de ${result.data.eligibleAmount.toFixed(2)}.`,
     data: result.data,
   };
 }

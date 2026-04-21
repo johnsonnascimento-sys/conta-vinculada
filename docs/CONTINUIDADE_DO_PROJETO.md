@@ -49,6 +49,12 @@ Na rodada seguinte, o fluxo também passou a distinguir explicitamente a camada 
 - o `normativeRegime` do contrato;
 - a aptidão apenas para futura etapa financeira, sem executar a liberação bancária.
 
+Nesta rodada, o fluxo passou a registrar de forma própria o preparo da futura execução financeira, ainda sem:
+
+- integração bancária real;
+- criação de execução financeira efetiva;
+- simulação de extrato bancário como se a operação já tivesse ocorrido.
+
 ## 2. Estado atual implementado
 
 ### Frontend e navegação
@@ -605,6 +611,7 @@ Resultado esperado:
 - [x] Implementar análise/decisão mínima por item da solicitação de liberação.
 - [x] Explicitar a fronteira operacional entre exigência documental, análise e decisão agregada da solicitação.
 - [x] Consolidar a aprovação administrativa posterior da solicitação, separada da decisão por item e da futura etapa financeira.
+- [x] Consolidar o preparo interno da futura execução financeira, separado da execução bancária efetiva.
 - [ ] Expandir a decisão de solicitação para múltiplos itens, revisão controlada e etapas posteriores do workflow.
 - [ ] Implementar execução financeira vinculada a lançamento bancário.
 - [x] Consolidar pendências documentais derivadas da matriz de documentos por tipo, etapa e modo de movimentação.

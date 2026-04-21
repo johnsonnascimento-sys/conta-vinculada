@@ -35,6 +35,18 @@ export function canReviewReleaseRequest(user: AppUser, contractCode: string) {
   return canOperateReleaseRequest(user, contractCode);
 }
 
+export function canApproveReleaseRequestAdministratively(user: AppUser) {
+  if (!canAccessRoute(user.role, "/dashboard/releases")) {
+    return false;
+  }
+
+  if (user.role === "Administrador do órgão" || user.role === "Financeiro") {
+    return true;
+  }
+
+  return false;
+}
+
 export function isReviewableReleaseRequestStatus(
   status: ReleaseRequestStatus,
 ) {

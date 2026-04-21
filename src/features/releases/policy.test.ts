@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import type { AppUser } from "@/features/platform/types";
 import {
+  canApproveReleaseRequestAdministratively,
   canInitiateReleaseRequest,
   canReviewReleaseRequest,
   canReviewReleaseRequestItem,
   isReviewableReleaseRequestStatus,
 } from "@/features/releases/policy";
-import type { AppUser } from "@/features/platform/types";
 
 const adminUser: AppUser = {
   id: "user-001",
@@ -35,6 +36,15 @@ const auditUser: AppUser = {
   mfaEnabled: true,
 };
 
+const financialUser: AppUser = {
+  id: "user-003",
+  name: "Rafaela Vasques",
+  email: "rafaela.vasques@jmu.mil.br",
+  role: "Financeiro",
+  scope: "2CJM",
+  mfaEnabled: true,
+};
+
 test("canInitiateReleaseRequest allows administrator in any contract", () => {
   assert.equal(canInitiateReleaseRequest(adminUser, "CT 07/2025"), true);
 });
@@ -51,6 +61,21 @@ test("canReviewReleaseRequest follows the same scoped authorization", () => {
 
 test("canReviewReleaseRequest denies read-only audit profile", () => {
   assert.equal(canReviewReleaseRequest(auditUser, "CT 07/2025"), false);
+});
+
+test("canApproveReleaseRequestAdministratively allows administrative consolidation only for admin and financeiro", () => {
+  assert.equal(
+    canApproveReleaseRequestAdministratively(adminUser, "CT 07/2025"),
+    true,
+  );
+  assert.equal(
+    canApproveReleaseRequestAdministratively(financialUser, "CT 07/2025"),
+    true,
+  );
+  assert.equal(
+    canApproveReleaseRequestAdministratively(analystUser, "CT 07/2025"),
+    false,
+  );
 });
 
 test("isReviewableReleaseRequestStatus allows only statuses open for analysis", () => {

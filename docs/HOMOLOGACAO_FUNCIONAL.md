@@ -76,6 +76,8 @@ Resultado:
 - [ ] O detalhe do contrato apresenta solicitações de liberação ligadas ao contrato.
 - [ ] O detalhe do contrato mostra documentos esperados na etapa atual das solicitações vinculadas.
 - [ ] O detalhe do contrato mostra pendências documentais das solicitações vinculadas.
+- [ ] O detalhe do contrato mostra a situação de aprovação administrativa das solicitações vinculadas.
+- [ ] O detalhe do contrato mostra a leitura de aptidão para futura etapa financeira sem indicar execução bancária concluída.
 - [ ] O detalhe do contrato apresenta trilha de auditoria ligada ao contrato.
 
 Observações:
@@ -111,9 +113,17 @@ Resultado:
 - [ ] A fila informa quando a solicitação ainda aguarda início de análise.
 - [ ] A fila informa quando a solicitação já possui itens decididos, mas ainda sem decisão agregada final.
 - [ ] A fila informa quando a solicitação já possui decisão agregada suficiente.
+- [ ] A fila informa quando a solicitação ainda não está apta para aprovação administrativa.
+- [ ] A fila informa quando a solicitação já está pronta para aprovação administrativa.
+- [ ] A fila informa a decisão administrativa consolidada quando ela já existir.
+- [ ] A fila informa a aptidão para futura etapa financeira sem indicar que a execução financeira já ocorreu.
 - [ ] Itens pendentes exibem ação de decisão quando o perfil e o ambiente permitem.
 - [ ] A decisão por item pode ser registrada na própria fila de solicitações.
 - [ ] Solicitação em exigência documental não apresenta ação de decisão por item.
+- [ ] Solicitação com pendência documental relevante não apresenta ação de aprovação administrativa.
+- [ ] Solicitação sem consolidação suficiente dos itens não apresenta ação de aprovação administrativa.
+- [ ] A aprovação administrativa pode ser registrada por perfil autorizado no ambiente com gravação habilitada.
+- [ ] A aprovação administrativa parcial e a rejeição exigem fundamentação.
 - [ ] Aprovação total, aprovação parcial e rejeição ou glosa se comportam de forma coerente com os valores informados.
 - [ ] Item já decidido não volta a apresentar ação de decisão na mesma etapa.
 
@@ -214,6 +224,8 @@ Resultado:
 - [ ] O módulo de liberações corresponde ao que o manual descreve.
 - [ ] A apresentação de documentos esperados, pendências da etapa e documentos previstos para depois corresponde ao que o manual descreve.
 - [ ] A separação entre exigência documental, análise e decisão agregada corresponde ao que o manual descreve.
+- [ ] A leitura de aprovação administrativa posterior corresponde ao que o manual descreve.
+- [ ] A distinção entre aprovação administrativa e futura etapa financeira corresponde ao que o manual descreve.
 - [ ] O módulo de conciliação corresponde ao que o manual descreve.
 - [ ] O módulo de auditoria corresponde ao que o manual descreve.
 - [ ] O módulo de administração corresponde ao que o manual descreve.

@@ -6,6 +6,7 @@ import {
 } from "@/server/repositories/platform.repository";
 import { getCurrentUser } from "@/features/auth/queries";
 import {
+  canApproveReleaseRequestAdministratively,
   canInitiateReleaseRequest,
   canReviewReleaseRequest,
 } from "@/features/releases/policy";
@@ -39,6 +40,16 @@ export async function getReleaseRequestsBoardData(): Promise<ReleaseRequestsBoar
             const contract = contractsById.get(request.contractId);
             return contract
               ? canReviewReleaseRequest(user, contract.code)
+              : false;
+          })
+          .map((request) => request.id)
+      : [],
+    administrativelyApprovableRequestIds: user
+      ? requests
+          .filter((request) => {
+            const contract = contractsById.get(request.contractId);
+            return contract
+              ? canApproveReleaseRequestAdministratively(user, contract.code)
               : false;
           })
           .map((request) => request.id)

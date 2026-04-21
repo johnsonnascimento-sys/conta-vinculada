@@ -40,4 +40,3 @@ export function canAccessRoute(role: string, pathname: string) {
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
 }
-

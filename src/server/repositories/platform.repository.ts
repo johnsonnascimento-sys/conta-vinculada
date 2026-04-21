@@ -186,10 +186,18 @@ export async function getReleaseRequests(): Promise<ReleaseRequest[]> {
   const prisma = getPrismaClient();
   const requests = await prisma!.releaseRequest.findMany({
     include: {
+      contract: {
+        select: {
+          normativeRegime: true,
+        },
+      },
       items: {
         orderBy: [{ competencyRef: "asc" }, { createdAt: "asc" }],
       },
       documents: true,
+      approvals: {
+        orderBy: { createdAt: "desc" },
+      },
     },
     orderBy: { createdAt: "desc" },
   });

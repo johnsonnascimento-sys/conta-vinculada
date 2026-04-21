@@ -406,6 +406,8 @@ export const releaseRequests: ReleaseRequest[] = [
       status: "enviada",
       missingDocumentCount: releaseRequestOneDocumentPlan.missingCurrentStage.length,
       itemDecisions: releaseRequestOneItems.map((item) => item.decision),
+      movementMode: "resgate_contratada",
+      normativeRegime: "cnj_651_2025",
     }),
   },
   {
@@ -442,6 +444,14 @@ export const releaseRequests: ReleaseRequest[] = [
       status: "aprovada_parcial",
       missingDocumentCount: releaseRequestTwoDocumentPlan.missingCurrentStage.length,
       itemDecisions: releaseRequestTwoItems.map((item) => item.decision),
+      movementMode: "resgate_contratada",
+      normativeRegime: "cnj_169_2013",
+      latestAdministrativeApproval: {
+        decision: "aprovar_parcial",
+        decidedBy: "Cap. Rodrigo Neves",
+        decidedAt: "2026-04-10T15:04:00Z",
+        notes: "Aprovação administrativa parcial mantida após glosa da análise.",
+      },
     }),
   },
 ];

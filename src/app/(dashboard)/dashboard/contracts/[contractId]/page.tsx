@@ -47,6 +47,26 @@ function getRequestStatusLabel(request: ReleaseRequest) {
   return "Aguardando análise";
 }
 
+function getAdministrativeApprovalLabel(request: ReleaseRequest) {
+  if (request.workflow.administrativeApproval.state === "aprovada") {
+    return "aprovada administrativamente";
+  }
+
+  if (request.workflow.administrativeApproval.state === "aprovada_parcial") {
+    return "aprovada parcialmente na consolidação";
+  }
+
+  if (request.workflow.administrativeApproval.state === "rejeitada") {
+    return "rejeitada na consolidação administrativa";
+  }
+
+  if (request.workflow.administrativeApproval.state === "apta") {
+    return "pronta para aprovação administrativa";
+  }
+
+  return "ainda não apta para aprovação administrativa";
+}
+
 interface ContractPageProps {
   params: Promise<{ contractId: string }>;
 }
@@ -79,7 +99,10 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
           <MetricChip label="Saldo bancário" value={formatCurrency(detail.account?.currentBalance ?? 0)} />
           <MetricChip label="Provisões líquidas" value={formatCurrency(totalProvisionBalance)} />
           <MetricChip label="Valor reservado" value={formatCurrency(totalReservedBalance)} />
-          <MetricChip label="Diferença não explicada" value={formatCurrency(detail.reconciliation?.unexplainedDifference ?? 0)} />
+          <MetricChip
+            label="Diferença não explicada"
+            value={formatCurrency(detail.reconciliation?.unexplainedDifference ?? 0)}
+          />
           <div className="rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
             <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
               Situação do contrato
@@ -95,7 +118,10 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
       </SectionCard>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <TableCard title="Competências" description="Estados formais de processamento, fechamento e reabertura.">
+        <TableCard
+          title="Competências"
+          description="Estados formais de processamento, fechamento e reabertura."
+        >
           <div className="overflow-hidden rounded-[1.4rem] border border-black/8">
             <table className="min-w-full divide-y divide-black/8 text-left">
               <thead className="bg-[var(--color-surface)] font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
@@ -108,13 +134,26 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
               <tbody className="divide-y divide-black/8 bg-white">
                 {detail.competencies.map((competency: Competency) => (
                   <tr key={competency.id}>
-                    <td className="px-4 py-4 font-semibold text-[var(--color-ink)]">{formatCompetency(competency.competency)}</td>
+                    <td className="px-4 py-4 font-semibold text-[var(--color-ink)]">
+                      {formatCompetency(competency.competency)}
+                    </td>
                     <td className="px-4 py-4">
-                      <Badge tone={competency.status === "reaberta" ? "danger" : competency.status === "conciliada" || competency.status === "fechada" ? "success" : "warning"}>
+                      <Badge
+                        tone={
+                          competency.status === "reaberta"
+                            ? "danger"
+                            : competency.status === "conciliada" ||
+                                competency.status === "fechada"
+                              ? "success"
+                              : "warning"
+                        }
+                      >
                         {competency.status}
                       </Badge>
                     </td>
-                    <td className="px-4 py-4 text-sm text-[var(--color-muted)]">{competency.processedAt ?? "Pendente"}</td>
+                    <td className="px-4 py-4 text-sm text-[var(--color-muted)]">
+                      {competency.processedAt ?? "Pendente"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -122,18 +161,31 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
           </div>
         </TableCard>
 
-        <TableCard title="Empregados alocados" description="Vínculo contratual temporal utilizado para cálculo e elegibilidade de liberação.">
+        <TableCard
+          title="Empregados alocados"
+          description="Vínculo contratual temporal utilizado para cálculo e elegibilidade de liberação."
+        >
           <div className="grid gap-3">
             {detail.employees.map((allocation: EmployeeAllocation & { employee?: Employee }) => (
               <div key={allocation.id} className="rounded-[1.3rem] border border-black/8 bg-white px-4 py-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-lg font-semibold text-[var(--color-ink)]">{allocation.employee?.name}</h3>
+                    <h3 className="text-lg font-semibold text-[var(--color-ink)]">
+                      {allocation.employee?.name}
+                    </h3>
                     <p className="text-sm text-[var(--color-muted)]">
-                      {allocation.employee?.role} · {allocation.costCenter}
+                      {allocation.employee?.role} • {allocation.costCenter}
                     </p>
                   </div>
-                  <Badge tone={allocation.employee?.status === "ativo" ? "success" : allocation.employee?.status === "afastado" ? "warning" : "danger"}>
+                  <Badge
+                    tone={
+                      allocation.employee?.status === "ativo"
+                        ? "success"
+                        : allocation.employee?.status === "afastado"
+                          ? "warning"
+                          : "danger"
+                    }
+                  >
                     {allocation.employee?.status ?? "sem status"}
                   </Badge>
                 </div>
@@ -144,7 +196,10 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <TableCard title="Provisões por empregado e rubrica" description="Saldo gerencial derivado, com separação entre reservado para liberação e baixado efetivamente.">
+        <TableCard
+          title="Provisões por empregado e rubrica"
+          description="Saldo gerencial derivado, com separação entre reservado para liberação e baixado efetivamente."
+        >
           <div className="overflow-hidden rounded-[1.4rem] border border-black/8">
             <table className="min-w-full divide-y divide-black/8 text-left">
               <thead className="bg-[var(--color-surface)] font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
@@ -159,11 +214,19 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
               <tbody className="divide-y divide-black/8 bg-white">
                 {detail.provisionBalances.map((item: ProvisionBalance & { employee?: Employee }) => (
                   <tr key={`${item.employeeId}-${item.rubric}`}>
-                    <td className="px-4 py-4 font-semibold text-[var(--color-ink)]">{item.employee?.name}</td>
+                    <td className="px-4 py-4 font-semibold text-[var(--color-ink)]">
+                      {item.employee?.name}
+                    </td>
                     <td className="px-4 py-4 text-sm text-[var(--color-muted)]">{item.rubric}</td>
-                    <td className="px-4 py-4 text-sm text-[var(--color-ink)]">{formatCurrency(item.balance)}</td>
-                    <td className="px-4 py-4 text-sm text-[var(--color-warning)]">{formatCurrency(item.reserved)}</td>
-                    <td className="px-4 py-4 text-sm text-[var(--color-success)]">{formatCurrency(item.released)}</td>
+                    <td className="px-4 py-4 text-sm text-[var(--color-ink)]">
+                      {formatCurrency(item.balance)}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-[var(--color-warning)]">
+                      {formatCurrency(item.reserved)}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-[var(--color-success)]">
+                      {formatCurrency(item.released)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -171,24 +234,47 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
           </div>
         </TableCard>
 
-        <TableCard title="Conta vinculada e conciliação" description="Saldo bancário real, rendimentos globais e eventos vinculáveis à reconciliação.">
+        <TableCard
+          title="Conta vinculada e conciliação"
+          description="Saldo bancário real, rendimentos globais e eventos vinculáveis à reconciliação."
+        >
           <div className="grid gap-3">
             <div className="grid gap-3 sm:grid-cols-2">
               <MetricChip label="Banco" value={detail.account?.bankName ?? "-"} />
-              <MetricChip label="Conta" value={`${detail.account?.branch} / ${detail.account?.accountNumber}`} />
+              <MetricChip
+                label="Conta"
+                value={`${detail.account?.branch} / ${detail.account?.accountNumber}`}
+              />
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <MetricChip label="Diferença explicada" value={formatCurrency(detail.reconciliation?.explainedDifference ?? 0)} />
-              <MetricChip label="Diferença não explicada" value={formatCurrency(detail.reconciliation?.unexplainedDifference ?? 0)} />
+              <MetricChip
+                label="Diferença explicada"
+                value={formatCurrency(detail.reconciliation?.explainedDifference ?? 0)}
+              />
+              <MetricChip
+                label="Diferença não explicada"
+                value={formatCurrency(detail.reconciliation?.unexplainedDifference ?? 0)}
+              />
             </div>
             <div className="space-y-3 rounded-[1.4rem] border border-black/8 bg-white px-4 py-4">
               {detail.bankEntries.map((entry: BankEntry) => (
-                <div key={entry.id} className="flex items-start justify-between gap-4 border-b border-black/8 pb-3 last:border-b-0 last:pb-0">
+                <div
+                  key={entry.id}
+                  className="flex items-start justify-between gap-4 border-b border-black/8 pb-3 last:border-b-0 last:pb-0"
+                >
                   <div>
                     <p className="font-semibold text-[var(--color-ink)]">{entry.description}</p>
                     <p className="text-sm text-[var(--color-muted)]">{entry.occurredOn}</p>
                   </div>
-                  <Badge tone={entry.type === "deposito" || entry.type === "rendimento" ? "success" : entry.type === "ajuste" ? "danger" : "warning"}>
+                  <Badge
+                    tone={
+                      entry.type === "deposito" || entry.type === "rendimento"
+                        ? "success"
+                        : entry.type === "ajuste"
+                          ? "danger"
+                          : "warning"
+                    }
+                  >
                     {formatCurrency(entry.amount)}
                   </Badge>
                 </div>
@@ -199,18 +285,34 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <TableCard title="Solicitações de liberação" description="No MVP, protocolo interno com checagem de saldo, documentos e decisão item a item.">
+        <TableCard
+          title="Solicitações de liberação"
+          description="No MVP, protocolo interno com checagem de saldo, documentos, decisão item a item e consolidação administrativa."
+        >
           <div className="grid gap-3">
             {detail.releaseRequests.map((request: ReleaseRequest) => (
               <div key={request.id} className="rounded-[1.4rem] border border-black/8 bg-white px-4 py-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">{request.protocol}</p>
+                    <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                      {request.protocol}
+                    </p>
                     <h3 className="text-lg font-semibold text-[var(--color-ink)]">
-                      {request.items.length} item(ns) · {request.requestedBy}
+                      {request.items.length} item(ns) • {request.requestedBy}
                     </h3>
                   </div>
-                  <Badge tone={request.workflow.derivedStatus === "aprovada" || request.workflow.derivedStatus === "liberada" ? "success" : request.workflow.derivedStatus === "aprovada_parcial" || request.workflow.derivedStatus === "em_analise" || request.workflow.derivedStatus === "enviada" ? "warning" : "danger"}>
+                  <Badge
+                    tone={
+                      request.workflow.derivedStatus === "aprovada" ||
+                      request.workflow.derivedStatus === "liberada"
+                        ? "success"
+                        : request.workflow.derivedStatus === "aprovada_parcial" ||
+                            request.workflow.derivedStatus === "em_analise" ||
+                            request.workflow.derivedStatus === "enviada"
+                          ? "warning"
+                          : "danger"
+                    }
+                  >
                     {getRequestStatusLabel(request)}
                   </Badge>
                 </div>
@@ -244,6 +346,14 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                             : "ainda não consolidada"}
                   </p>
                   <p>
+                    Aprovação administrativa:{" "}
+                    {getAdministrativeApprovalLabel(request)}
+                  </p>
+                  <p>
+                    Futura etapa financeira:{" "}
+                    {request.workflow.administrativeApproval.financialNextStep}
+                  </p>
+                  <p>
                     Documentos esperados nesta etapa:{" "}
                     {formatDocumentKinds(request.requiredDocuments)}
                   </p>
@@ -251,6 +361,12 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                     Pendências documentais:{" "}
                     {formatDocumentKinds(request.missingDocuments)}
                   </p>
+                  {request.workflow.administrativeApproval.approver ? (
+                    <p>
+                      Último aprovador:{" "}
+                      {request.workflow.administrativeApproval.approver}
+                    </p>
+                  ) : null}
                   {request.documentSummary.deferredByCategory.operation.length > 0 ||
                   request.documentSummary.deferredByCategory.closure.length > 0 ? (
                     <p>
@@ -267,7 +383,10 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
           </div>
         </TableCard>
 
-        <TableCard title="Trilha de auditoria" description="Histórico transacional e decisório preservado para análise interna e auditoria.">
+        <TableCard
+          title="Trilha de auditoria"
+          description="Histórico transacional e decisório preservado para análise interna e auditoria."
+        >
           <div className="space-y-3">
             {detail.auditEvents.map((event: AuditEvent) => (
               <div key={event.id} className="rounded-[1.4rem] border border-black/8 bg-white px-4 py-4">
@@ -275,7 +394,7 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                   <div>
                     <p className="font-semibold text-[var(--color-ink)]">{event.action}</p>
                     <p className="text-sm text-[var(--color-muted)]">
-                      {event.actor} · {event.happenedAt}
+                      {event.actor} • {event.happenedAt}
                     </p>
                   </div>
                   <Badge tone="neutral">{event.entity}</Badge>
@@ -289,5 +408,3 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
     </div>
   );
 }
-
-

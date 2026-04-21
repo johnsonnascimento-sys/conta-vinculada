@@ -218,6 +218,29 @@ Interpretação prática:
 - decisão de item não substitui a verificação documental da etapa;
 - a situação consolidada do pedido deve ser lida pelo conjunto dessas três informações, e não apenas pelo resultado isolado de um item.
 
+### 8.4.2 Aprovação administrativa posterior da solicitação
+
+Depois que a análise dos itens estiver suficientemente consolidada, o sistema passa a mostrar uma quarta leitura operacional: a `Aprovação administrativa`.
+
+Na prática, essa leitura indica se a solicitação:
+
+- ainda não está apta para aprovação administrativa;
+- já está pronta para aprovação administrativa;
+- foi aprovada administrativamente;
+- foi aprovada parcialmente na consolidação;
+- foi rejeitada na consolidação administrativa.
+
+Para que a solicitação fique apta a essa consolidação, o usuário deve interpretar que:
+
+- não pode haver pendência documental relevante na etapa atual;
+- os itens precisam já ter decisão suficiente para leitura agregada do pedido;
+- a aprovação administrativa é posterior à decisão por item;
+- essa aprovação ainda não significa execução financeira concluída.
+
+Quando houver permissão e ambiente de gravação habilitado, a fila permite registrar a consolidação administrativa diretamente na solicitação.
+
+O sistema também passa a informar a `Aptidão para futura etapa financeira`. Essa mensagem serve apenas para mostrar se a solicitação ficou preparada para a etapa posterior, considerando a forma de movimentação e o regime normativo do contrato. Ela não representa pagamento, resgate ou operação bancária já executada.
+
 ### 8.5 Pendências documentais e acompanhamento
 
 O sistema passou a organizar a leitura documental da solicitação por etapa do fluxo. Isso ajuda o usuário a perceber com mais clareza o que já deveria estar instruído agora e o que só será exigido em momento posterior.
@@ -387,6 +410,9 @@ Interpretação prática:
 Leitura complementar importante:
 
 - o status global da solicitação não elimina a leitura separada de exigência documental, análise e decisão agregada;
+- a aprovação administrativa deve ser lida separadamente da decisão agregada dos itens;
+- uma solicitação pode estar com decisão agregada suficiente e ainda não ter aprovação administrativa registrada;
+- a aptidão para futura etapa financeira depende da consolidação administrativa e não deve ser confundida com liberação bancária efetivamente realizada;
 - a decisão agregada só deve ser considerada consolidada quando os itens necessários já tiverem recebido decisão suficiente;
 - o usuário deve observar também a contagem de itens ainda pendentes e as pendências documentais da etapa.
 
@@ -456,6 +482,10 @@ Sim. O formulário permite adicionar mais de um item.
 ### O sistema já faz a execução financeira completa?
 
 Não. O sistema já cobre o registro e o acompanhamento inicial das solicitações, mas a execução financeira completa ainda não está concluída.
+
+### O que significa “aprovação administrativa”?
+
+É a consolidação administrativa da solicitação depois da análise dos itens. Ela confirma a leitura global do pedido, mas ainda não executa financeiramente a liberação.
 
 ### O módulo de administração já permite gerir tudo sobre usuários?
 

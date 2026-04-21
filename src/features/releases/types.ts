@@ -1,4 +1,5 @@
 import type {
+  AdministrativeApprovalDecision,
   ReleaseMovementMode,
   ReleaseRequest,
   ReleaseRequestStatus,
@@ -130,6 +131,7 @@ export interface ReleaseRequestsBoardData {
   requests: ReleaseRequest[];
   databaseEnabled: boolean;
   reviewableRequestIds: string[];
+  administrativelyApprovableRequestIds: string[];
 }
 
 export type ReviewReleaseRequestDecision =
@@ -194,6 +196,54 @@ export interface ReviewReleaseRequestActionState {
   message?: string;
   fieldErrors?: ReviewReleaseRequestFieldErrors;
   data?: ReviewReleaseRequestSuccess;
+}
+
+export interface AdministrativeApproveReleaseRequestInput {
+  requestId: string;
+  decision: AdministrativeApprovalDecision;
+  notes: string;
+}
+
+export interface AdministrativeApproveReleaseRequestFieldErrors {
+  requestId?: string;
+  decision?: string;
+  notes?: string;
+}
+
+export interface AdministrativeApproveReleaseRequestSuccess {
+  releaseRequestId: string;
+  contractId: string;
+  decision: AdministrativeApprovalDecision;
+  approverName: string;
+  decidedAt: string;
+}
+
+export type AdministrativeApproveReleaseRequestErrorCode =
+  | "validation_error"
+  | "unauthorized"
+  | "database_unavailable"
+  | "not_found"
+  | "invalid_state"
+  | "unexpected_error";
+
+export type AdministrativeApproveReleaseRequestCommandResult =
+  | {
+      ok: true;
+      data: AdministrativeApproveReleaseRequestSuccess;
+    }
+  | {
+      ok: false;
+      code: AdministrativeApproveReleaseRequestErrorCode;
+      message: string;
+      fieldErrors?: AdministrativeApproveReleaseRequestFieldErrors;
+    };
+
+export interface AdministrativeApproveReleaseRequestActionState {
+  status: "idle" | "success" | "error";
+  code?: AdministrativeApproveReleaseRequestErrorCode;
+  message?: string;
+  fieldErrors?: AdministrativeApproveReleaseRequestFieldErrors;
+  data?: AdministrativeApproveReleaseRequestSuccess;
 }
 
 export interface OpenReleaseRequestDuplicate {

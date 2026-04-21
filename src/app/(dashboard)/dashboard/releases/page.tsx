@@ -1,4 +1,5 @@
 import type { ReleaseRequest, ReleaseRequestItem } from "@/features/platform/types";
+import { AdministrativeApprovalForm } from "@/features/releases/components/administrative-approval-form";
 import { CreateReleaseRequestForm } from "@/features/releases/components/create-release-request-form";
 import { ReviewReleaseRequestForm } from "@/features/releases/components/review-release-request-form";
 import { canReviewReleaseRequestItem } from "@/features/releases/policy";
@@ -108,6 +109,26 @@ function getDecisionStateLabel(request: ReleaseRequest) {
   return "Ainda sem decisão agregada";
 }
 
+function getAdministrativeApprovalStateLabel(request: ReleaseRequest) {
+  if (request.workflow.administrativeApproval.state === "aprovada") {
+    return "Aprovada administrativamente";
+  }
+
+  if (request.workflow.administrativeApproval.state === "aprovada_parcial") {
+    return "Aprovada parcialmente na consolidação";
+  }
+
+  if (request.workflow.administrativeApproval.state === "rejeitada") {
+    return "Rejeitada na consolidação administrativa";
+  }
+
+  if (request.workflow.administrativeApproval.state === "apta") {
+    return "Pronta para aprovação administrativa";
+  }
+
+  return "Ainda não apta para aprovação administrativa";
+}
+
 function getItemDecisionTone(decision: ReleaseRequestItem["decision"]) {
   if (decision === "aprovado") {
     return "success" as const;
@@ -161,24 +182,27 @@ export default async function ReleasesPage() {
     getReleaseRequestsBoardData(),
   ]);
   const reviewableRequestIds = new Set(boardData.reviewableRequestIds);
+  const administrativelyApprovableRequestIds = new Set(
+    boardData.administrativelyApprovableRequestIds,
+  );
 
   return (
     <div className="space-y-4">
       <TableCard
-        title="Criar solicitacao de liberacao"
-        description="Primeiro fluxo transacional real do projeto: validacao backend, autorizacao server-side, persistencia Prisma e auditoria obrigatoria."
+        title="Criar solicitação de liberação"
+        description="Primeiro fluxo transacional real do projeto: validação backend, autorização server-side, persistência Prisma e auditoria obrigatória."
       >
         <CreateReleaseRequestForm options={creationOptions} />
       </TableCard>
 
       <TableCard
-        title="Fila de solicitacoes"
-        description="Leitura consolidada das solicitacoes persistidas, mantendo compatibilidade com o modo hibrido mock/Prisma."
+        title="Fila de solicitações"
+        description="Leitura consolidada das solicitações persistidas, mantendo compatibilidade com o modo híbrido mock/Prisma."
       >
         {!boardData.databaseEnabled ? (
           <div className="mb-4 rounded-[1.4rem] border border-[rgba(127,47,29,0.14)] bg-[rgba(127,47,29,0.08)] px-4 py-4 text-sm leading-6 text-[var(--color-danger)]">
-            Sem `DATABASE_URL`, a fila continua disponivel para leitura com base
-            no mock. A criacao permanece indisponivel.
+            Sem `DATABASE_URL`, a fila continua disponível para leitura com base no
+            mock. A criação permanece indisponível.
           </div>
         ) : null}
 
@@ -190,6 +214,10 @@ export default async function ReleasesPage() {
             );
             const canReviewRequest =
               boardData.databaseEnabled && reviewableRequestIds.has(request.id);
+            const canApproveAdministratively =
+              boardData.databaseEnabled &&
+              administrativelyApprovableRequestIds.has(request.id) &&
+              request.workflow.administrativeApproval.canApprove;
 
             return (
               <div
@@ -205,12 +233,12 @@ export default async function ReleasesPage() {
                       {request.releaseType.replaceAll("_", " ")}
                     </h2>
                     <p className="text-sm text-[var(--color-muted)]">
-                      Criada por {request.requestedBy} • Periodo{" "}
+                      Criada por {request.requestedBy} • Período{" "}
                       {formatCompetency(request.competencyStart)} a{" "}
                       {formatCompetency(request.competencyEnd)}
                     </p>
                     <p className="text-sm text-[var(--color-muted)]">
-                      Movimentacao: {request.movementMode.replaceAll("_", " ")}
+                      Movimentação: {request.movementMode.replaceAll("_", " ")}
                     </p>
                   </div>
                   <Badge tone={getRequestStatusTone(request.workflow.derivedStatus)}>
@@ -218,7 +246,7 @@ export default async function ReleasesPage() {
                   </Badge>
                 </div>
 
-                <div className="mt-5 grid gap-3 md:grid-cols-3">
+                <div className="mt-5 grid gap-3 md:grid-cols-4">
                   <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
                     <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
                       Valor solicitado
@@ -237,11 +265,19 @@ export default async function ReleasesPage() {
                   </div>
                   <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
                     <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                      Pendencias documentais
+                      Pendências documentais
                     </span>
                     <strong className="mt-2 block text-lg text-[var(--color-ink)]">
                       {request.workflow.pendingDocumentCount}
                     </strong>
+                  </div>
+                  <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
+                    <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                      Aprovação administrativa
+                    </span>
+                    <p className="mt-2 text-sm leading-6 text-[var(--color-ink)]">
+                      {getAdministrativeApprovalStateLabel(request)}
+                    </p>
                   </div>
                 </div>
 
@@ -275,6 +311,54 @@ export default async function ReleasesPage() {
                         : `${request.workflow.pendingItemCount} item(ns) ainda aguardam decisão.`}
                     </p>
                   </div>
+                </div>
+
+                <div className="mt-5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-4">
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
+                    Consolidação administrativa
+                  </h3>
+                  <div className="mt-3 grid gap-2 text-sm leading-6 text-[var(--color-muted)]">
+                    <p>
+                      Situação: {getAdministrativeApprovalStateLabel(request)}
+                    </p>
+                    <p>
+                      Aptidão para futura etapa financeira:{" "}
+                      {request.workflow.administrativeApproval.financialNextStep}
+                    </p>
+                    {request.workflow.administrativeApproval.reason ? (
+                      <p>
+                        Condição atual:{" "}
+                        {request.workflow.administrativeApproval.reason}
+                      </p>
+                    ) : null}
+                    {request.workflow.administrativeApproval.approver ? (
+                      <p>
+                        Último aprovador:{" "}
+                        {request.workflow.administrativeApproval.approver}
+                      </p>
+                    ) : null}
+                    {request.workflow.administrativeApproval.decidedAt ? (
+                      <p>
+                        Decidida em:{" "}
+                        {formatDateTimeLabel(
+                          request.workflow.administrativeApproval.decidedAt,
+                        )}
+                      </p>
+                    ) : null}
+                    {request.workflow.administrativeApproval.notes ? (
+                      <p>
+                        Fundamentação registrada:{" "}
+                        {request.workflow.administrativeApproval.notes}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  {canApproveAdministratively ? (
+                    <AdministrativeApprovalForm
+                      requestId={request.id}
+                      decisionState={request.workflow.decisionState}
+                    />
+                  ) : null}
                 </div>
 
                 <div className="mt-5 grid gap-4 lg:grid-cols-2">
@@ -318,7 +402,7 @@ export default async function ReleasesPage() {
                             {item.releaseRubric.replaceAll("_", " ")}
                           </h4>
                           <p className="text-sm text-[var(--color-muted)]">
-                            Competencia {formatCompetency(item.competencyRef)} •
+                            Competência {formatCompetency(item.competencyRef)} •
                             Empregado {item.employeeId}
                           </p>
                           <p className="mt-1 text-sm text-[var(--color-muted)]">
@@ -391,5 +475,15 @@ function formatDateLabel(value: string) {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+  }).format(new Date(value));
+}
+
+function formatDateTimeLabel(value: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(new Date(value));
 }

@@ -1,4 +1,5 @@
 import type {
+  AdministrativeApprovalDecision,
   AppUser,
   AuditEvent,
   BankEntry,
@@ -13,6 +14,55 @@ import type {
 } from "@/features/platform/types";
 import { getReleaseDocumentPlan } from "@/features/releases/rules";
 import { summarizeReleaseRequestWorkflow } from "@/features/releases/workflow";
+
+function isAdministrativeApprovalDecision(
+  decision: "aprovar" | "aprovar_parcial" | "rejeitar" | "devolver",
+): decision is AdministrativeApprovalDecision {
+  return (
+    decision === "aprovar" ||
+    decision === "aprovar_parcial" ||
+    decision === "rejeitar"
+  );
+}
+
+function getLatestAdministrativeApproval(
+  approvals: Array<{
+    stage:
+      | "analise_documental"
+      | "aprovacao_administrativa"
+      | "triagem"
+      | "execucao_financeira"
+      | "conciliacao";
+    decision: "aprovar" | "aprovar_parcial" | "rejeitar" | "devolver";
+    decidedBy: string;
+    notes: string | null;
+    createdAt: Date;
+  }>,
+): {
+  decision: AdministrativeApprovalDecision;
+  decidedBy: string;
+  notes: string | null;
+  createdAt: Date;
+} | undefined {
+  const latestApproval = approvals
+    .filter(
+      (item) =>
+        item.stage === "aprovacao_administrativa" &&
+        isAdministrativeApprovalDecision(item.decision),
+    )
+    .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())[0];
+
+  if (!latestApproval) {
+    return undefined;
+  }
+
+  return {
+    decision: latestApproval.decision as AdministrativeApprovalDecision,
+    decidedBy: latestApproval.decidedBy,
+    notes: latestApproval.notes,
+    createdAt: latestApproval.createdAt,
+  };
+}
 
 function serializeCalculationMemory(value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -166,6 +216,9 @@ export function serializeReleaseRequest(request: {
   requestedByUserId: string | null;
   analystName: string | null;
   approverName: string | null;
+  contract: {
+    normativeRegime: Contract["normativeRegime"];
+  };
   factualBasis: string;
   competencyStart: string;
   competencyEnd: string;
@@ -193,6 +246,13 @@ export function serializeReleaseRequest(request: {
     updatedAt: Date;
   }>;
   documents: Array<{ kind: ReleaseRequest["requiredDocuments"][number] }>;
+  approvals: Array<{
+    stage: "analise_documental" | "aprovacao_administrativa" | "triagem" | "execucao_financeira" | "conciliacao";
+    decision: "aprovar" | "aprovar_parcial" | "rejeitar" | "devolver";
+    decidedBy: string;
+    notes: string | null;
+    createdAt: Date;
+  }>;
 }): ReleaseRequest {
   const providedDocuments = [...new Set(request.documents.map((item) => item.kind))];
   const documentPlan = getReleaseDocumentPlan(
@@ -220,10 +280,23 @@ export function serializeReleaseRequest(request: {
     createdAt: item.createdAt.toISOString(),
     updatedAt: item.updatedAt.toISOString(),
   }));
+  const latestAdministrativeApproval = getLatestAdministrativeApproval(
+    request.approvals,
+  );
   const workflow = summarizeReleaseRequestWorkflow({
     status: request.status,
     missingDocumentCount: documentPlan.missingCurrentStage.length,
     itemDecisions: items.map((item) => item.decision),
+    movementMode: request.movementMode,
+    normativeRegime: request.contract.normativeRegime,
+    latestAdministrativeApproval: latestAdministrativeApproval
+      ? {
+          decision: latestAdministrativeApproval.decision,
+          decidedBy: latestAdministrativeApproval.decidedBy,
+          decidedAt: latestAdministrativeApproval.createdAt.toISOString(),
+          notes: latestAdministrativeApproval.notes ?? undefined,
+        }
+      : undefined,
   });
 
   return {

@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { approveReleaseRequestAdministratively } from "@/server/commands/releases/approve-release-request-administratively";
 import { createReleaseRequest } from "@/server/commands/releases/create-release-request";
 import { reviewReleaseRequest } from "@/server/commands/releases/review-release-request";
 import type {
+  AdministrativeApproveReleaseRequestActionState,
   CreateReleaseRequestActionState,
   CreateReleaseRequestItemInput,
   ReviewReleaseRequestActionState,
@@ -99,6 +101,36 @@ export async function reviewReleaseRequestAction(
   return {
     status: "success",
     message: `Decisão registrada. Solicitação agora está em ${result.data.requestStatus}.`,
+    data: result.data,
+  };
+}
+
+export async function approveReleaseRequestAdministrativelyAction(
+  _: AdministrativeApproveReleaseRequestActionState,
+  formData: FormData,
+): Promise<AdministrativeApproveReleaseRequestActionState> {
+  const result = await approveReleaseRequestAdministratively({
+    requestId: String(formData.get("requestId") ?? "").trim(),
+    decision: String(formData.get("decision") ?? "").trim() as never,
+    notes: String(formData.get("notes") ?? "").trim(),
+  });
+
+  if (!result.ok) {
+    return {
+      status: "error",
+      code: result.code,
+      message: result.message,
+      fieldErrors: result.fieldErrors,
+    };
+  }
+
+  revalidatePath("/dashboard/releases");
+  revalidatePath(`/dashboard/contracts/${result.data.contractId}`);
+  revalidatePath("/dashboard");
+
+  return {
+    status: "success",
+    message: `Aprovação administrativa ${result.data.decision} registrada para a solicitação.`,
     data: result.data,
   };
 }

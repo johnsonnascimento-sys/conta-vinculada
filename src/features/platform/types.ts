@@ -113,6 +113,34 @@ export type ReleaseRequestDecisionState =
   | "aprovada_parcial"
   | "rejeitada";
 
+export type AdministrativeApprovalDecision = Extract<
+  ApprovalDecision,
+  "aprovar" | "aprovar_parcial" | "rejeitar"
+>;
+
+export type ReleaseRequestAdministrativeApprovalState =
+  | "nao_apta"
+  | "apta"
+  | "aprovada"
+  | "aprovada_parcial"
+  | "rejeitada";
+
+export type ReleaseRequestFinancialReadinessState =
+  | "nao_apta"
+  | "apta_para_execucao_futura";
+
+export interface ReleaseRequestAdministrativeApprovalSummary {
+  state: ReleaseRequestAdministrativeApprovalState;
+  decision?: AdministrativeApprovalDecision;
+  approver?: string;
+  decidedAt?: string;
+  notes?: string;
+  canApprove: boolean;
+  reason?: string;
+  financialReadiness: ReleaseRequestFinancialReadinessState;
+  financialNextStep: string;
+}
+
 export interface ReleaseRequestWorkflowSummary {
   derivedStatus: ReleaseRequestStatus;
   documentState: ReleaseRequestDocumentState;
@@ -123,6 +151,7 @@ export interface ReleaseRequestWorkflowSummary {
   pendingItemCount: number;
   decidedItemCount: number;
   canAggregateDecision: boolean;
+  administrativeApproval: ReleaseRequestAdministrativeApprovalSummary;
 }
 
 export interface Tenant {

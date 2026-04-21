@@ -43,6 +43,12 @@ Nesta continuidade, o módulo também passou a expor de forma mais clara a front
 - exigência documental da etapa atual;
 - decisão agregada do pedido a partir das decisões dos itens.
 
+Na rodada seguinte, o fluxo também passou a distinguir explicitamente a camada de aprovação administrativa posterior da solicitação, considerando:
+
+- o `movementMode` do pedido;
+- o `normativeRegime` do contrato;
+- a aptidão apenas para futura etapa financeira, sem executar a liberação bancária.
+
 ## 2. Estado atual implementado
 
 ### Frontend e navegação
@@ -598,6 +604,7 @@ Resultado esperado:
 - [x] Implementar criação de solicitação de liberação.
 - [x] Implementar análise/decisão mínima por item da solicitação de liberação.
 - [x] Explicitar a fronteira operacional entre exigência documental, análise e decisão agregada da solicitação.
+- [x] Consolidar a aprovação administrativa posterior da solicitação, separada da decisão por item e da futura etapa financeira.
 - [ ] Expandir a decisão de solicitação para múltiplos itens, revisão controlada e etapas posteriores do workflow.
 - [ ] Implementar execução financeira vinculada a lançamento bancário.
 - [x] Consolidar pendências documentais derivadas da matriz de documentos por tipo, etapa e modo de movimentação.

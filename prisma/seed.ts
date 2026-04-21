@@ -448,6 +448,21 @@ async function main() {
     },
   });
 
+  await prisma.approval.upsert({
+    where: { id: "approval-rr-002-admin" },
+    update: {},
+    create: {
+      id: "approval-rr-002-admin",
+      releaseRequestId: requestTwo.id,
+      stage: "aprovacao_administrativa",
+      decision: "aprovar_parcial",
+      decidedBy: "Cap. Rodrigo Neves",
+      notes:
+        "Aprovação administrativa parcial mantida após glosa identificada na análise do item.",
+      createdAt: new Date("2026-04-10T15:04:00Z"),
+    },
+  });
+
   for (const [id, releaseRequestId, contractId, kind, originalName] of [
     ["doc-001", requestOne.id, contractOne.id, "ferias", "recibo-ferias.pdf"],
     ["doc-002", requestOne.id, contractOne.id, "comprovante_pagamento", "comprovante-ferias.pdf"],

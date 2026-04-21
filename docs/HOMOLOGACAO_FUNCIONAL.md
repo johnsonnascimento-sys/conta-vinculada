@@ -107,8 +107,13 @@ Resultado:
 - [ ] A leitura da solicitação mostra pendências documentais da etapa atual.
 - [ ] Quando aplicável, a leitura da solicitação distingue documentos previstos para etapa posterior.
 - [ ] Quando aplicável, a leitura documental aparece agrupada por natureza, como fato gerador, cálculo, quitação, operação ou encerramento.
+- [ ] A fila distingue visualmente exigência documental, análise e decisão agregada da solicitação.
+- [ ] A fila informa quando a solicitação ainda aguarda início de análise.
+- [ ] A fila informa quando a solicitação já possui itens decididos, mas ainda sem decisão agregada final.
+- [ ] A fila informa quando a solicitação já possui decisão agregada suficiente.
 - [ ] Itens pendentes exibem ação de decisão quando o perfil e o ambiente permitem.
 - [ ] A decisão por item pode ser registrada na própria fila de solicitações.
+- [ ] Solicitação em exigência documental não apresenta ação de decisão por item.
 - [ ] Aprovação total, aprovação parcial e rejeição ou glosa se comportam de forma coerente com os valores informados.
 - [ ] Item já decidido não volta a apresentar ação de decisão na mesma etapa.
 
@@ -208,6 +213,7 @@ Resultado:
 - [ ] O módulo de contratos corresponde ao que o manual descreve.
 - [ ] O módulo de liberações corresponde ao que o manual descreve.
 - [ ] A apresentação de documentos esperados, pendências da etapa e documentos previstos para depois corresponde ao que o manual descreve.
+- [ ] A separação entre exigência documental, análise e decisão agregada corresponde ao que o manual descreve.
 - [ ] O módulo de conciliação corresponde ao que o manual descreve.
 - [ ] O módulo de auditoria corresponde ao que o manual descreve.
 - [ ] O módulo de administração corresponde ao que o manual descreve.

@@ -98,6 +98,33 @@ export interface ReleaseRequestDocumentSummary {
   deferredByCategory: ReleaseDocumentCategoryMap;
 }
 
+export type ReleaseRequestDocumentState = "regular" | "pendente";
+
+export type ReleaseRequestAnalysisState =
+  | "aguardando_analise"
+  | "em_exigencia"
+  | "em_analise"
+  | "concluida";
+
+export type ReleaseRequestDecisionState =
+  | "sem_decisao"
+  | "parcial"
+  | "aprovada"
+  | "aprovada_parcial"
+  | "rejeitada";
+
+export interface ReleaseRequestWorkflowSummary {
+  derivedStatus: ReleaseRequestStatus;
+  documentState: ReleaseRequestDocumentState;
+  analysisState: ReleaseRequestAnalysisState;
+  decisionState: ReleaseRequestDecisionState;
+  pendingDocumentCount: number;
+  totalItemCount: number;
+  pendingItemCount: number;
+  decidedItemCount: number;
+  canAggregateDecision: boolean;
+}
+
 export interface Tenant {
   id: string;
   name: string;
@@ -243,6 +270,7 @@ export interface ReleaseRequest {
   requiredDocuments: DocumentKind[];
   missingDocuments: DocumentKind[];
   documentSummary: ReleaseRequestDocumentSummary;
+  workflow: ReleaseRequestWorkflowSummary;
 }
 
 export interface ReconciliationRecord {

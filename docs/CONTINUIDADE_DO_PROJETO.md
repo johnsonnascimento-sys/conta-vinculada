@@ -37,6 +37,12 @@ O estágio atual do projeto é de MVP navegável com foco em consulta e demonstr
 
 O primeiro fluxo transacional formalmente priorizado para sair desse estado é a criação de solicitação de liberação. Essa base já existe no código com validação, server action, comando server-side, persistência via Prisma, auditoria mínima e comportamento explícito de somente leitura quando não há `DATABASE_URL`. O recorte imediatamente seguinte, já operável na própria fila do módulo de liberações, é a análise/decisão da solicitação por item, ainda sem entrar em execução financeira.
 
+Nesta continuidade, o módulo também passou a expor de forma mais clara a fronteira entre:
+
+- análise documental da solicitação;
+- exigência documental da etapa atual;
+- decisão agregada do pedido a partir das decisões dos itens.
+
 ## 2. Estado atual implementado
 
 ### Frontend e navegação
@@ -591,6 +597,7 @@ Resultado esperado:
 
 - [x] Implementar criação de solicitação de liberação.
 - [x] Implementar análise/decisão mínima por item da solicitação de liberação.
+- [x] Explicitar a fronteira operacional entre exigência documental, análise e decisão agregada da solicitação.
 - [ ] Expandir a decisão de solicitação para múltiplos itens, revisão controlada e etapas posteriores do workflow.
 - [ ] Implementar execução financeira vinculada a lançamento bancário.
 - [x] Consolidar pendências documentais derivadas da matriz de documentos por tipo, etapa e modo de movimentação.

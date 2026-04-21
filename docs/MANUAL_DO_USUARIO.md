@@ -203,6 +203,21 @@ Funcionalmente, o usuário deve entender o fluxo assim:
 - a aprovação total, a aprovação parcial e a rejeição ou glosa exigem conferência do valor aprovado e, quando necessário, justificativa;
 - a execução financeira completa ainda não está concluída no sistema.
 
+### 8.4.1 Fronteira entre exigência documental, análise e decisão agregada
+
+Nesta etapa do sistema, a leitura da solicitação passou a ficar separada em três perguntas operacionais:
+
+- `Exigência documental`: mostra se ainda existe pendência documental da etapa atual;
+- `Análise`: mostra se a solicitação ainda aguarda início de análise, se está em exigência documental, se está em análise em andamento ou se a análise já foi concluída;
+- `Decisão agregada`: mostra se o pedido ainda não tem decisão suficiente, se já tem decisões parciais sem consolidação final ou se a solicitação já permite uma leitura agregada de aprovação, aprovação parcial ou rejeição.
+
+Interpretação prática:
+
+- uma solicitação pode estar com pendência documental e ainda sem decisão agregada;
+- uma solicitação pode já ter itens analisados e, ainda assim, não estar consolidada globalmente;
+- decisão de item não substitui a verificação documental da etapa;
+- a situação consolidada do pedido deve ser lida pelo conjunto dessas três informações, e não apenas pelo resultado isolado de um item.
+
 ### 8.5 Pendências documentais e acompanhamento
 
 O sistema passou a organizar a leitura documental da solicitação por etapa do fluxo. Isso ajuda o usuário a perceber com mais clareza o que já deveria estar instruído agora e o que só será exigido em momento posterior.
@@ -252,6 +267,7 @@ Regras funcionais importantes:
 - aprovação total exige valor aprovado igual ao valor solicitado;
 - aprovação parcial exige justificativa e valor aprovado menor que o solicitado;
 - rejeição ou glosa exige valor aprovado igual a zero e justificativa;
+- solicitação em exigência documental não deve receber decisão de item enquanto permanecer nessa situação;
 - item já decidido não deve voltar para nova análise na mesma etapa.
 
 ### 8.7 Modo somente leitura
@@ -359,14 +375,20 @@ Nem todos esses estados representam funcionalidade completa já concluída ponta
 Interpretação prática:
 
 - `em elaboracao`: pedido ainda em montagem;
-- `enviada`: pedido formalizado na fila;
-- `em exigencia`: há necessidade de complemento;
-- `em analise`: pedido em avaliação;
+- `enviada`: pedido formalizado na fila e ainda aguardando início de análise;
+- `em exigencia`: há pendência documental ou complemento exigido para a etapa atual;
+- `em analise`: a análise está em andamento e ainda não há decisão agregada final;
 - `aprovada`: pedido aceito integralmente;
 - `aprovada parcial`: parte do pedido foi acolhida;
 - `rejeitada`: pedido não acolhido;
 - `liberada`: etapa financeira considerada concluída;
 - `cancelada`: pedido interrompido.
+
+Leitura complementar importante:
+
+- o status global da solicitação não elimina a leitura separada de exigência documental, análise e decisão agregada;
+- a decisão agregada só deve ser considerada consolidada quando os itens necessários já tiverem recebido decisão suficiente;
+- o usuário deve observar também a contagem de itens ainda pendentes e as pendências documentais da etapa.
 
 ### 12.4 Decisão do item
 
@@ -422,6 +444,10 @@ Sim. O formulário permite adicionar mais de um item.
 ### O que significa pendência documental?
 
 É a indicação de que a solicitação ainda demanda documento esperado para a etapa atual do pedido.
+
+### O que significa “decisão agregada”?
+
+É a leitura consolidada da solicitação como um todo, calculada a partir das decisões dos itens já registradas. Ela não se confunde com a decisão isolada de um item nem substitui a análise documental.
 
 ### O que significa “documento previsto para etapa posterior”?
 

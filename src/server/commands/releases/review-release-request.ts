@@ -3,7 +3,6 @@ import { getCurrentUser } from "@/features/auth/queries";
 import type {
   AppUser,
   ReleaseRequestItem,
-  ReleaseRequestStatus,
 } from "@/features/platform/types";
 import {
   canReviewReleaseRequest,
@@ -14,6 +13,7 @@ import type {
   ReviewReleaseRequestCommandResult,
   ReviewReleaseRequestInput,
 } from "@/features/releases/types";
+import { deriveOpenReleaseRequestStatusFromItemDecisions } from "@/features/releases/workflow";
 import { getPrismaClient, isDatabaseEnabled } from "@/server/db/prisma";
 import { validateReviewReleaseRequestInput } from "@/server/commands/releases/review-release-request.validation";
 
@@ -53,27 +53,6 @@ function mapApprovalDecision(decision: ReviewReleaseRequestInput["decision"]) {
   }
 
   return "rejeitar" satisfies PersistedApprovalDecision;
-}
-
-function resolveRequestStatus(
-  decisions: ReleaseRequestItem["decision"][],
-): Extract<
-  ReleaseRequestStatus,
-  "em_analise" | "aprovada" | "aprovada_parcial" | "rejeitada"
-> {
-  if (decisions.some((decision) => decision === "pendente")) {
-    return "em_analise";
-  }
-
-  if (decisions.every((decision) => decision === "aprovado")) {
-    return "aprovada";
-  }
-
-  if (decisions.every((decision) => decision === "glosado")) {
-    return "rejeitada";
-  }
-
-  return "aprovada_parcial";
 }
 
 function validateDecisionAmount(
@@ -302,11 +281,13 @@ export async function reviewReleaseRequestWithDependencies(
         },
       });
 
-      const nextRequestStatus = resolveRequestStatus(
+      const resolvedRequestStatus = deriveOpenReleaseRequestStatusFromItemDecisions(
         request.items.map((candidate: ReviewableItemRecord) =>
           candidate.id === item.id ? nextItemDecision : candidate.decision,
         ),
       );
+      const nextRequestStatus =
+        resolvedRequestStatus === "enviada" ? "em_analise" : resolvedRequestStatus;
 
       const updatedRequest = await tx.releaseRequest.update({
         where: { id: request.id },

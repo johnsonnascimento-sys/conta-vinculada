@@ -32,7 +32,9 @@ export async function getContractsOverview() {
     const pendingRequests = releaseRequests.filter(
       (item: ReleaseRequest) =>
         item.contractId === contract.id &&
-        ["enviada", "em_analise", "em_exigencia", "aprovada_parcial"].includes(item.status),
+        ["enviada", "em_analise", "em_exigencia", "aprovada_parcial"].includes(
+          item.workflow.derivedStatus,
+        ),
     ).length;
     const provisionBalance = provisionBalances
       .filter((item: ProvisionBalance) => item.contractId === contract.id)

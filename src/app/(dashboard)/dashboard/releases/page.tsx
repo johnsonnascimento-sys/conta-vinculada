@@ -28,6 +28,86 @@ function getRequestStatusTone(status: ReleaseRequest["status"]) {
   return "danger" as const;
 }
 
+function getWorkflowLabel(request: ReleaseRequest) {
+  if (request.workflow.derivedStatus === "em_exigencia") {
+    return "Em exigência documental";
+  }
+
+  if (request.workflow.derivedStatus === "em_analise") {
+    return "Em análise";
+  }
+
+  if (request.workflow.derivedStatus === "aprovada") {
+    return "Aprovada";
+  }
+
+  if (request.workflow.derivedStatus === "aprovada_parcial") {
+    return "Aprovada parcialmente";
+  }
+
+  if (request.workflow.derivedStatus === "rejeitada") {
+    return "Rejeitada";
+  }
+
+  if (request.workflow.derivedStatus === "liberada") {
+    return "Liberada";
+  }
+
+  if (request.workflow.derivedStatus === "cancelada") {
+    return "Cancelada";
+  }
+
+  if (request.workflow.derivedStatus === "em_elaboracao") {
+    return "Em elaboração";
+  }
+
+  return "Aguardando análise";
+}
+
+function getDocumentStateLabel(request: ReleaseRequest) {
+  if (request.workflow.documentState === "pendente") {
+    return `${request.workflow.pendingDocumentCount} pendência(s) nesta etapa`;
+  }
+
+  return "Sem pendência documental desta etapa";
+}
+
+function getAnalysisStateLabel(request: ReleaseRequest) {
+  if (request.workflow.analysisState === "em_exigencia") {
+    return "Exigência documental aberta";
+  }
+
+  if (request.workflow.analysisState === "em_analise") {
+    return "Análise administrativa em andamento";
+  }
+
+  if (request.workflow.analysisState === "concluida") {
+    return "Análise concluída";
+  }
+
+  return "Aguardando início da análise";
+}
+
+function getDecisionStateLabel(request: ReleaseRequest) {
+  if (request.workflow.decisionState === "aprovada") {
+    return "Decisão agregada favorável";
+  }
+
+  if (request.workflow.decisionState === "aprovada_parcial") {
+    return "Decisão agregada parcial";
+  }
+
+  if (request.workflow.decisionState === "rejeitada") {
+    return "Decisão agregada desfavorável";
+  }
+
+  if (request.workflow.decisionState === "parcial") {
+    return "Itens já analisados, sem consolidação final";
+  }
+
+  return "Ainda sem decisão agregada";
+}
+
 function getItemDecisionTone(decision: ReleaseRequestItem["decision"]) {
   if (decision === "aprovado") {
     return "success" as const;
@@ -133,8 +213,8 @@ export default async function ReleasesPage() {
                       Movimentacao: {request.movementMode.replaceAll("_", " ")}
                     </p>
                   </div>
-                  <Badge tone={getRequestStatusTone(request.status)}>
-                    {request.status}
+                  <Badge tone={getRequestStatusTone(request.workflow.derivedStatus)}>
+                    {getWorkflowLabel(request)}
                   </Badge>
                 </div>
 
@@ -160,8 +240,40 @@ export default async function ReleasesPage() {
                       Pendencias documentais
                     </span>
                     <strong className="mt-2 block text-lg text-[var(--color-ink)]">
-                      {request.missingDocuments.length}
+                      {request.workflow.pendingDocumentCount}
                     </strong>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-3 md:grid-cols-3">
+                  <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
+                    <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                      Exigência documental
+                    </span>
+                    <p className="mt-2 text-sm leading-6 text-[var(--color-ink)]">
+                      {getDocumentStateLabel(request)}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
+                    <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                      Análise
+                    </span>
+                    <p className="mt-2 text-sm leading-6 text-[var(--color-ink)]">
+                      {getAnalysisStateLabel(request)}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
+                    <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                      Decisão agregada
+                    </span>
+                    <p className="mt-2 text-sm leading-6 text-[var(--color-ink)]">
+                      {getDecisionStateLabel(request)}
+                    </p>
+                    <p className="mt-1 text-xs text-[var(--color-muted)]">
+                      {request.workflow.canAggregateDecision
+                        ? "Todos os itens já têm decisão."
+                        : `${request.workflow.pendingItemCount} item(ns) ainda aguardam decisão.`}
+                    </p>
                   </div>
                 </div>
 
@@ -253,7 +365,7 @@ export default async function ReleasesPage() {
 
                       {canReviewRequest &&
                       canReviewReleaseRequestItem(
-                        request.status,
+                        request.workflow.derivedStatus,
                         item.decision,
                       ) ? (
                         <ReviewReleaseRequestForm

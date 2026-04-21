@@ -8,7 +8,6 @@ import { canAccessRoute } from "@/features/auth/permissions";
 const REVIEWABLE_RELEASE_REQUEST_STATUSES = new Set<ReleaseRequestStatus>([
   "em_elaboracao",
   "enviada",
-  "em_exigencia",
   "em_analise",
 ]);
 

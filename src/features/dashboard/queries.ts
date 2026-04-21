@@ -17,7 +17,9 @@ export async function getDashboardSummary() {
     0,
   );
   const pendingReleaseRequests = releaseRequests.filter((item: ReleaseRequest) =>
-    ["enviada", "em_analise", "em_exigencia", "aprovada_parcial"].includes(item.status),
+    ["enviada", "em_analise", "em_exigencia", "aprovada_parcial"].includes(
+      item.workflow.derivedStatus,
+    ),
   ).length;
   const pendingApprovalItems = releaseRequests.reduce(
     (total: number, request: ReleaseRequest) =>

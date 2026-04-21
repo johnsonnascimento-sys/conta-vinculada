@@ -59,8 +59,9 @@ Fora de escopo neste ciclo:
 - [x] Persistir decisão, valor aprovado e status agregado da solicitação.
 - [x] Registrar `Approval` e `AuditLog` a cada decisão.
 - [x] Expor UI mínima de análise na própria tela de liberações.
+- [x] Separar operacionalmente exigência documental, análise e decisão agregada na leitura da solicitação.
 - [ ] Expandir a cobertura para múltiplos itens por solicitação com UX mais refinada.
-- [ ] Definir com mais precisão a fronteira entre análise documental, aprovação administrativa e execução financeira.
+- [ ] Definir com mais precisão a fronteira entre aprovação administrativa posterior e execução financeira.
 
 ### Épico 5: Exposição controlada no app
 
@@ -232,7 +233,7 @@ Ajuste de ordem de execucao:
 
 Proximo passo recomendado apos esta rodada:
 
-- consolidar a analise/decisao da solicitacao considerando `movementMode` e regime normativo do contrato, antes de qualquer tentativa de execucao financeira.
+- consolidar a aprovacao administrativa posterior da solicitacao considerando `movementMode` e regime normativo do contrato, antes de qualquer tentativa de execucao financeira.
 
 ## Sincronizacao obrigatoria com o manual do usuario
 

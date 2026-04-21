@@ -19,6 +19,34 @@ function formatDocumentKinds(values: string[]) {
   return values.length > 0 ? values.join(", ") : "nenhum";
 }
 
+function getRequestStatusLabel(request: ReleaseRequest) {
+  if (request.workflow.derivedStatus === "em_exigencia") {
+    return "Em exigência documental";
+  }
+
+  if (request.workflow.derivedStatus === "em_analise") {
+    return "Em análise";
+  }
+
+  if (request.workflow.derivedStatus === "aprovada") {
+    return "Aprovada";
+  }
+
+  if (request.workflow.derivedStatus === "aprovada_parcial") {
+    return "Aprovada parcialmente";
+  }
+
+  if (request.workflow.derivedStatus === "rejeitada") {
+    return "Rejeitada";
+  }
+
+  if (request.workflow.derivedStatus === "liberada") {
+    return "Liberada";
+  }
+
+  return "Aguardando análise";
+}
+
 interface ContractPageProps {
   params: Promise<{ contractId: string }>;
 }
@@ -182,11 +210,39 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                       {request.items.length} item(ns) · {request.requestedBy}
                     </h3>
                   </div>
-                  <Badge tone={request.status === "aprovada" || request.status === "liberada" ? "success" : request.status === "aprovada_parcial" || request.status === "em_analise" ? "warning" : "danger"}>
-                    {request.status}
+                  <Badge tone={request.workflow.derivedStatus === "aprovada" || request.workflow.derivedStatus === "liberada" ? "success" : request.workflow.derivedStatus === "aprovada_parcial" || request.workflow.derivedStatus === "em_analise" || request.workflow.derivedStatus === "enviada" ? "warning" : "danger"}>
+                    {getRequestStatusLabel(request)}
                   </Badge>
                 </div>
                 <div className="mt-4 grid gap-2 text-sm text-[var(--color-muted)]">
+                  <p>
+                    Exigência documental:{" "}
+                    {request.workflow.documentState === "pendente"
+                      ? `${request.workflow.pendingDocumentCount} pendência(s) na etapa`
+                      : "sem pendência documental na etapa"}
+                  </p>
+                  <p>
+                    Análise:{" "}
+                    {request.workflow.analysisState === "concluida"
+                      ? "concluída"
+                      : request.workflow.analysisState === "em_exigencia"
+                        ? "em exigência"
+                        : request.workflow.analysisState === "em_analise"
+                          ? "em andamento"
+                          : "aguardando início"}
+                  </p>
+                  <p>
+                    Decisão agregada:{" "}
+                    {request.workflow.decisionState === "aprovada"
+                      ? "aprovada"
+                      : request.workflow.decisionState === "aprovada_parcial"
+                        ? "aprovada parcialmente"
+                        : request.workflow.decisionState === "rejeitada"
+                          ? "rejeitada"
+                          : request.workflow.decisionState === "parcial"
+                            ? "em formação"
+                            : "ainda não consolidada"}
+                  </p>
                   <p>
                     Documentos esperados nesta etapa:{" "}
                     {formatDocumentKinds(request.requiredDocuments)}

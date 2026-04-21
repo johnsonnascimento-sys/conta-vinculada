@@ -12,6 +12,7 @@ import type {
   Tenant,
 } from "@/features/platform/types";
 import { getReleaseDocumentPlan } from "@/features/releases/rules";
+import { summarizeReleaseRequestWorkflow } from "@/features/releases/workflow";
 
 function serializeCalculationMemory(value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -200,6 +201,30 @@ export function serializeReleaseRequest(request: {
     request.status,
     providedDocuments,
   );
+  const items = request.items.map((item) => ({
+    id: item.id,
+    releaseRequestId: item.releaseRequestId,
+    employeeId: item.employeeId,
+    releaseRubric: item.releaseRubric,
+    competencyRef: item.competencyRef,
+    allocationStartDate: item.allocationStartDate.toISOString().slice(0, 10),
+    allocationEndDate: item.allocationEndDate?.toISOString().slice(0, 10),
+    employmentStartDate: item.employmentStartDate.toISOString().slice(0, 10),
+    factOccurredOn: item.factOccurredOn.toISOString().slice(0, 10),
+    calculationMemory: serializeCalculationMemory(item.calculationMemory),
+    requestedAmount: item.requestedAmount.toNumber(),
+    validatedAmount: item.validatedAmount.toNumber(),
+    approvedAmount: item.approvedAmount.toNumber(),
+    decision: item.decision,
+    notes: item.notes ?? undefined,
+    createdAt: item.createdAt.toISOString(),
+    updatedAt: item.updatedAt.toISOString(),
+  }));
+  const workflow = summarizeReleaseRequestWorkflow({
+    status: request.status,
+    missingDocumentCount: documentPlan.missingCurrentStage.length,
+    itemDecisions: items.map((item) => item.decision),
+  });
 
   return {
     id: request.id,
@@ -220,6 +245,7 @@ export function serializeReleaseRequest(request: {
     competencyEnd: request.competencyEnd,
     requestedTotalAmount: request.requestedTotalAmount.toNumber(),
     notes: request.notes ?? undefined,
+    items,
     requiredDocuments: documentPlan.expectedCurrentStage,
     missingDocuments: documentPlan.missingCurrentStage,
     documentSummary: {
@@ -230,25 +256,7 @@ export function serializeReleaseRequest(request: {
       missingByCategory: documentPlan.missingByCategory,
       deferredByCategory: documentPlan.deferredByCategory,
     },
-    items: request.items.map((item) => ({
-      id: item.id,
-      releaseRequestId: item.releaseRequestId,
-      employeeId: item.employeeId,
-      releaseRubric: item.releaseRubric,
-      competencyRef: item.competencyRef,
-      allocationStartDate: item.allocationStartDate.toISOString().slice(0, 10),
-      allocationEndDate: item.allocationEndDate?.toISOString().slice(0, 10),
-      employmentStartDate: item.employmentStartDate.toISOString().slice(0, 10),
-      factOccurredOn: item.factOccurredOn.toISOString().slice(0, 10),
-      calculationMemory: serializeCalculationMemory(item.calculationMemory),
-      requestedAmount: item.requestedAmount.toNumber(),
-      validatedAmount: item.validatedAmount.toNumber(),
-      approvedAmount: item.approvedAmount.toNumber(),
-      decision: item.decision,
-      notes: item.notes ?? undefined,
-      createdAt: item.createdAt.toISOString(),
-      updatedAt: item.updatedAt.toISOString(),
-    })),
+    workflow,
   };
 }
 

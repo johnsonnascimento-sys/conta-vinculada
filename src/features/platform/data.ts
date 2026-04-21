@@ -15,6 +15,7 @@ import type {
   Tenant,
 } from "@/features/platform/types";
 import { getReleaseDocumentPlan } from "@/features/releases/rules";
+import { summarizeReleaseRequestWorkflow } from "@/features/releases/workflow";
 
 export const tenant: Tenant = {
   id: "tenant-jmu",
@@ -320,6 +321,57 @@ const releaseRequestTwoDocumentPlan = getReleaseDocumentPlan(
   ["rescisao", "fgts", "comprovante_pagamento"],
 );
 
+const releaseRequestOneItems: ReleaseRequest["items"] = [
+  {
+    id: "rr-item-001",
+    releaseRequestId: "rr-001",
+    employeeId: "emp-001",
+    releaseRubric: "ferias",
+    competencyRef: "2026-03",
+    allocationStartDate: "2025-02-01",
+    employmentStartDate: "2024-03-10",
+    factOccurredOn: "2026-03-15",
+    calculationMemory: {
+      baseAmount: 1560,
+      proportionalFraction: 1,
+      referenceMonths: 12,
+      notes: "F?rias integrais do per?odo aquisitivo.",
+    },
+    requestedAmount: 1560,
+    validatedAmount: 1560,
+    approvedAmount: 0,
+    decision: "pendente",
+    createdAt: "2026-04-11T12:45:00Z",
+    updatedAt: "2026-04-11T12:45:00Z",
+  },
+];
+
+const releaseRequestTwoItems: ReleaseRequest["items"] = [
+  {
+    id: "rr-item-002",
+    releaseRequestId: "rr-002",
+    employeeId: "emp-004",
+    releaseRubric: "multa_fgts_rescisoria",
+    competencyRef: "2026-03",
+    allocationStartDate: "2024-08-01",
+    allocationEndDate: "2026-03-20",
+    employmentStartDate: "2024-08-14",
+    factOccurredOn: "2026-03-20",
+    calculationMemory: {
+      baseAmount: 3920,
+      proportionalFraction: 1,
+      referenceMonths: 19,
+      notes: "Multa rescis?ria calculada conforme desligamento.",
+    },
+    requestedAmount: 3920,
+    validatedAmount: 3920,
+    approvedAmount: 3650,
+    decision: "aprovado_parcial",
+    createdAt: "2026-04-08T09:12:00Z",
+    updatedAt: "2026-04-10T15:04:00Z",
+  },
+];
+
 export const releaseRequests: ReleaseRequest[] = [
   {
     id: "rr-001",
@@ -333,36 +385,13 @@ export const releaseRequests: ReleaseRequest[] = [
     updatedAt: "2026-04-11T12:45:00Z",
     requestedBy: "Marina Gomes",
     requestedByUserId: "user-002",
-    factualBasis: "Gozo de férias do empregado vinculado ao contrato.",
+    factualBasis: "Gozo de f?rias do empregado vinculado ao contrato.",
     competencyStart: "2026-03",
     competencyEnd: "2026-03",
     requestedTotalAmount: 1560,
-    notes: "Solicitação inicial do fluxo de férias.",
+    notes: "Solicita??o inicial do fluxo de f?rias.",
     analyst: "Felipe Costa",
-    items: [
-      {
-        id: "rr-item-001",
-        releaseRequestId: "rr-001",
-        employeeId: "emp-001",
-        releaseRubric: "ferias",
-        competencyRef: "2026-03",
-        allocationStartDate: "2025-02-01",
-        employmentStartDate: "2024-03-10",
-        factOccurredOn: "2026-03-15",
-        calculationMemory: {
-          baseAmount: 1560,
-          proportionalFraction: 1,
-          referenceMonths: 12,
-          notes: "Férias integrais do período aquisitivo.",
-        },
-        requestedAmount: 1560,
-        validatedAmount: 1560,
-        approvedAmount: 0,
-        decision: "pendente",
-        createdAt: "2026-04-11T12:45:00Z",
-        updatedAt: "2026-04-11T12:45:00Z",
-      },
-    ],
+    items: releaseRequestOneItems,
     requiredDocuments: releaseRequestOneDocumentPlan.expectedCurrentStage,
     missingDocuments: releaseRequestOneDocumentPlan.missingCurrentStage,
     documentSummary: {
@@ -373,6 +402,11 @@ export const releaseRequests: ReleaseRequest[] = [
       missingByCategory: releaseRequestOneDocumentPlan.missingByCategory,
       deferredByCategory: releaseRequestOneDocumentPlan.deferredByCategory,
     },
+    workflow: summarizeReleaseRequestWorkflow({
+      status: "enviada",
+      missingDocumentCount: releaseRequestOneDocumentPlan.missingCurrentStage.length,
+      itemDecisions: releaseRequestOneItems.map((item) => item.decision),
+    }),
   },
   {
     id: "rr-002",
@@ -392,32 +426,8 @@ export const releaseRequests: ReleaseRequest[] = [
     competencyStart: "2026-03",
     competencyEnd: "2026-03",
     requestedTotalAmount: 3920,
-    notes: "Rescisão com multa do FGTS.",
-    items: [
-      {
-        id: "rr-item-002",
-        releaseRequestId: "rr-002",
-        employeeId: "emp-004",
-        releaseRubric: "multa_fgts_rescisoria",
-        competencyRef: "2026-03",
-        allocationStartDate: "2024-08-01",
-        allocationEndDate: "2026-03-20",
-        employmentStartDate: "2024-08-14",
-        factOccurredOn: "2026-03-20",
-        calculationMemory: {
-          baseAmount: 3920,
-          proportionalFraction: 1,
-          referenceMonths: 19,
-          notes: "Multa rescisória calculada conforme desligamento.",
-        },
-        requestedAmount: 3920,
-        validatedAmount: 3920,
-        approvedAmount: 3650,
-        decision: "aprovado_parcial",
-        createdAt: "2026-04-08T09:12:00Z",
-        updatedAt: "2026-04-10T15:04:00Z",
-      },
-    ],
+    notes: "Rescis?o com multa do FGTS.",
+    items: releaseRequestTwoItems,
     requiredDocuments: releaseRequestTwoDocumentPlan.expectedCurrentStage,
     missingDocuments: releaseRequestTwoDocumentPlan.missingCurrentStage,
     documentSummary: {
@@ -428,6 +438,11 @@ export const releaseRequests: ReleaseRequest[] = [
       missingByCategory: releaseRequestTwoDocumentPlan.missingByCategory,
       deferredByCategory: releaseRequestTwoDocumentPlan.deferredByCategory,
     },
+    workflow: summarizeReleaseRequestWorkflow({
+      status: "aprovada_parcial",
+      missingDocumentCount: releaseRequestTwoDocumentPlan.missingCurrentStage.length,
+      itemDecisions: releaseRequestTwoItems.map((item) => item.decision),
+    }),
   },
 ];
 

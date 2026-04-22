@@ -828,3 +828,6 @@ A rodada atual consolidou o quadro gerencial resumido por contrato, derivado de 
 Toda a agregacao foi feita com uma funcao pura nova (summarizeContractReconciliation) que opera sobre os ReconciliationRecord ja lidos, sem novo fetch, sem novo workflow e sem duplicar a logica de competencia individual. O quadro esta disponivel no detalhe do contrato e e coerente com a leitura por competencia ja existente.
 
 Com isso, o proximo bloco seguro passa a ser a leitura transversal leve entre contratos, ou o refinamento da separacao entre diferenca estrutural e diferenca pontual dentro de uma competencia, ainda sem criar motor contabil.
+## Atualizacao incremental mais recente
+A rodada atual levou a leitura conciliatoria agregada para a listagem de contratos, reutilizando o mesmo resumo gerencial minimo do detalhe do contrato. A visao de lista passou a indicar atencao gerencial, residual nao explicado, remanescente explicado sem itemizacao e cobertura agregada minima, de forma transversal e leve.
+Com isso, o proximo bloco seguro passa a ser o refinamento leve da separacao entre diferenca estrutural e diferenca pontual dentro de uma competencia, ainda sem criar workflow contabil complexo.

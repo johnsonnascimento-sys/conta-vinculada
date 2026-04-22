@@ -7,6 +7,7 @@ import type {
   Company,
   Competency,
   Contract,
+  ContractOverview,
   Employee,
   EmployeeAllocation,
   ProvisionBalance,
@@ -14,7 +15,7 @@ import type {
   ReleaseRequest,
 } from "@/features/platform/types";
 
-export async function getContractsOverview() {
+export async function getContractsOverview(): Promise<ContractOverview[]> {
   const [contracts, companies, provisionBalances, bankAccounts, releaseRequests, reconciliations] =
     await Promise.all([
       getContracts(),
@@ -30,7 +31,9 @@ export async function getContractsOverview() {
     const contractReconciliations = reconciliations.filter(
       (item: ReconciliationRecord) => item.contractId === contract.id,
     );
-    const reconciliation = contractReconciliations[0];
+    const contractReconciliationSummary = summarizeContractReconciliation(
+      contractReconciliations,
+    );
     const pendingRequests = releaseRequests.filter(
       (item: ReleaseRequest) =>
         item.contractId === contract.id &&
@@ -55,7 +58,8 @@ export async function getContractsOverview() {
       provisionBalance,
       reservedBalance,
       pendingRequests,
-      unexplainedDifference: reconciliation?.unexplainedDifference ?? 0,
+      unexplainedDifference: contractReconciliationSummary.totalUnexplainedResidual,
+      contractReconciliationSummary,
     };
   });
 }

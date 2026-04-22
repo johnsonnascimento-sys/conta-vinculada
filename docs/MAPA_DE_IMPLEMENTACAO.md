@@ -342,3 +342,15 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 ### Proximo bloco sugerido
 
 - [ ] Leitura transversal leve entre contratos para identificar padroes recorrentes de divergencia, ou refinamento da separacao entre diferenca estrutural e diferenca pontual dentro de uma competencia.
+
+### Atualizacao da rodada
+
+- [x] Reutilizar o resumo conciliatorio agregado do contrato dentro de getContractsOverview.
+- [x] Expor na listagem a atencao gerencial simples do contrato.
+- [x] Expor residual nao explicado, remanescente explicado sem itemizacao e cobertura agregada minima na visao de lista.
+- [x] Manter coerencia entre listagem de contratos e detalhe do contrato sem criar dashboard pesado.
+
+### Proximo bloco sugerido
+
+- [ ] Refinar de forma leve a separacao entre diferenca estrutural e diferenca pontual dentro de uma competencia.
+

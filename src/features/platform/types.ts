@@ -601,6 +601,16 @@ export interface ContractReconciliationSummary {
   hasRelevantUnitemized: boolean;
 }
 
+export interface ContractOverview extends Contract {
+  companyName: string;
+  bankBalance: number;
+  provisionBalance: number;
+  reservedBalance: number;
+  pendingRequests: number;
+  unexplainedDifference: number;
+  contractReconciliationSummary: ContractReconciliationSummary;
+}
+
 export interface AppUser {
   id: string;
   name: string;

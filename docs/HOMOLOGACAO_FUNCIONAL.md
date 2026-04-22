@@ -519,3 +519,20 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] Nao aplicavel
+### 11.11 Leitura transversal minima na listagem de contratos
+- [ ] A listagem de contratos exibe atencao gerencial agregada como normal, requer acompanhamento ou requer revisao.
+- [ ] A listagem mostra o valor residual nao explicado do contrato.
+- [ ] A listagem mostra o valor explicado ainda remanescente sem itemizacao minima.
+- [ ] A listagem mostra a cobertura agregada minima do contrato.
+- [ ] A atencao gerencial na listagem permanece coerente com o resumo conciliatorio agregado do contrato.
+- [ ] A atencao gerencial na listagem permanece coerente com o quadro resumido exibido no detalhe do contrato.
+- [ ] O contrato com residual nao explicado aberto aparece como requer revisao.
+- [ ] O contrato sem residual aberto e sem remanescente relevante aparece como normal.
+- [ ] Os marcadores leves de residual aberto, competencia reaberta, remanescente relevante ou situacao normal aparecem de forma coerente com a agregacao.
+- [ ] A listagem continua funcionalmente leve e nao passa a se comportar como dashboard pesado.
+Observacoes:
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel

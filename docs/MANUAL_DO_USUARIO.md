@@ -810,3 +810,16 @@ A atencao gerencial e sinalizada visualmente como:
 O quadro tambem exibe, de forma resumida, as situacoes de alerta do contrato, sinalizando com indicadores simples se o contrato possui competencia com residual aberto, competencia reaberta ou remanescente de prioridade relevante.
 
 Esse quadro e uma leitura derivada das competencias ja registradas. Ele nao cria nova etapa formal, nao exige aprovacao adicional e nao altera a leitura detalhada de cada competencia.
+### 11.11 Leitura transversal minima na listagem de contratos
+A listagem de contratos passou a mostrar uma leitura gerencial minima da conciliacao ja na propria linha do contrato, sem exigir abertura imediata do detalhe.
+Essa leitura exibe, de forma resumida:
+- atencao gerencial do contrato, com indicacao simples de normal, requer acompanhamento ou requer revisao;
+- valor residual nao explicado ainda aberto no contrato;
+- valor explicado ainda remanescente sem itemizacao minima;
+- cobertura agregada minima do contrato.
+A atencao gerencial na listagem segue a mesma logica ja usada no detalhe do contrato:
+- normal, quando a leitura conciliatoria agregada nao indica residual aberto, competencia reaberta nem remanescente relevante;
+- requer acompanhamento, quando ainda existe saldo explicado remanescente relevante sem itemizacao suficiente;
+- requer revisao, quando existe residual nao explicado aberto ou competencia reaberta.
+A listagem tambem mostra marcadores simples para ajudar a priorizar rapidamente quais contratos abrir primeiro, indicando residual aberto, competencia reaberta, remanescente relevante ou situacao normal.
+Essa leitura continua leve. Ela nao cria dashboard executivo pesado, nao substitui o detalhe do contrato e nao transforma a atencao gerencial em decisao formal do sistema.

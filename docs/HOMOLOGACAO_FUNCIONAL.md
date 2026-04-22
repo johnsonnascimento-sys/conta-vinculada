@@ -493,3 +493,29 @@ Resultado:
 - [ ] Nao aplicavel
 
 
+
+### 11.10 Quadro gerencial resumido por contrato
+
+- [ ] O detalhe do contrato exibe o quadro gerencial quando existe pelo menos uma competencia conciliatoria registrada.
+- [ ] O quadro exibe o valor total da diferenca explicada agregada de todas as competencias.
+- [ ] O quadro exibe o valor coberto por itemizacao minima registrada.
+- [ ] O quadro exibe o valor explicado ainda sem itemizacao.
+- [ ] O quadro exibe o valor residual nao explicado ainda aberto.
+- [ ] O percentual de cobertura geral e calculado corretamente a partir dos agregados.
+- [ ] A situacao da cobertura geral aparece como sem divergencia, cobertura suficiente, cobertura parcial ou residual nao explicado presente, de forma coerente com os valores.
+- [ ] A atencao gerencial aparece como normal, requer acompanhamento ou requer revisao, de forma coerente com as situacoes das competencias subjacentes.
+- [ ] O sinal de residual aberto aparece apenas quando existe diferenca nao explicada em pelo menos uma competencia.
+- [ ] O sinal de reabertura aparece apenas quando existe competencia com estado formal reaberta.
+- [ ] O sinal de remanescente relevante aparece apenas quando existe saldo explicado sem itemizacao de prioridade media ou alta.
+- [ ] O sinal sem alerta aparece apenas quando nenhum dos tres alertas anteriores esta ativo.
+- [ ] O quadro nao e exibido quando o contrato nao possui competencias conciliatorias registradas.
+- [ ] O quadro nao altera o fechamento, a reabertura, os itens conciliatorios, a cobertura por competencia ou a diferenca nao explicada de nenhuma competencia individual.
+- [ ] A leitura por competencia continua coerente com a leitura agregada exibida no quadro gerencial.
+
+Observacoes:
+
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel

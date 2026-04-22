@@ -1,4 +1,5 @@
 import { getBankAccounts, getBankEntries, getReleaseRequests, getReconciliations, getAllocations, getAuditEvents, getCompanies, getCompetencies, getContracts, getEmployees, getProvisionBalances } from "@/server/repositories/platform.repository";
+import { summarizeContractReconciliation } from "@/features/reconciliation/workflow";
 import type {
   AuditEvent,
   BankAccount,
@@ -118,6 +119,11 @@ export async function getContractDetail(contractId: string) {
     ),
     reconciliation: reconciliations.find(
       (item: ReconciliationRecord) => item.contractId === contractId,
+    ),
+    contractReconciliationSummary: summarizeContractReconciliation(
+      reconciliations.filter(
+        (item: ReconciliationRecord) => item.contractId === contractId,
+      ),
     ),
     auditEvents: auditEvents.filter((item: AuditEvent) => item.contractId === contractId),
   };

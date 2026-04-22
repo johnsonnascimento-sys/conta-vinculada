@@ -2,6 +2,7 @@ import type {
   CompetencyFormalClosureSummary,
   CompetencyOccurrence,
   CompetencyOperationalHistorySummary,
+  ContractReconciliationSummary,
   ReconciliationFilterKey,
   ReconciliationItem,
   ReconciliationDifferenceSummary,
@@ -941,4 +942,121 @@ export function matchesReconciliationFilter(
     record.qualification.hasPendingJustification ||
     record.qualification.hasSensitiveJustification
   );
+}
+
+export function summarizeContractReconciliation(
+  records: ReconciliationRecord[],
+): ContractReconciliationSummary {
+  if (records.length === 0) {
+    return {
+      competencyCount: 0,
+      totalExplainedDifference: 0,
+      totalCoveredByItems: 0,
+      totalExplainedStillUnitemized: 0,
+      totalUnexplainedResidual: 0,
+      overallCoveragePercentage: 0,
+      overallCoverageState: "sem_competencias",
+      overallCoverageStateLabel: "sem competencias registradas",
+      managerialAttention: "normal",
+      managerialAttentionLabel: "normal",
+      managerialAttentionReason: "Nenhuma competencia conciliada disponivel para leitura.",
+      hasOpenUnexplained: false,
+      hasReopenedCompetencies: false,
+      hasRelevantUnitemized: false,
+    };
+  }
+
+  const totalExplainedDifference = records.reduce(
+    (sum, r) => sum + r.differenceSummary.explainedAmount,
+    0,
+  );
+  const totalCoveredByItems = records.reduce(
+    (sum, r) => sum + r.differenceSummary.explainedItemsAmount,
+    0,
+  );
+  const totalExplainedStillUnitemized = records.reduce(
+    (sum, r) => sum + r.differenceSummary.explainedBalanceStillUnitemized,
+    0,
+  );
+  const totalUnexplainedResidual = records.reduce(
+    (sum, r) => sum + r.differenceSummary.unexplainedAmount,
+    0,
+  );
+
+  const hasOpenUnexplained = records.some(
+    (r) => r.differenceSummary.hasResidualUnexplained,
+  );
+  const hasReopenedCompetencies = records.some(
+    (r) => r.formalClosure.state === "reaberta",
+  );
+  const hasRelevantUnitemized = records.some(
+    (r) =>
+      r.differenceSummary.explainedBalanceStillUnitemized > 0 &&
+      r.differenceSummary.unitemizedBalancePriority !== "baixa",
+  );
+
+  const overallTotal = totalExplainedDifference + totalUnexplainedResidual;
+  const overallCoveragePercentage =
+    overallTotal > 0
+      ? Math.round((totalCoveredByItems / overallTotal) * 100)
+      : 100;
+
+  let overallCoverageState: ContractReconciliationSummary["overallCoverageState"];
+  let overallCoverageStateLabel: string;
+
+  if (overallTotal === 0) {
+    overallCoverageState = "sem_divergencia";
+    overallCoverageStateLabel = "sem divergencia registrada";
+  } else if (totalUnexplainedResidual > 0) {
+    overallCoverageState = "sem_cobertura";
+    overallCoverageStateLabel = "residual nao explicado presente";
+  } else if (totalCoveredByItems === 0 && totalExplainedStillUnitemized > 0) {
+    overallCoverageState = "sem_cobertura";
+    overallCoverageStateLabel = "diferenca explicada sem itemizacao";
+  } else if (overallCoveragePercentage >= 90) {
+    overallCoverageState = "cobertura_suficiente";
+    overallCoverageStateLabel = "cobertura suficiente";
+  } else {
+    overallCoverageState = "cobertura_parcial";
+    overallCoverageStateLabel = "cobertura parcial";
+  }
+
+  let managerialAttention: ContractReconciliationSummary["managerialAttention"];
+  let managerialAttentionLabel: string;
+  let managerialAttentionReason: string;
+
+  if (hasOpenUnexplained || hasReopenedCompetencies) {
+    managerialAttention = "requer_revisao";
+    managerialAttentionLabel = "requer revisao";
+    managerialAttentionReason = hasOpenUnexplained
+      ? "Existe diferenca nao explicada em pelo menos uma competencia do contrato."
+      : "Existe competencia reaberta que ainda nao teve o tratamento concluido.";
+  } else if (hasRelevantUnitemized) {
+    managerialAttention = "requer_acompanhamento";
+    managerialAttentionLabel = "requer acompanhamento";
+    managerialAttentionReason =
+      "Existe saldo explicado sem itemizacao suficiente que merece revisao dirigida.";
+  } else {
+    managerialAttention = "normal";
+    managerialAttentionLabel = "normal";
+    managerialAttentionReason =
+      "A situacao conciliatoria do contrato esta dentro do esperado operacionalmente.";
+  }
+
+  return {
+    competencyCount: records.length,
+    totalExplainedDifference,
+    totalCoveredByItems,
+    totalExplainedStillUnitemized,
+    totalUnexplainedResidual,
+    overallCoveragePercentage,
+    overallCoverageState,
+    overallCoverageStateLabel,
+    managerialAttention,
+    managerialAttentionLabel,
+    managerialAttentionReason,
+    hasOpenUnexplained,
+    hasReopenedCompetencies,
+    hasRelevantUnitemized,
+  };
 }

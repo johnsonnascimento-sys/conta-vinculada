@@ -781,3 +781,32 @@ Esses filtros nao criam fila de tarefas, nao geram aprovacao adicional e nao alt
 O detalhe do contrato passou a refletir a mesma prioridade visual do saldo remanescente e o mesmo motivo principal exibidos na conciliacao.
 
 
+
+### 11.10 Quadro gerencial resumido por contrato
+
+O detalhe do contrato passou a exibir, quando houver pelo menos uma competencia conciliatoria registrada, um quadro resumido da situacao conciliatoria agregada do contrato.
+
+Esse quadro nao substitui a leitura detalhada das competencias individuais. Ele oferece uma visao gerencial leve, de leitura rapida, para quem precisa entender rapidamente a situacao do contrato sem precisar entrar competencia por competencia.
+
+O quadro gerencial exibe:
+
+- valor total da diferenca explicada agregada ao longo das competencias do contrato;
+- valor ja coberto por itemizacao minima registrada;
+- valor explicado ainda sem itemizacao minima;
+- valor residual nao explicado ainda aberto.
+
+Alem dos valores, o quadro tambem informa:
+
+- percentual geral de cobertura, calculado a partir do que ja esta coberto por itens diante da diferenca total registrada;
+- situacao operacional da cobertura geral, que pode aparecer como sem divergencia registrada, cobertura suficiente, cobertura parcial ou residual nao explicado presente;
+- atencao gerencial do contrato, que indica de forma simples se o contrato esta em situacao normal, requer acompanhamento ou requer revisao.
+
+A atencao gerencial e sinalizada visualmente como:
+
+- normal, quando nao ha diferenca nao explicada aberta, nenhuma competencia reaberta e nenhum saldo explicado remanescente de prioridade relevante;
+- requer acompanhamento, quando existe saldo explicado sem itemizacao suficiente em pelo menos uma competencia, mesmo sem diferenca residual aberta;
+- requer revisao, quando existe diferenca nao explicada aberta em alguma competencia ou quando alguma competencia esta reaberta.
+
+O quadro tambem exibe, de forma resumida, as situacoes de alerta do contrato, sinalizando com indicadores simples se o contrato possui competencia com residual aberto, competencia reaberta ou remanescente de prioridade relevante.
+
+Esse quadro e uma leitura derivada das competencias ja registradas. Ele nao cria nova etapa formal, nao exige aprovacao adicional e nao altera a leitura detalhada de cada competencia.

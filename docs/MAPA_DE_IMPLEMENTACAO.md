@@ -331,3 +331,14 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 ### Proximo bloco sugerido
 
 - [ ] Consolidar quadro resumido por contrato com cobertura, remanescente explicado e residual nao explicado para leitura gerencial minima.
+
+### Atualizacao da rodada
+
+- [x] Consolidar quadro resumido por contrato com cobertura, remanescente explicado e residual nao explicado para leitura gerencial minima.
+- [x] Derivar agregados cross-competencia sem duplicar logica de competencia individual.
+- [x] Expor atencao gerencial simples do contrato (normal, requer acompanhamento, requer revisao).
+- [x] Manter coerencia entre visao gerencial do contrato e leitura por competencia ja existente.
+
+### Proximo bloco sugerido
+
+- [ ] Leitura transversal leve entre contratos para identificar padroes recorrentes de divergencia, ou refinamento da separacao entre diferenca estrutural e diferenca pontual dentro de uma competencia.

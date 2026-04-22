@@ -574,6 +574,33 @@ export interface AuditEvent {
   details: string;
 }
 
+export type ContractManagerialAttention =
+  | "normal"
+  | "requer_acompanhamento"
+  | "requer_revisao";
+
+export interface ContractReconciliationSummary {
+  competencyCount: number;
+  totalExplainedDifference: number;
+  totalCoveredByItems: number;
+  totalExplainedStillUnitemized: number;
+  totalUnexplainedResidual: number;
+  overallCoveragePercentage: number;
+  overallCoverageState:
+    | "sem_competencias"
+    | "sem_divergencia"
+    | "cobertura_suficiente"
+    | "cobertura_parcial"
+    | "sem_cobertura";
+  overallCoverageStateLabel: string;
+  managerialAttention: ContractManagerialAttention;
+  managerialAttentionLabel: string;
+  managerialAttentionReason: string;
+  hasOpenUnexplained: boolean;
+  hasReopenedCompetencies: boolean;
+  hasRelevantUnitemized: boolean;
+}
+
 export interface AppUser {
   id: string;
   name: string;

@@ -820,3 +820,11 @@ A rodada atual consolidou uma priorizacao visual minima para as faixas explicada
 Com isso, o proximo bloco seguro passa a ser a consolidacao minima de um quadro resumido por contrato para leitura de remanescente explicado, residual nao explicado e cobertura da conciliacao, ainda sem workflow contabil complexo.
 
 
+
+## Atualizacao incremental mais recente
+
+A rodada atual consolidou o quadro gerencial resumido por contrato, derivado de forma incremental das competencias conciliatorias ja lidas. O detalhe do contrato passou a exibir, em um unico bloco, a diferenca explicada total, o valor coberto por itemizacao minima, o saldo explicado ainda sem itemizacao e o residual nao explicado, junto com percentual de cobertura geral e uma sinalização simples de atencao gerencial (normal, requer acompanhamento ou requer revisao).
+
+Toda a agregacao foi feita com uma funcao pura nova (summarizeContractReconciliation) que opera sobre os ReconciliationRecord ja lidos, sem novo fetch, sem novo workflow e sem duplicar a logica de competencia individual. O quadro esta disponivel no detalhe do contrato e e coerente com a leitura por competencia ja existente.
+
+Com isso, o proximo bloco seguro passa a ser a leitura transversal leve entre contratos, ou o refinamento da separacao entre diferenca estrutural e diferenca pontual dentro de uma competencia, ainda sem criar motor contabil.

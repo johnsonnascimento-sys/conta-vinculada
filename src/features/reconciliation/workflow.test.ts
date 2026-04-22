@@ -1,9 +1,10 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import test from "node:test";
 import {
   matchesReconciliationFilter,
   summarizeCompetencyFormalClosure,
   summarizeCompetencyOperationalHistory,
+  summarizeContractReconciliation,
   summarizeReconciliationDifferenceSummary,
   summarizeReconciliationItems,
   summarizeReconciliationOperationalQualification,
@@ -470,4 +471,92 @@ test("reconciliation filter matches remaining explained balance filters", () => 
     ),
     true,
   );
+});
+
+function makeRecord(overrides: Record<string, unknown>) {
+  return {
+    differenceSummary: {
+      explainedAmount: overrides.explainedAmount ?? 0,
+      explainedItemsAmount: overrides.explainedItemsAmount ?? 0,
+      explainedBalanceStillUnitemized: overrides.explainedBalanceStillUnitemized ?? 0,
+      unexplainedAmount: overrides.unexplainedAmount ?? 0,
+      hasResidualUnexplained: overrides.hasResidualUnexplained ?? false,
+      unitemizedBalancePriority: overrides.unitemizedBalancePriority ?? "baixa",
+    },
+    formalClosure: {
+      state: overrides.formalClosureState ?? "aberta",
+    },
+  };
+}
+
+test("contract reconciliation summary returns sem_competencias for empty array", () => {
+  const summary = summarizeContractReconciliation([] as never[]);
+  assert.equal(summary.overallCoverageState, "sem_competencias");
+  assert.equal(summary.competencyCount, 0);
+  assert.equal(summary.managerialAttention, "normal");
+});
+
+test("contract reconciliation summary returns sem_divergencia when totals are zero", () => {
+  const records = [makeRecord({}), makeRecord({})];
+  const summary = summarizeContractReconciliation(records as never[]);
+  assert.equal(summary.overallCoverageState, "sem_divergencia");
+  assert.equal(summary.managerialAttention, "normal");
+});
+
+test("contract reconciliation summary aggregates amounts across competencies", () => {
+  const records = [
+    makeRecord({ explainedAmount: 1000, explainedItemsAmount: 800, explainedBalanceStillUnitemized: 200 }),
+    makeRecord({ explainedAmount: 500, explainedItemsAmount: 300, explainedBalanceStillUnitemized: 200 }),
+  ];
+  const summary = summarizeContractReconciliation(records as never[]);
+  assert.equal(summary.totalExplainedDifference, 1500);
+  assert.equal(summary.totalCoveredByItems, 1100);
+  assert.equal(summary.totalExplainedStillUnitemized, 400);
+  assert.equal(summary.totalUnexplainedResidual, 0);
+});
+
+test("contract reconciliation summary marks cobertura_suficiente at 90%+ coverage", () => {
+  const records = [makeRecord({ explainedAmount: 1000, explainedItemsAmount: 950 })];
+  const summary = summarizeContractReconciliation(records as never[]);
+  assert.equal(summary.overallCoverageState, "cobertura_suficiente");
+  assert.equal(summary.managerialAttention, "normal");
+});
+
+test("contract reconciliation summary marks cobertura_parcial below 90%", () => {
+  const records = [makeRecord({ explainedAmount: 1000, explainedItemsAmount: 600 })];
+  const summary = summarizeContractReconciliation(records as never[]);
+  assert.equal(summary.overallCoverageState, "cobertura_parcial");
+});
+
+test("contract reconciliation summary marks requer_revisao with open unexplained", () => {
+  const records = [
+    makeRecord({ unexplainedAmount: 500, hasResidualUnexplained: true }),
+    makeRecord({ explainedAmount: 1000, explainedItemsAmount: 1000 }),
+  ];
+  const summary = summarizeContractReconciliation(records as never[]);
+  assert.equal(summary.hasOpenUnexplained, true);
+  assert.equal(summary.managerialAttention, "requer_revisao");
+  assert.equal(summary.overallCoverageState, "sem_cobertura");
+});
+
+test("contract reconciliation summary marks requer_revisao with reopened competency", () => {
+  const records = [makeRecord({ formalClosureState: "reaberta" }), makeRecord({ formalClosureState: "fechada" })];
+  const summary = summarizeContractReconciliation(records as never[]);
+  assert.equal(summary.hasReopenedCompetencies, true);
+  assert.equal(summary.managerialAttention, "requer_revisao");
+});
+
+test("contract reconciliation summary marks requer_acompanhamento with relevant unitemized and no unexplained", () => {
+  const records = [makeRecord({ explainedAmount: 1000, explainedBalanceStillUnitemized: 1000, unitemizedBalancePriority: "alta" })];
+  const summary = summarizeContractReconciliation(records as never[]);
+  assert.equal(summary.hasRelevantUnitemized, true);
+  assert.equal(summary.hasOpenUnexplained, false);
+  assert.equal(summary.managerialAttention, "requer_acompanhamento");
+});
+
+test("contract reconciliation summary ignores low priority unitemized for managerial attention", () => {
+  const records = [makeRecord({ explainedAmount: 1000, explainedItemsAmount: 950, explainedBalanceStillUnitemized: 50, unitemizedBalancePriority: "baixa" })];
+  const summary = summarizeContractReconciliation(records as never[]);
+  assert.equal(summary.hasRelevantUnitemized, false);
+  assert.equal(summary.managerialAttention, "normal");
 });

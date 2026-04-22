@@ -1,4 +1,4 @@
-﻿import { notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getContractDetail } from "@/features/contracts/queries";
 import type {
   AuditEvent,
@@ -237,6 +237,100 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
           </div>
         </div>
       </SectionCard>
+
+      {detail.contractReconciliationSummary.competencyCount > 0 && (
+        <SectionCard
+          eyebrow="Quadro conciliatório"
+          title="Situação gerencial do contrato"
+          description="Resumo agregado de todas as competências conciliatórias do contrato para leitura gerencial."
+        >
+          <div className="grid gap-3 lg:grid-cols-4">
+            <MetricChip
+              label="Diferença explicada total"
+              value={formatCurrency(detail.contractReconciliationSummary.totalExplainedDifference)}
+            />
+            <MetricChip
+              label="Coberto por itens"
+              value={formatCurrency(detail.contractReconciliationSummary.totalCoveredByItems)}
+            />
+            <MetricChip
+              label="Explicado sem itemização"
+              value={formatCurrency(detail.contractReconciliationSummary.totalExplainedStillUnitemized)}
+            />
+            <MetricChip
+              label="Residual não explicado"
+              value={formatCurrency(detail.contractReconciliationSummary.totalUnexplainedResidual)}
+            />
+          </div>
+          <div className="mt-4 flex flex-wrap items-start gap-3">
+            <div className="rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
+              <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                Cobertura geral
+              </span>
+              <p className="mt-2 text-lg font-semibold text-[var(--color-ink)]">
+                {detail.contractReconciliationSummary.overallCoveragePercentage}%
+              </p>
+              <Badge
+                tone={
+                  detail.contractReconciliationSummary.overallCoverageState === "cobertura_suficiente" ||
+                  detail.contractReconciliationSummary.overallCoverageState === "sem_divergencia"
+                    ? "success"
+                    : detail.contractReconciliationSummary.overallCoverageState === "cobertura_parcial"
+                      ? "warning"
+                      : "danger"
+                }
+              >
+                {detail.contractReconciliationSummary.overallCoverageStateLabel}
+              </Badge>
+            </div>
+            <div className="flex-1 rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
+              <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                Atenção gerencial
+              </span>
+              <div className="mt-2">
+                <Badge
+                  tone={
+                    detail.contractReconciliationSummary.managerialAttention === "normal"
+                      ? "success"
+                      : detail.contractReconciliationSummary.managerialAttention === "requer_acompanhamento"
+                        ? "warning"
+                        : "danger"
+                  }
+                >
+                  {detail.contractReconciliationSummary.managerialAttentionLabel}
+                </Badge>
+              </div>
+              <p className="mt-2 text-sm text-[var(--color-muted)]">
+                {detail.contractReconciliationSummary.managerialAttentionReason}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
+              <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                Competências
+              </span>
+              <p className="mt-2 text-lg font-semibold text-[var(--color-ink)]">
+                {detail.contractReconciliationSummary.competencyCount}
+              </p>
+              <div className="mt-1 flex flex-wrap gap-1">
+                {detail.contractReconciliationSummary.hasOpenUnexplained && (
+                  <Badge tone="danger">com residual aberto</Badge>
+                )}
+                {detail.contractReconciliationSummary.hasReopenedCompetencies && (
+                  <Badge tone="warning">com reabertura</Badge>
+                )}
+                {detail.contractReconciliationSummary.hasRelevantUnitemized && (
+                  <Badge tone="warning">remanescente relevante</Badge>
+                )}
+                {!detail.contractReconciliationSummary.hasOpenUnexplained &&
+                  !detail.contractReconciliationSummary.hasReopenedCompetencies &&
+                  !detail.contractReconciliationSummary.hasRelevantUnitemized && (
+                    <Badge tone="success">sem alerta</Badge>
+                )}
+              </div>
+            </div>
+          </div>
+        </SectionCard>
+      )}
 
       <div className="grid gap-4 xl:grid-cols-2">
         <TableCard

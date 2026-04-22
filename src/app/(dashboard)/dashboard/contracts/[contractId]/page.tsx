@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+﻿import { notFound } from "next/navigation";
 import { getContractDetail } from "@/features/contracts/queries";
 import type {
   AuditEvent,
@@ -21,11 +21,11 @@ function formatDocumentKinds(values: string[]) {
 
 function getRequestStatusLabel(request: ReleaseRequest) {
   if (request.workflow.derivedStatus === "em_exigencia") {
-    return "Em exigência documental";
+    return "Em exigÃªncia documental";
   }
 
   if (request.workflow.derivedStatus === "em_analise") {
-    return "Em análise";
+    return "Em anÃ¡lise";
   }
 
   if (request.workflow.derivedStatus === "aprovada") {
@@ -44,7 +44,7 @@ function getRequestStatusLabel(request: ReleaseRequest) {
     return "Liberada";
   }
 
-  return "Aguardando análise";
+  return "Aguardando anÃ¡lise";
 }
 
 function getAdministrativeApprovalLabel(request: ReleaseRequest) {
@@ -53,42 +53,46 @@ function getAdministrativeApprovalLabel(request: ReleaseRequest) {
   }
 
   if (request.workflow.administrativeApproval.state === "aprovada_parcial") {
-    return "aprovada parcialmente na consolidação";
+    return "aprovada parcialmente na consolidaÃ§Ã£o";
   }
 
   if (request.workflow.administrativeApproval.state === "rejeitada") {
-    return "rejeitada na consolidação administrativa";
+    return "rejeitada na consolidaÃ§Ã£o administrativa";
   }
 
   if (request.workflow.administrativeApproval.state === "apta") {
-    return "pronta para aprovação administrativa";
+    return "pronta para aprovaÃ§Ã£o administrativa";
   }
 
-  return "ainda não apta para aprovação administrativa";
+  return "ainda nÃ£o apta para aprovaÃ§Ã£o administrativa";
 }
 
 function getFinancialPreparationLabel(request: ReleaseRequest) {
   if (request.workflow.financialPreparation.state === "preparada") {
-    return "preparo interno já registrado";
+    return "preparo interno jÃ¡ registrado";
   }
 
   if (request.workflow.financialPreparation.state === "apta") {
-    return "pronta para preparo da futura execução";
+    return "pronta para preparo da futura execuÃ§Ã£o";
   }
 
-  return "ainda não apta para preparo da futura execução";
+  return "ainda nÃ£o apta para preparo da futura execuÃ§Ã£o";
 }
 
 function getFinancialExecutionLabel(request: ReleaseRequest) {
   if (request.workflow.financialExecution.state === "executada") {
-    return "execução efetiva registrada";
+    return "execuÃ§Ã£o efetiva registrada";
+  }
+
+  if (request.workflow.financialExecution.state === "execucao_parcial") {
+    return "execu??o financeira parcial registrada";
   }
 
   if (request.workflow.financialExecution.state === "aguardando_execucao") {
-    return "preparada e aguardando execução efetiva";
+    return "preparada e aguardando execuÃ§Ã£o efetiva";
   }
 
-  return "ainda não apta para execução efetiva";
+  return "ainda nÃ£o apta para execuÃ§Ã£o efetiva";
 }
 
 interface ContractPageProps {
@@ -123,11 +127,11 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
       >
         <div className="grid gap-3 lg:grid-cols-5">
           <MetricChip
-            label="Saldo bancário"
+            label="Saldo bancÃ¡rio"
             value={formatCurrency(detail.account?.currentBalance ?? 0)}
           />
           <MetricChip
-            label="Provisões líquidas"
+            label="ProvisÃµes lÃ­quidas"
             value={formatCurrency(totalProvisionBalance)}
           />
           <MetricChip
@@ -135,12 +139,12 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
             value={formatCurrency(totalReservedBalance)}
           />
           <MetricChip
-            label="Diferença não explicada"
+            label="DiferenÃ§a nÃ£o explicada"
             value={formatCurrency(detail.reconciliation?.unexplainedDifference ?? 0)}
           />
           <div className="rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
             <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
-              Situação do contrato
+              SituaÃ§Ã£o do contrato
             </span>
             <div className="mt-2">
               <Badge tone={detail.contract.riskLevel === "alto" ? "danger" : "warning"}>
@@ -156,14 +160,14 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
 
       <div className="grid gap-4 xl:grid-cols-2">
         <TableCard
-          title="Competências"
+          title="CompetÃªncias"
           description="Estados formais de processamento, fechamento e reabertura."
         >
           <div className="overflow-hidden rounded-[1.4rem] border border-black/8">
             <table className="min-w-full divide-y divide-black/8 text-left">
               <thead className="bg-[var(--color-surface)] font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
                 <tr>
-                  <th className="px-4 py-3">Competência</th>
+                  <th className="px-4 py-3">CompetÃªncia</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Processado em</th>
                 </tr>
@@ -200,7 +204,7 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
 
         <TableCard
           title="Empregados alocados"
-          description="Vínculo contratual temporal utilizado para cálculo e elegibilidade de liberação."
+          description="VÃ­nculo contratual temporal utilizado para cÃ¡lculo e elegibilidade de liberaÃ§Ã£o."
         >
           <div className="grid gap-3">
             {detail.employees.map(
@@ -215,7 +219,7 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                         {allocation.employee?.name}
                       </h3>
                       <p className="text-sm text-[var(--color-muted)]">
-                        {allocation.employee?.role} • {allocation.costCenter}
+                        {allocation.employee?.role} â€¢ {allocation.costCenter}
                       </p>
                     </div>
                     <Badge
@@ -239,8 +243,8 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
 
       <div className="grid gap-4 xl:grid-cols-2">
         <TableCard
-          title="Provisões por empregado e rubrica"
-          description="Saldo gerencial derivado, com separação entre reservado para liberação e baixado efetivamente."
+          title="ProvisÃµes por empregado e rubrica"
+          description="Saldo gerencial derivado, com separaÃ§Ã£o entre reservado para liberaÃ§Ã£o e baixado efetivamente."
         >
           <div className="overflow-hidden rounded-[1.4rem] border border-black/8">
             <table className="min-w-full divide-y divide-black/8 text-left">
@@ -281,8 +285,8 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
         </TableCard>
 
         <TableCard
-          title="Conta vinculada e conciliação"
-          description="Saldo bancário real, rendimentos globais e eventos vinculáveis à reconciliação."
+          title="Conta vinculada e conciliaÃ§Ã£o"
+          description="Saldo bancÃ¡rio real, rendimentos globais e eventos vinculÃ¡veis Ã  reconciliaÃ§Ã£o."
         >
           <div className="grid gap-3">
             <div className="grid gap-3 sm:grid-cols-2">
@@ -294,11 +298,11 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <MetricChip
-                label="Diferença explicada"
+                label="DiferenÃ§a explicada"
                 value={formatCurrency(detail.reconciliation?.explainedDifference ?? 0)}
               />
               <MetricChip
-                label="Diferença não explicada"
+                label="DiferenÃ§a nÃ£o explicada"
                 value={formatCurrency(detail.reconciliation?.unexplainedDifference ?? 0)}
               />
             </div>
@@ -336,8 +340,8 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
 
       <div className="grid gap-4 xl:grid-cols-2">
         <TableCard
-          title="Solicitações de liberação"
-          description="No MVP, protocolo interno com checagem documental, decisão item a item, consolidação administrativa e preparo da futura execução."
+          title="SolicitaÃ§Ãµes de liberaÃ§Ã£o"
+          description="No MVP, protocolo interno com checagem documental, decisÃ£o item a item, consolidaÃ§Ã£o administrativa e preparo da futura execuÃ§Ã£o."
         >
           <div className="grid gap-3">
             {detail.releaseRequests.map((request: ReleaseRequest) => (
@@ -351,7 +355,7 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                       {request.protocol}
                     </p>
                     <h3 className="text-lg font-semibold text-[var(--color-ink)]">
-                      {request.items.length} item(ns) • {request.requestedBy}
+                      {request.items.length} item(ns) â€¢ {request.requestedBy}
                     </h3>
                   </div>
                   <Badge
@@ -371,23 +375,23 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                 </div>
                 <div className="mt-4 grid gap-2 text-sm text-[var(--color-muted)]">
                   <p>
-                    Exigência documental:{" "}
+                    ExigÃªncia documental:{" "}
                     {request.workflow.documentState === "pendente"
-                      ? `${request.workflow.pendingDocumentCount} pendência(s) na etapa`
-                      : "sem pendência documental na etapa"}
+                      ? `${request.workflow.pendingDocumentCount} pendÃªncia(s) na etapa`
+                      : "sem pendÃªncia documental na etapa"}
                   </p>
                   <p>
-                    Análise:{" "}
+                    AnÃ¡lise:{" "}
                     {request.workflow.analysisState === "concluida"
-                      ? "concluída"
+                      ? "concluÃ­da"
                       : request.workflow.analysisState === "em_exigencia"
-                        ? "em exigência"
+                        ? "em exigÃªncia"
                         : request.workflow.analysisState === "em_analise"
                           ? "em andamento"
-                          : "aguardando início"}
+                          : "aguardando inÃ­cio"}
                   </p>
                   <p>
-                    Decisão agregada:{" "}
+                    DecisÃ£o agregada:{" "}
                     {request.workflow.decisionState === "aprovada"
                       ? "aprovada"
                       : request.workflow.decisionState === "aprovada_parcial"
@@ -395,27 +399,27 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                         : request.workflow.decisionState === "rejeitada"
                           ? "rejeitada"
                           : request.workflow.decisionState === "parcial"
-                            ? "em formação"
-                            : "ainda não consolidada"}
+                            ? "em formaÃ§Ã£o"
+                            : "ainda nÃ£o consolidada"}
                   </p>
                   <p>
-                    Aprovação administrativa:{" "}
+                    AprovaÃ§Ã£o administrativa:{" "}
                     {getAdministrativeApprovalLabel(request)}
                   </p>
                   <p>
-                    Preparo da futura execução:{" "}
+                    Preparo da futura execuÃ§Ã£o:{" "}
                     {getFinancialPreparationLabel(request)}
                   </p>
                   <p>
-                    Execução financeira efetiva:{" "}
+                    ExecuÃ§Ã£o financeira efetiva:{" "}
                     {getFinancialExecutionLabel(request)}
                   </p>
                   <p>
-                    Valor apto à futura execução:{" "}
+                    Valor apto Ã  futura execuÃ§Ã£o:{" "}
                     {formatCurrency(request.workflow.financialPreparation.eligibleAmount)}
                   </p>
                   <p>
-                    Valor pendente de execução:{" "}
+                    Valor pendente de execuÃ§Ã£o:{" "}
                     {formatCurrency(request.workflow.financialExecution.pendingAmount)}
                   </p>
                   <p>
@@ -423,13 +427,13 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                     {request.workflow.financialPreparation.expectedMovement}
                   </p>
                   <p>
-                    Evidências mínimas:{" "}
+                    EvidÃªncias mÃ­nimas:{" "}
                     {formatDocumentKinds(
                       request.workflow.financialPreparation.requiredEvidence,
                     )}
                   </p>
                   <p>
-                    Evidências faltantes:{" "}
+                    EvidÃªncias faltantes:{" "}
                     {formatDocumentKinds(
                       request.workflow.financialPreparation.missingEvidence,
                     )}
@@ -449,7 +453,7 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                   {request.workflow.financialPreparation.approvedPendingExecution !==
                   undefined ? (
                     <p>
-                      Pendente na conciliação:{" "}
+                      Pendente na conciliaÃ§Ã£o:{" "}
                       {formatCurrency(
                         request.workflow.financialPreparation
                           .approvedPendingExecution,
@@ -461,51 +465,49 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                     {formatDocumentKinds(request.requiredDocuments)}
                   </p>
                   <p>
-                    Pendências documentais:{" "}
+                    PendÃªncias documentais:{" "}
                     {formatDocumentKinds(request.missingDocuments)}
                   </p>
                   {request.workflow.administrativeApproval.approver ? (
                     <p>
-                      Último aprovador:{" "}
+                      Ãšltimo aprovador:{" "}
                       {request.workflow.administrativeApproval.approver}
                     </p>
                   ) : null}
                   {request.workflow.financialPreparation.preparedBy ? (
                     <p>
-                      Último registro de preparo:{" "}
+                      Ãšltimo registro de preparo:{" "}
                       {request.workflow.financialPreparation.preparedBy}
                     </p>
                   ) : null}
                   <p>
-                    Execução financeira efetiva registrada:{" "}
-                    {request.workflow.financialPreparation.effectiveExecutionRecorded
-                      ? "sim"
-                      : "não"}
-                  </p>
-                  <p>
-                    Situação detalhada da execução:{" "}
+                    SituaÃ§Ã£o detalhada da execuÃ§Ã£o:{" "}
                     {getFinancialExecutionLabel(request)}
                   </p>
-                  {request.workflow.financialExecution.executedAmount !== undefined ? (
+                  <p>
+                    Valor total aprovado:{" "}
+                    {formatCurrency(request.workflow.financialExecution.approvedAmount)}
+                  </p>
+                  <p>
+                    Valor executado acumulado:{" "}
+                    {formatCurrency(request.workflow.financialExecution.executedAmount)}
+                  </p>
+                  <p>
+                    Quantidade de execuÃ§Ãµes registradas:{" "}
+                    {request.workflow.financialExecution.executionCount}
+                  </p>
+                  {request.workflow.financialExecution.lastExecutedAt ? (
                     <p>
-                      Valor executado:{" "}
-                      {formatCurrency(
-                        request.workflow.financialExecution.executedAmount,
-                      )}
+                      Data da execuÃ§Ã£o:{" "}
+                      {request.workflow.financialExecution.lastExecutedAt}
                     </p>
                   ) : null}
-                  {request.workflow.financialExecution.executedAt ? (
+                  {request.workflow.financialExecution.lastBankEntryId ? (
                     <p>
-                      Data da execução:{" "}
-                      {request.workflow.financialExecution.executedAt}
-                    </p>
-                  ) : null}
-                  {request.workflow.financialExecution.bankEntryId ? (
-                    <p>
-                      Lançamento bancário vinculado:{" "}
-                      {request.workflow.financialExecution.bankEntryId}
-                      {request.workflow.financialExecution.bankEntryDescription
-                        ? ` • ${request.workflow.financialExecution.bankEntryDescription}`
+                      LanÃ§amento bancÃ¡rio vinculado:{" "}
+                      {request.workflow.financialExecution.lastBankEntryId}
+                      {request.workflow.financialExecution.lastBankEntryDescription
+                        ? ` â€¢ ${request.workflow.financialExecution.lastBankEntryDescription}`
                         : ""}
                     </p>
                   ) : null}
@@ -527,7 +529,7 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
 
         <TableCard
           title="Trilha de auditoria"
-          description="Histórico transacional e decisório preservado para análise interna e auditoria."
+          description="HistÃ³rico transacional e decisÃ³rio preservado para anÃ¡lise interna e auditoria."
         >
           <div className="space-y-3">
             {detail.auditEvents.map((event: AuditEvent) => (
@@ -541,7 +543,7 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                       {event.action}
                     </p>
                     <p className="text-sm text-[var(--color-muted)]">
-                      {event.actor} • {event.happenedAt}
+                      {event.actor} â€¢ {event.happenedAt}
                     </p>
                   </div>
                   <Badge tone="neutral">{event.entity}</Badge>
@@ -557,3 +559,4 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
     </div>
   );
 }
+

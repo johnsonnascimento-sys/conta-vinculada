@@ -74,7 +74,9 @@ type FinancialPreparationRequestRecord = {
     createdAt: Date;
   }>;
   releaseExecutions: Array<{
-    id: string;
+    bankEntryId: string;
+    executedAmount: { toNumber(): number };
+    executedAt: Date;
   }>;
 };
 
@@ -263,7 +265,9 @@ export async function prepareReleaseRequestForExecutionWithDependencies(
           },
           releaseExecutions: {
             select: {
-              id: true,
+              bankEntryId: true,
+              executedAmount: true,
+              executedAt: true,
             },
           },
         },
@@ -344,7 +348,11 @@ export async function prepareReleaseRequestForExecutionWithDependencies(
               notes: latestFinancialPreparationApproval.notes ?? undefined,
             }
           : undefined,
-        hasEffectiveExecution: request.releaseExecutions.length > 0,
+        financialExecutions: request.releaseExecutions.map((execution) => ({
+          bankEntryId: execution.bankEntryId,
+          executedAmount: execution.executedAmount.toNumber(),
+          executedAt: execution.executedAt.toISOString(),
+        })),
       });
 
       if (!workflow.financialPreparation.canPrepare) {

@@ -137,6 +137,7 @@ export type ReleaseRequestFinancialPreparationState =
 export type ReleaseRequestFinancialExecutionState =
   | "nao_apta"
   | "aguardando_execucao"
+  | "execucao_parcial"
   | "executada";
 
 export type ReleaseRequestBalanceCheckState =
@@ -183,12 +184,24 @@ export interface ReleaseRequestFinancialPreparationSummary {
 export interface ReleaseRequestFinancialExecutionSummary {
   state: ReleaseRequestFinancialExecutionState;
   canExecute: boolean;
+  approvedAmount: number;
+  executedAmount: number;
   pendingAmount: number;
+  executionCount: number;
+  linkedBankEntryIds: string[];
   reason?: string;
-  executedAmount?: number;
-  executedAt?: string;
-  bankEntryId?: string;
-  bankEntryDescription?: string;
+  lastExecutedAt?: string;
+  lastBankEntryId?: string;
+  lastBankEntryDescription?: string;
+}
+
+export type ReconciliationOperationalClosureState =
+  | "com_pendencias"
+  | "pronta_para_fechamento_minimo";
+
+export interface ReconciliationOperationalClosureSummary {
+  state: ReconciliationOperationalClosureState;
+  reason: string;
 }
 
 export interface ReleaseRequestWorkflowSummary {
@@ -364,6 +377,7 @@ export interface ReconciliationRecord {
   explainedDifference: number;
   unexplainedDifference: number;
   differenceType: ReconciliationDifferenceType;
+  operationalClosure: ReconciliationOperationalClosureSummary;
 }
 
 export interface AuditEvent {

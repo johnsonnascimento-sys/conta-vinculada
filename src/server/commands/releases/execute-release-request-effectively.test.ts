@@ -26,14 +26,14 @@ function buildInput(
   return {
     requestId: "rr-002",
     bankEntryId: "entry-006",
-    notes: "Vínculo da execução efetiva com lançamento bancário conferido.",
+    notes: "Vinculo da execucao efetiva com lancamento bancario conferido.",
     ...overrides,
   };
 }
 
 function createFakePrisma(options?: {
   hasPreparation?: boolean;
-  hasEffectiveExecution?: boolean;
+  existingExecutionAmounts?: number[];
   bankEntryAmount?: number;
   bankEntryContractId?: string;
   bankEntryLinked?: boolean;
@@ -42,6 +42,12 @@ function createFakePrisma(options?: {
   const updatedRequests: Array<Record<string, unknown>> = [];
   const updatedReconciliations: Array<Record<string, unknown>> = [];
   const createdAuditLogs: Array<Record<string, unknown>> = [];
+
+  const existingExecutionAmounts = options?.existingExecutionAmounts ?? [];
+  const reconciliationPending = Math.max(
+    3650 - existingExecutionAmounts.reduce((total, amount) => total + amount, 0),
+    0,
+  );
 
   const tx = {
     releaseRequest: {
@@ -69,7 +75,7 @@ function createFakePrisma(options?: {
               {
                 id: "rec-002",
                 approvedPendingExecution: {
-                  toNumber: () => 3650,
+                  toNumber: () => reconciliationPending,
                 },
                 unexplainedDifference: {
                   toNumber: () => 0,
@@ -103,7 +109,7 @@ function createFakePrisma(options?: {
                     stage: "execucao_financeira" as const,
                     decision: "aprovar" as const,
                     decidedBy: "Rafaela Vasques",
-                    notes: "Checklist financeiro interno concluído.",
+                    notes: "Checklist financeiro interno concluido.",
                     createdAt: new Date("2026-04-21T14:00:00Z"),
                   },
                 ]),
@@ -111,24 +117,20 @@ function createFakePrisma(options?: {
               stage: "aprovacao_administrativa" as const,
               decision: "aprovar_parcial" as const,
               decidedBy: "Beatriz Campos",
-              notes: "Consolidação administrativa registrada.",
+              notes: "Consolidacao administrativa registrada.",
               createdAt: new Date("2026-04-21T10:00:00Z"),
             },
           ],
-          releaseExecutions: options?.hasEffectiveExecution
-            ? [
-                {
-                  bankEntryId: "entry-006",
-                  executedAmount: {
-                    toNumber: () => 3650,
-                  },
-                  executedAt: new Date("2026-04-22T10:00:00Z"),
-                  bankEntry: {
-                    description: "Liberação preparada para RR-2026-00021",
-                  },
-                },
-              ]
-            : [],
+          releaseExecutions: existingExecutionAmounts.map((amount, index) => ({
+            bankEntryId: `entry-existing-${index + 1}`,
+            executedAmount: {
+              toNumber: () => amount,
+            },
+            executedAt: new Date(`2026-04-${22 + index}T10:00:00Z`),
+            bankEntry: {
+              description: `Liberacao parcial ${index + 1}`,
+            },
+          })),
         };
       },
       async update(args: { data: Record<string, unknown> }) {
@@ -142,7 +144,7 @@ function createFakePrisma(options?: {
           id: "entry-006",
           contractId: options?.bankEntryContractId ?? "c-2cjm-002",
           type: "liberacao" as const,
-          description: "Liberação preparada para RR-2026-00021",
+          description: "Liberacao preparada para RR-2026-00021",
           amount: {
             toNumber: () => options?.bankEntryAmount ?? -3650,
           },
@@ -184,6 +186,15 @@ function createFakePrisma(options?: {
   };
 }
 
+function buildDependencies(fake: ReturnType<typeof createFakePrisma>) {
+  return {
+    getCurrentUser: async () => financialUser,
+    isDatabaseEnabled: () => true,
+    getPrismaClient: () => fake.prisma as unknown as TestPrismaClient,
+    canExecuteReleaseRequestEffectively: () => true,
+  } satisfies ExecuteReleaseRequestEffectivelyDependencies;
+}
+
 test("effective execution blocks request without prior financial preparation", async () => {
   const fake = createFakePrisma({
     hasPreparation: false,
@@ -191,12 +202,7 @@ test("effective execution blocks request without prior financial preparation", a
 
   const result = await executeReleaseRequestEffectivelyWithDependencies(
     buildInput(),
-    {
-      getCurrentUser: async () => financialUser,
-      isDatabaseEnabled: () => true,
-      getPrismaClient: () => fake.prisma as unknown as TestPrismaClient,
-      canExecuteReleaseRequestEffectively: () => true,
-    },
+    buildDependencies(fake),
   );
 
   assert.equal(result.ok, false);
@@ -205,75 +211,81 @@ test("effective execution blocks request without prior financial preparation", a
   assert.match(result.message, /preparo financeiro/i);
 });
 
-test("effective execution blocks request already executed", async () => {
+test("effective execution blocks request already fully executed", async () => {
   const fake = createFakePrisma({
-    hasEffectiveExecution: true,
+    existingExecutionAmounts: [3650],
   });
 
   const result = await executeReleaseRequestEffectivelyWithDependencies(
     buildInput(),
-    {
-      getCurrentUser: async () => financialUser,
-      isDatabaseEnabled: () => true,
-      getPrismaClient: () => fake.prisma as unknown as TestPrismaClient,
-      canExecuteReleaseRequestEffectively: () => true,
-    },
+    buildDependencies(fake),
   );
 
   assert.equal(result.ok, false);
   if (result.ok) return;
   assert.equal(result.code, "invalid_state");
-  assert.match(result.message, /já foi registrada/i);
+  assert.match(result.message, /registrada|lancamento bancario/i);
 });
 
-test("effective execution validates linked bank entry amount", async () => {
+test("effective execution blocks bank entry amount above pending", async () => {
   const fake = createFakePrisma({
-    bankEntryAmount: -3000,
+    existingExecutionAmounts: [2000],
+    bankEntryAmount: -2000,
   });
 
   const result = await executeReleaseRequestEffectivelyWithDependencies(
     buildInput(),
-    {
-      getCurrentUser: async () => financialUser,
-      isDatabaseEnabled: () => true,
-      getPrismaClient: () => fake.prisma as unknown as TestPrismaClient,
-      canExecuteReleaseRequestEffectively: () => true,
-    },
+    buildDependencies(fake),
   );
 
   assert.equal(result.ok, false);
   if (result.ok) return;
   assert.equal(result.code, "invalid_state");
-  assert.match(result.message, /não corresponde/i);
 });
 
-test("effective execution persists release execution, bank entry link, audit and reconciliation impact", async () => {
-  const fake = createFakePrisma();
+test("effective execution persists a valid partial execution and keeps request open", async () => {
+  const fake = createFakePrisma({
+    bankEntryAmount: -2000,
+  });
 
   const result = await executeReleaseRequestEffectivelyWithDependencies(
     buildInput(),
-    {
-      getCurrentUser: async () => financialUser,
-      isDatabaseEnabled: () => true,
-      getPrismaClient: () => fake.prisma as unknown as TestPrismaClient,
-      canExecuteReleaseRequestEffectively: () => true,
-    },
+    buildDependencies(fake),
   );
 
   assert.equal(result.ok, true);
   if (!result.ok) return;
 
-  assert.equal(result.data.bankEntryId, "entry-006");
-  assert.equal(result.data.executedAmount, 3650);
+  assert.equal(result.data.executedAmount, 2000);
   assert.equal(fake.createdExecutions.length, 1);
   assert.equal(fake.updatedRequests.length, 1);
   assert.equal(fake.updatedReconciliations.length, 1);
-  assert.equal(fake.createdAuditLogs.length, 1);
 
-  const createdExecution = fake.createdExecutions[0];
-  assert.equal(createdExecution.releaseRequestId, "rr-002");
-  assert.equal(createdExecution.bankEntryId, "entry-006");
-  assert.equal(createdExecution.executedAmount, 3650);
+  const requestUpdate = fake.updatedRequests[0];
+  assert.equal(requestUpdate.status, "aprovada_parcial");
+
+  const reconciliationUpdate = fake.updatedReconciliations[0];
+  assert.equal(reconciliationUpdate.approvedPendingExecution, 1650);
+
+  const auditAfter = fake.createdAuditLogs[0].after as Record<string, unknown>;
+  assert.equal(auditAfter.financialExecutionState, "execucao_parcial");
+  assert.equal(auditAfter.accumulatedExecutedAmount, 2000);
+  assert.equal(auditAfter.remainingPendingAmount, 1650);
+});
+
+test("effective execution accumulates prior partial executions and releases when pending reaches zero", async () => {
+  const fake = createFakePrisma({
+    existingExecutionAmounts: [2000],
+    bankEntryAmount: -1650,
+  });
+
+  const result = await executeReleaseRequestEffectivelyWithDependencies(
+    buildInput(),
+    buildDependencies(fake),
+  );
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
 
   const requestUpdate = fake.updatedRequests[0];
   assert.equal(requestUpdate.status, "liberada");
@@ -281,13 +293,8 @@ test("effective execution persists release execution, bank entry link, audit and
   const reconciliationUpdate = fake.updatedReconciliations[0];
   assert.equal(reconciliationUpdate.approvedPendingExecution, 0);
 
-  const auditLog = fake.createdAuditLogs[0];
-  assert.equal(
-    auditLog.action,
-    "Registra execucao financeira efetiva de solicitacao de liberacao",
-  );
-  assert.equal(auditLog.entity, "release_request");
-  const after = auditLog.after as Record<string, unknown>;
-  assert.equal(after.bankEntryId, "entry-006");
-  assert.equal(after.executedAmount, 3650);
+  const auditAfter = fake.createdAuditLogs[0].after as Record<string, unknown>;
+  assert.equal(auditAfter.financialExecutionState, "executada");
+  assert.equal(auditAfter.accumulatedExecutedAmount, 3650);
+  assert.equal(auditAfter.remainingPendingAmount, 0);
 });

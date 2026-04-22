@@ -319,3 +319,37 @@ Resultado final:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] NÃ£o aplicÃ¡vel
+
+## 11. Atualização desta rodada
+
+### 11.1 Execução parcial
+
+- [ ] A fila de liberações informa quando a solicitação está com execução parcial.
+- [ ] A fila mostra valor total aprovado, valor executado acumulado e valor pendente.
+- [ ] O detalhe do contrato mostra a mesma leitura acumulada da execução.
+- [ ] O sistema bloqueia registro de execução com valor acima do pendente.
+- [ ] O sistema só passa a ler a solicitação como `liberada` quando o pendente chega a zero.
+- [ ] A auditoria registra o valor executado, o acumulado e o saldo remanescente após execução parcial.
+
+Observações:
+
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Não aplicável
+
+### 11.2 Fechamento mínimo da conciliação
+
+- [ ] A tela de conciliação mostra a leitura de fechamento mínimo da competência.
+- [ ] A competência só aparece como pronta para fechamento mínimo quando não há aprovado pendente de execução nem diferença não explicada.
+- [ ] A execução parcial reduz o aprovado pendente de execução sem fingir fechamento automático completo.
+- [ ] A leitura de fechamento mínimo corresponde ao que o manual descreve.
+
+Observações:
+
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Não aplicável

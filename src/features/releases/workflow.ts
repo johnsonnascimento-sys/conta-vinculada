@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   AdministrativeApprovalDecision,
   ContractNormativeRegime,
   DocumentKind,
@@ -139,10 +139,10 @@ function buildFinancialNextStepLabel(input: {
 }) {
   if (input.readiness === "nao_apta") {
     if (input.decision === "rejeitar") {
-      return "Sem aptidão para etapa financeira futura, porque a consolidação administrativa foi rejeitada.";
+      return "Sem aptidÃ£o para etapa financeira futura, porque a consolidaÃ§Ã£o administrativa foi rejeitada.";
     }
 
-    return "Ainda não apta para futura etapa financeira, pois a aprovação administrativa consolidada não foi concluída.";
+    return "Ainda nÃ£o apta para futura etapa financeira, pois a aprovaÃ§Ã£o administrativa consolidada nÃ£o foi concluÃ­da.";
   }
 
   const regimeLabel =
@@ -152,7 +152,7 @@ function buildFinancialNextStepLabel(input: {
   const movementLabel =
     input.movementMode === "pagamento_direto_empregado"
       ? "pagamento direto aos empregados"
-      : "resgate/reembolso à contratada";
+      : "resgate/reembolso Ã  contratada";
 
   return `Apta apenas para futura etapa financeira por ${movementLabel}, observando o ${regimeLabel}.`;
 }
@@ -162,7 +162,7 @@ function buildExpectedMovementLabel(movementMode: ReleaseMovementMode) {
     return "Pagamento direto aos empregados";
   }
 
-  return "Resgate/reembolso à contratada";
+  return "Resgate/reembolso Ã  contratada";
 }
 
 function deriveAdministrativeApprovalSummary(input: {
@@ -206,7 +206,7 @@ function deriveAdministrativeApprovalSummary(input: {
     return {
       state: "nao_apta",
       canApprove: false,
-      reason: "A solicitação ainda possui pendência documental na etapa atual.",
+      reason: "A solicitaÃ§Ã£o ainda possui pendÃªncia documental na etapa atual.",
       financialReadiness: "nao_apta",
       financialNextStep: buildFinancialNextStepLabel({
         readiness: "nao_apta",
@@ -222,8 +222,8 @@ function deriveAdministrativeApprovalSummary(input: {
       canApprove: false,
       reason:
         input.pendingItemCount > 0
-          ? "A solicitação ainda não possui decisão suficiente em todos os itens."
-          : "A solicitação ainda não está consolidada para decisão administrativa.",
+          ? "A solicitaÃ§Ã£o ainda nÃ£o possui decisÃ£o suficiente em todos os itens."
+          : "A solicitaÃ§Ã£o ainda nÃ£o estÃ¡ consolidada para decisÃ£o administrativa.",
       financialReadiness: "nao_apta",
       financialNextStep: buildFinancialNextStepLabel({
         readiness: "nao_apta",
@@ -237,7 +237,7 @@ function deriveAdministrativeApprovalSummary(input: {
     return {
       state: "nao_apta",
       canApprove: false,
-      reason: "A solicitação ainda não encerrou a etapa de análise por item.",
+      reason: "A solicitaÃ§Ã£o ainda nÃ£o encerrou a etapa de anÃ¡lise por item.",
       financialReadiness: "nao_apta",
       financialNextStep: buildFinancialNextStepLabel({
         readiness: "nao_apta",
@@ -250,7 +250,7 @@ function deriveAdministrativeApprovalSummary(input: {
   return {
     state: "apta",
     canApprove: true,
-    reason: "A solicitação já pode receber decisão administrativa consolidada.",
+    reason: "A solicitaÃ§Ã£o jÃ¡ pode receber decisÃ£o administrativa consolidada.",
     financialReadiness: "nao_apta",
     financialNextStep: buildFinancialNextStepLabel({
       readiness: "nao_apta",
@@ -292,24 +292,42 @@ function deriveFinancialPreparationStateFromApproval(
 
 function deriveFinancialExecutionSummary(input: {
   financialPreparation: ReleaseRequestFinancialPreparationSummary;
-  latestFinancialExecution?: {
+  executions: Array<{
     bankEntryId: string;
     bankEntryDescription?: string;
     executedAmount: number;
     executedAt: string;
-  };
+  }>;
 }): ReleaseRequestFinancialExecutionSummary {
-  if (input.latestFinancialExecution) {
+  const approvedAmount = input.financialPreparation.eligibleAmount;
+  const executionCount = input.executions.length;
+  const executedAmount = input.executions.reduce(
+    (total, execution) => total + execution.executedAmount,
+    0,
+  );
+  const pendingAmount = Math.max(approvedAmount - executedAmount, 0);
+  const linkedBankEntryIds = input.executions.map((execution) => execution.bankEntryId);
+  const latestFinancialExecution = input.executions
+    .slice()
+    .sort(
+      (left, right) =>
+        new Date(right.executedAt).getTime() - new Date(left.executedAt).getTime(),
+    )[0];
+
+  if (pendingAmount === 0 && executionCount > 0) {
     return {
       state: "executada",
       canExecute: false,
-      pendingAmount: 0,
+      approvedAmount,
+      executedAmount,
+      pendingAmount,
+      executionCount,
+      linkedBankEntryIds,
       reason:
-        "A execução financeira efetiva já foi registrada no sistema com vínculo a lançamento bancário.",
-      executedAmount: input.latestFinancialExecution.executedAmount,
-      executedAt: input.latestFinancialExecution.executedAt,
-      bankEntryId: input.latestFinancialExecution.bankEntryId,
-      bankEntryDescription: input.latestFinancialExecution.bankEntryDescription,
+        "A execuÃ§Ã£o financeira efetiva jÃ¡ foi registrada no sistema com vÃ­nculo a lanÃ§amento bancÃ¡rio.",
+      lastExecutedAt: latestFinancialExecution?.executedAt,
+      lastBankEntryId: latestFinancialExecution?.bankEntryId,
+      lastBankEntryDescription: latestFinancialExecution?.bankEntryDescription,
     };
   }
 
@@ -317,20 +335,48 @@ function deriveFinancialExecutionSummary(input: {
     return {
       state: "nao_apta",
       canExecute: false,
-      pendingAmount: input.financialPreparation.eligibleAmount,
+      approvedAmount,
+      executedAmount,
+      pendingAmount,
+      executionCount,
+      linkedBankEntryIds,
       reason:
         input.financialPreparation.state === "apta"
-          ? "A solicitação ainda precisa registrar o preparo financeiro antes da execução efetiva."
+          ? "A solicitaÃ§Ã£o ainda precisa registrar o preparo financeiro antes da execuÃ§Ã£o efetiva."
           : input.financialPreparation.reason,
+      lastExecutedAt: latestFinancialExecution?.executedAt,
+      lastBankEntryId: latestFinancialExecution?.bankEntryId,
+      lastBankEntryDescription: latestFinancialExecution?.bankEntryDescription,
+    };
+  }
+
+  if (executionCount > 0) {
+    return {
+      state: "execucao_parcial",
+      canExecute: pendingAmount > 0,
+      approvedAmount,
+      executedAmount,
+      pendingAmount,
+      executionCount,
+      linkedBankEntryIds,
+      reason:
+        "A solicitaÃƒÂ§ÃƒÂ£o jÃƒÂ¡ possui execuÃƒÂ§ÃƒÂ£o financeira parcial e permanece com saldo pendente para novos vÃƒÂ­nculos bancÃƒÂ¡rios.",
+      lastExecutedAt: latestFinancialExecution?.executedAt,
+      lastBankEntryId: latestFinancialExecution?.bankEntryId,
+      lastBankEntryDescription: latestFinancialExecution?.bankEntryDescription,
     };
   }
 
   return {
     state: "aguardando_execucao",
     canExecute: true,
-    pendingAmount: input.financialPreparation.eligibleAmount,
+    approvedAmount,
+    executedAmount,
+    pendingAmount,
+    executionCount,
+    linkedBankEntryIds,
     reason:
-      "A solicitação já está preparada e aguarda vínculo com lançamento bancário compatível para execução efetiva.",
+      "A solicitaÃ§Ã£o jÃ¡ estÃ¡ preparada e aguarda vÃ­nculo com lanÃ§amento bancÃ¡rio compatÃ­vel para execuÃ§Ã£o efetiva.",
   };
 }
 
@@ -351,7 +397,7 @@ function deriveFinancialPreparationSummary(input: {
   currentBalance?: number;
   approvedPendingExecution?: number;
   unexplainedDifference?: number;
-  hasEffectiveExecution: boolean;
+  hasRecordedExecution: boolean;
   linkedAccount?: {
     isOfficialPublicBank: boolean;
     cooperationTermRef?: string;
@@ -372,7 +418,7 @@ function deriveFinancialPreparationSummary(input: {
     input.unexplainedDifference,
   );
 
-  if (input.hasEffectiveExecution) {
+  if (input.hasRecordedExecution) {
     return {
       state: "preparada",
       canPrepare: false,
@@ -386,7 +432,7 @@ function deriveFinancialPreparationSummary(input: {
       approvedPendingExecution: input.approvedPendingExecution,
       unexplainedDifference: input.unexplainedDifference,
       reason:
-        "A solicitação já possui registro de execução financeira efetiva no sistema.",
+        "A solicitaÃ§Ã£o jÃ¡ possui registro de execuÃ§Ã£o financeira efetiva no sistema.",
       effectiveExecutionRecorded: true,
     };
   }
@@ -408,7 +454,7 @@ function deriveFinancialPreparationSummary(input: {
       approvedPendingExecution: input.approvedPendingExecution,
       unexplainedDifference: input.unexplainedDifference,
       reason:
-        "A solicitação ainda não possui aprovação administrativa apta para seguir à etapa financeira.",
+        "A solicitaÃ§Ã£o ainda nÃ£o possui aprovaÃ§Ã£o administrativa apta para seguir Ã  etapa financeira.",
       effectiveExecutionRecorded: false,
     };
   }
@@ -427,7 +473,7 @@ function deriveFinancialPreparationSummary(input: {
       approvedPendingExecution: input.approvedPendingExecution,
       unexplainedDifference: input.unexplainedDifference,
       reason:
-        "A solicitação não possui valor consolidado apto para futura execução financeira.",
+        "A solicitaÃ§Ã£o nÃ£o possui valor consolidado apto para futura execuÃ§Ã£o financeira.",
       effectiveExecutionRecorded: false,
     };
   }
@@ -446,7 +492,7 @@ function deriveFinancialPreparationSummary(input: {
       approvedPendingExecution: input.approvedPendingExecution,
       unexplainedDifference: input.unexplainedDifference,
       reason:
-        "Ainda faltam evidências mínimas para registrar o preparo da futura execução.",
+        "Ainda faltam evidÃªncias mÃ­nimas para registrar o preparo da futura execuÃ§Ã£o.",
       effectiveExecutionRecorded: false,
     };
   }
@@ -465,7 +511,7 @@ function deriveFinancialPreparationSummary(input: {
       approvedPendingExecution: input.approvedPendingExecution,
       unexplainedDifference: input.unexplainedDifference,
       reason:
-        "O contrato ainda não possui conta vinculada identificada para a futura etapa financeira.",
+        "O contrato ainda nÃ£o possui conta vinculada identificada para a futura etapa financeira.",
       effectiveExecutionRecorded: false,
     };
   }
@@ -488,7 +534,7 @@ function deriveFinancialPreparationSummary(input: {
       approvedPendingExecution: input.approvedPendingExecution,
       unexplainedDifference: input.unexplainedDifference,
       reason:
-        "A conta vinculada ainda não atende aos elementos mínimos de banco público oficial e termo de cooperação para esta etapa.",
+        "A conta vinculada ainda nÃ£o atende aos elementos mÃ­nimos de banco pÃºblico oficial e termo de cooperaÃ§Ã£o para esta etapa.",
       effectiveExecutionRecorded: false,
     };
   }
@@ -507,7 +553,7 @@ function deriveFinancialPreparationSummary(input: {
       approvedPendingExecution: input.approvedPendingExecution,
       unexplainedDifference: input.unexplainedDifference,
       reason:
-        "O saldo atual da conta vinculada não cobre o valor apto à futura execução.",
+        "O saldo atual da conta vinculada nÃ£o cobre o valor apto Ã  futura execuÃ§Ã£o.",
       effectiveExecutionRecorded: false,
     };
   }
@@ -526,7 +572,7 @@ function deriveFinancialPreparationSummary(input: {
       approvedPendingExecution: input.approvedPendingExecution,
       unexplainedDifference: input.unexplainedDifference,
       reason:
-        "A conciliação ainda possui diferença não explicada para esta competência.",
+        "A conciliaÃ§Ã£o ainda possui diferenÃ§a nÃ£o explicada para esta competÃªncia.",
       effectiveExecutionRecorded: false,
     };
   }
@@ -566,7 +612,7 @@ function deriveFinancialPreparationSummary(input: {
     approvedPendingExecution: input.approvedPendingExecution,
     unexplainedDifference: input.unexplainedDifference,
     reason:
-      "A solicitação já pode ter o preparo da futura execução financeira registrado internamente.",
+      "A solicitaÃ§Ã£o jÃ¡ pode ter o preparo da futura execuÃ§Ã£o financeira registrado internamente.",
     effectiveExecutionRecorded: false,
   };
 }
@@ -592,13 +638,12 @@ export function summarizeReleaseRequestWorkflow(input: {
     decidedAt: string;
     notes?: string;
   };
-  hasEffectiveExecution?: boolean;
-  latestFinancialExecution?: {
+  financialExecutions?: Array<{
     bankEntryId: string;
     bankEntryDescription?: string;
     executedAmount: number;
     executedAt: string;
-  };
+  }>;
   latestAdministrativeApproval?: {
     decision: AdministrativeApprovalDecision;
     decidedBy: string;
@@ -618,8 +663,7 @@ export function summarizeReleaseRequestWorkflow(input: {
     totalItemCount > 0 &&
     pendingItemCount === 0 &&
     !["em_elaboracao", "em_exigencia", "cancelada"].includes(derivedStatus);
-  const hasEffectiveExecution =
-    input.hasEffectiveExecution ?? Boolean(input.latestFinancialExecution);
+  const financialExecutions = input.financialExecutions ?? [];
   const financialPreparation = deriveFinancialPreparationSummary({
     latestAdministrativeApproval: input.latestAdministrativeApproval,
     latestFinancialPreparationApproval: input.latestFinancialPreparationApproval,
@@ -630,15 +674,21 @@ export function summarizeReleaseRequestWorkflow(input: {
     currentBalance: input.currentBalance,
     approvedPendingExecution: input.approvedPendingExecution,
     unexplainedDifference: input.unexplainedDifference,
-    hasEffectiveExecution,
+    hasRecordedExecution: financialExecutions.length > 0,
     linkedAccount: input.linkedAccount,
   });
+  const financialExecution = deriveFinancialExecutionSummary({
+    financialPreparation,
+    executions: financialExecutions,
+  });
+  const finalDerivedStatus =
+    financialExecution.state === "executada" ? "liberada" : derivedStatus;
 
   return {
-    derivedStatus: hasEffectiveExecution ? "liberada" : derivedStatus,
+    derivedStatus: finalDerivedStatus,
     documentState:
       input.missingDocumentCount > 0 ? "pendente" : "regular" satisfies ReleaseRequestDocumentState,
-    analysisState: deriveAnalysisState(hasEffectiveExecution ? "liberada" : derivedStatus),
+    analysisState: deriveAnalysisState(finalDerivedStatus),
     decisionState: deriveDecisionState(derivedStatus, decidedItemCount),
     pendingDocumentCount: input.missingDocumentCount,
     totalItemCount,
@@ -655,10 +705,7 @@ export function summarizeReleaseRequestWorkflow(input: {
       normativeRegime: input.normativeRegime,
     }),
     financialPreparation,
-    financialExecution: deriveFinancialExecutionSummary({
-      financialPreparation,
-      latestFinancialExecution: input.latestFinancialExecution,
-    }),
+    financialExecution,
   };
 }
 
@@ -682,13 +729,12 @@ export function summarizeWorkflowForReleaseRequest(
       decidedAt: string;
       notes?: string;
     };
-    hasEffectiveExecution?: boolean;
-    latestFinancialExecution?: {
+    financialExecutions?: Array<{
       bankEntryId: string;
       bankEntryDescription?: string;
       executedAmount: number;
       executedAt: string;
-    };
+    }>;
     latestAdministrativeApproval?: {
       decision: AdministrativeApprovalDecision;
       decidedBy: string;
@@ -713,8 +759,8 @@ export function summarizeWorkflowForReleaseRequest(
     unexplainedDifference: request.unexplainedDifference,
     linkedAccount: request.linkedAccount,
     latestFinancialPreparationApproval: request.latestFinancialPreparationApproval,
-    hasEffectiveExecution: request.hasEffectiveExecution,
-    latestFinancialExecution: request.latestFinancialExecution,
+    financialExecutions: request.financialExecutions,
     latestAdministrativeApproval: request.latestAdministrativeApproval,
   });
 }
+

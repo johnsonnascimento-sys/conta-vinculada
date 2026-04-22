@@ -98,7 +98,7 @@ function getLatestFinancialPreparationApproval(
   return getLatestWorkflowApproval(approvals, "execucao_financeira");
 }
 
-function getLatestFinancialExecution(
+function getFinancialExecutions(
   executions: Array<{
     bankEntryId: string;
     executedAmount: { toNumber(): number };
@@ -108,20 +108,12 @@ function getLatestFinancialExecution(
     } | null;
   }>,
 ) {
-  const latestExecution = executions
-    .slice()
-    .sort((left, right) => right.executedAt.getTime() - left.executedAt.getTime())[0];
-
-  if (!latestExecution) {
-    return undefined;
-  }
-
-  return {
-    bankEntryId: latestExecution.bankEntryId,
-    bankEntryDescription: latestExecution.bankEntry?.description,
-    executedAmount: latestExecution.executedAmount.toNumber(),
-    executedAt: latestExecution.executedAt.toISOString(),
-  };
+  return executions.map((execution) => ({
+    bankEntryId: execution.bankEntryId,
+    bankEntryDescription: execution.bankEntry?.description,
+    executedAmount: execution.executedAmount.toNumber(),
+    executedAt: execution.executedAt.toISOString(),
+  }));
 }
 
 function serializeCalculationMemory(value: unknown) {
@@ -365,7 +357,7 @@ export function serializeReleaseRequest(request: {
   const latestFinancialPreparationApproval = getLatestFinancialPreparationApproval(
     request.approvals,
   );
-  const latestFinancialExecution = getLatestFinancialExecution(
+  const financialExecutions = getFinancialExecutions(
     request.releaseExecutions ?? [],
   );
   const linkedAccount = request.contract.linkedAccounts?.[0];
@@ -397,8 +389,7 @@ export function serializeReleaseRequest(request: {
           notes: latestFinancialPreparationApproval.notes ?? undefined,
         }
       : undefined,
-    hasEffectiveExecution: (request.releaseExecutions?.length ?? 0) > 0,
-    latestFinancialExecution,
+    financialExecutions,
     latestAdministrativeApproval: latestAdministrativeApproval
       ? {
           decision: latestAdministrativeApproval.decision,
@@ -454,16 +445,33 @@ export function serializeReconciliation(record: {
   unexplainedDifference: { toNumber(): number };
   differenceType: ReconciliationRecord["differenceType"];
 }): ReconciliationRecord {
+  const approvedPendingExecution = record.approvedPendingExecution.toNumber();
+  const unexplainedDifference = record.unexplainedDifference.toNumber();
+
   return {
     id: record.id,
     contractId: record.contractId,
     competency: record.competency.competency,
     bankBalance: record.bankBalance.toNumber(),
     provisionBalance: record.provisionBalance.toNumber(),
-    approvedPendingExecution: record.approvedPendingExecution.toNumber(),
+    approvedPendingExecution,
     explainedDifference: record.explainedDifference.toNumber(),
-    unexplainedDifference: record.unexplainedDifference.toNumber(),
+    unexplainedDifference,
     differenceType: record.differenceType,
+    operationalClosure:
+      approvedPendingExecution === 0 && unexplainedDifference === 0
+        ? {
+            state: "pronta_para_fechamento_minimo",
+            reason:
+              "CompetÃªncia sem valor aprovado pendente de execuÃ§Ã£o e sem diferenÃ§a nÃ£o explicada.",
+          }
+        : {
+            state: "com_pendencias",
+            reason:
+              approvedPendingExecution > 0
+                ? "Ainda existe valor aprovado pendente de execuÃ§Ã£o para esta competÃªncia."
+                : "A competÃªncia ainda possui diferenÃ§a nÃ£o explicada na conciliaÃ§Ã£o.",
+          },
   };
 }
 

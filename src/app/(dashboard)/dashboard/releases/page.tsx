@@ -1,4 +1,4 @@
-import type { ReleaseRequest, ReleaseRequestItem } from "@/features/platform/types";
+﻿import type { ReleaseRequest, ReleaseRequestItem } from "@/features/platform/types";
 import { AdministrativeApprovalForm } from "@/features/releases/components/administrative-approval-form";
 import { CreateReleaseRequestForm } from "@/features/releases/components/create-release-request-form";
 import { FinancialExecutionForm } from "@/features/releases/components/financial-execution-form";
@@ -33,11 +33,11 @@ function getRequestStatusTone(status: ReleaseRequest["status"]) {
 
 function getWorkflowLabel(request: ReleaseRequest) {
   if (request.workflow.derivedStatus === "em_exigencia") {
-    return "Em exigência documental";
+    return "Em exigÃªncia documental";
   }
 
   if (request.workflow.derivedStatus === "em_analise") {
-    return "Em análise";
+    return "Em anÃ¡lise";
   }
 
   if (request.workflow.derivedStatus === "aprovada") {
@@ -61,54 +61,54 @@ function getWorkflowLabel(request: ReleaseRequest) {
   }
 
   if (request.workflow.derivedStatus === "em_elaboracao") {
-    return "Em elaboração";
+    return "Em elaboraÃ§Ã£o";
   }
 
-  return "Aguardando análise";
+  return "Aguardando anÃ¡lise";
 }
 
 function getDocumentStateLabel(request: ReleaseRequest) {
   if (request.workflow.documentState === "pendente") {
-    return `${request.workflow.pendingDocumentCount} pendência(s) nesta etapa`;
+    return `${request.workflow.pendingDocumentCount} pendÃªncia(s) nesta etapa`;
   }
 
-  return "Sem pendência documental desta etapa";
+  return "Sem pendÃªncia documental desta etapa";
 }
 
 function getAnalysisStateLabel(request: ReleaseRequest) {
   if (request.workflow.analysisState === "em_exigencia") {
-    return "Exigência documental aberta";
+    return "ExigÃªncia documental aberta";
   }
 
   if (request.workflow.analysisState === "em_analise") {
-    return "Análise administrativa em andamento";
+    return "AnÃ¡lise administrativa em andamento";
   }
 
   if (request.workflow.analysisState === "concluida") {
-    return "Análise concluída";
+    return "AnÃ¡lise concluÃ­da";
   }
 
-  return "Aguardando início da análise";
+  return "Aguardando inÃ­cio da anÃ¡lise";
 }
 
 function getDecisionStateLabel(request: ReleaseRequest) {
   if (request.workflow.decisionState === "aprovada") {
-    return "Decisão agregada favorável";
+    return "DecisÃ£o agregada favorÃ¡vel";
   }
 
   if (request.workflow.decisionState === "aprovada_parcial") {
-    return "Decisão agregada parcial";
+    return "DecisÃ£o agregada parcial";
   }
 
   if (request.workflow.decisionState === "rejeitada") {
-    return "Decisão agregada desfavorável";
+    return "DecisÃ£o agregada desfavorÃ¡vel";
   }
 
   if (request.workflow.decisionState === "parcial") {
-    return "Itens já analisados, sem consolidação final";
+    return "Itens jÃ¡ analisados, sem consolidaÃ§Ã£o final";
   }
 
-  return "Ainda sem decisão agregada";
+  return "Ainda sem decisÃ£o agregada";
 }
 
 function getAdministrativeApprovalStateLabel(request: ReleaseRequest) {
@@ -117,42 +117,46 @@ function getAdministrativeApprovalStateLabel(request: ReleaseRequest) {
   }
 
   if (request.workflow.administrativeApproval.state === "aprovada_parcial") {
-    return "Aprovada parcialmente na consolidação";
+    return "Aprovada parcialmente na consolidaÃ§Ã£o";
   }
 
   if (request.workflow.administrativeApproval.state === "rejeitada") {
-    return "Rejeitada na consolidação administrativa";
+    return "Rejeitada na consolidaÃ§Ã£o administrativa";
   }
 
   if (request.workflow.administrativeApproval.state === "apta") {
-    return "Pronta para aprovação administrativa";
+    return "Pronta para aprovaÃ§Ã£o administrativa";
   }
 
-  return "Ainda não apta para aprovação administrativa";
+  return "Ainda nÃ£o apta para aprovaÃ§Ã£o administrativa";
 }
 
 function getFinancialPreparationStateLabel(request: ReleaseRequest) {
   if (request.workflow.financialPreparation.state === "preparada") {
-    return "Preparo interno já registrado";
+    return "Preparo interno jÃ¡ registrado";
   }
 
   if (request.workflow.financialPreparation.state === "apta") {
-    return "Pronta para preparo da futura execução";
+    return "Pronta para preparo da futura execuÃ§Ã£o";
   }
 
-  return "Ainda não apta para preparo da futura execução";
+  return "Ainda nÃ£o apta para preparo da futura execuÃ§Ã£o";
 }
 
 function getFinancialExecutionStateLabel(request: ReleaseRequest) {
   if (request.workflow.financialExecution.state === "executada") {
-    return "Execução financeira efetiva registrada";
+    return "ExecuÃ§Ã£o financeira efetiva registrada";
+  }
+
+  if (request.workflow.financialExecution.state === "execucao_parcial") {
+    return "Execu??o financeira parcial registrada";
   }
 
   if (request.workflow.financialExecution.state === "aguardando_execucao") {
-    return "Preparada e aguardando execução efetiva";
+    return "Preparada e aguardando execuÃ§Ã£o efetiva";
   }
 
-  return "Ainda não apta para execução efetiva";
+  return "Ainda nÃ£o apta para execuÃ§Ã£o efetiva";
 }
 
 function getBalanceCheckLabel(request: ReleaseRequest) {
@@ -164,21 +168,21 @@ function getBalanceCheckLabel(request: ReleaseRequest) {
     return "Saldo insuficiente para o valor apto";
   }
 
-  return "Saldo ainda não avaliado para esta etapa";
+  return "Saldo ainda nÃ£o avaliado para esta etapa";
 }
 
 function getReconciliationCheckLabel(request: ReleaseRequest) {
   if (request.workflow.financialPreparation.reconciliationCheck === "regular") {
-    return "Conciliação sem diferença não explicada";
+    return "ConciliaÃ§Ã£o sem diferenÃ§a nÃ£o explicada";
   }
 
   if (
     request.workflow.financialPreparation.reconciliationCheck === "com_atencao"
   ) {
-    return "Conciliação ainda com diferença não explicada";
+    return "ConciliaÃ§Ã£o ainda com diferenÃ§a nÃ£o explicada";
   }
 
-  return "Conciliação ainda não avaliada para esta etapa";
+  return "ConciliaÃ§Ã£o ainda nÃ£o avaliada para esta etapa";
 }
 
 function getItemDecisionTone(decision: ReleaseRequestItem["decision"]) {
@@ -203,10 +207,10 @@ function renderDocumentCategoryList(
 ) {
   const entries = [
     ["Fato gerador", categories.fact],
-    ["Cálculo", categories.calculation],
-    ["Quitação", categories.settlement],
-    ["Operação", categories.operation],
-    ["Encerramento/sucessão", categories.closure],
+    ["CÃ¡lculo", categories.calculation],
+    ["QuitaÃ§Ã£o", categories.settlement],
+    ["OperaÃ§Ã£o", categories.operation],
+    ["Encerramento/sucessÃ£o", categories.closure],
   ] as const;
 
   return (
@@ -247,20 +251,20 @@ export default async function ReleasesPage() {
   return (
     <div className="space-y-4">
       <TableCard
-        title="Criar solicitação de liberação"
-        description="Primeiro fluxo transacional real do projeto: validação backend, autorização server-side, persistência Prisma e auditoria obrigatória."
+        title="Criar solicitaÃ§Ã£o de liberaÃ§Ã£o"
+        description="Primeiro fluxo transacional real do projeto: validaÃ§Ã£o backend, autorizaÃ§Ã£o server-side, persistÃªncia Prisma e auditoria obrigatÃ³ria."
       >
         <CreateReleaseRequestForm options={creationOptions} />
       </TableCard>
 
       <TableCard
-        title="Fila de solicitações"
-        description="Leitura consolidada das solicitações persistidas, mantendo compatibilidade com o modo híbrido mock/Prisma."
+        title="Fila de solicitaÃ§Ãµes"
+        description="Leitura consolidada das solicitaÃ§Ãµes persistidas, mantendo compatibilidade com o modo hÃ­brido mock/Prisma."
       >
         {!boardData.databaseEnabled ? (
           <div className="mb-4 rounded-[1.4rem] border border-[rgba(127,47,29,0.14)] bg-[rgba(127,47,29,0.08)] px-4 py-4 text-sm leading-6 text-[var(--color-danger)]">
-            Sem `DATABASE_URL`, a fila continua disponível para leitura com base no
-            mock. A criação permanece indisponível.
+            Sem `DATABASE_URL`, a fila continua disponÃ­vel para leitura com base no
+            mock. A criaÃ§Ã£o permanece indisponÃ­vel.
           </div>
         ) : null}
 
@@ -302,12 +306,12 @@ export default async function ReleasesPage() {
                       {request.releaseType.replaceAll("_", " ")}
                     </h2>
                     <p className="text-sm text-[var(--color-muted)]">
-                      Criada por {request.requestedBy} • Período{" "}
+                      Criada por {request.requestedBy} â€¢ PerÃ­odo{" "}
                       {formatCompetency(request.competencyStart)} a{" "}
                       {formatCompetency(request.competencyEnd)}
                     </p>
                     <p className="text-sm text-[var(--color-muted)]">
-                      Movimentação: {request.movementMode.replaceAll("_", " ")}
+                      MovimentaÃ§Ã£o: {request.movementMode.replaceAll("_", " ")}
                     </p>
                   </div>
                   <Badge tone={getRequestStatusTone(request.workflow.derivedStatus)}>
@@ -334,7 +338,7 @@ export default async function ReleasesPage() {
                   </div>
                   <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
                     <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                      Pendências documentais
+                      PendÃªncias documentais
                     </span>
                     <strong className="mt-2 block text-lg text-[var(--color-ink)]">
                       {request.workflow.pendingDocumentCount}
@@ -342,7 +346,7 @@ export default async function ReleasesPage() {
                   </div>
                   <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
                     <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                      Execução efetiva
+                      ExecuÃ§Ã£o efetiva
                     </span>
                     <p className="mt-2 text-sm leading-6 text-[var(--color-ink)]">
                       {getFinancialExecutionStateLabel(request)}
@@ -353,7 +357,7 @@ export default async function ReleasesPage() {
                 <div className="mt-5 grid gap-3 md:grid-cols-3">
                   <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
                     <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                      Exigência documental
+                      ExigÃªncia documental
                     </span>
                     <p className="mt-2 text-sm leading-6 text-[var(--color-ink)]">
                       {getDocumentStateLabel(request)}
@@ -361,7 +365,7 @@ export default async function ReleasesPage() {
                   </div>
                   <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
                     <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                      Análise
+                      AnÃ¡lise
                     </span>
                     <p className="mt-2 text-sm leading-6 text-[var(--color-ink)]">
                       {getAnalysisStateLabel(request)}
@@ -369,40 +373,40 @@ export default async function ReleasesPage() {
                   </div>
                   <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
                     <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                      Decisão agregada
+                      DecisÃ£o agregada
                     </span>
                     <p className="mt-2 text-sm leading-6 text-[var(--color-ink)]">
                       {getDecisionStateLabel(request)}
                     </p>
                     <p className="mt-1 text-xs text-[var(--color-muted)]">
                       {request.workflow.canAggregateDecision
-                        ? "Todos os itens já têm decisão."
-                        : `${request.workflow.pendingItemCount} item(ns) ainda aguardam decisão.`}
+                        ? "Todos os itens jÃ¡ tÃªm decisÃ£o."
+                        : `${request.workflow.pendingItemCount} item(ns) ainda aguardam decisÃ£o.`}
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-4">
                   <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
-                    Consolidação administrativa
+                    ConsolidaÃ§Ã£o administrativa
                   </h3>
                   <div className="mt-3 grid gap-2 text-sm leading-6 text-[var(--color-muted)]">
                     <p>
-                      Situação: {getAdministrativeApprovalStateLabel(request)}
+                      SituaÃ§Ã£o: {getAdministrativeApprovalStateLabel(request)}
                     </p>
                     <p>
-                      Próxima leitura financeira:{" "}
+                      PrÃ³xima leitura financeira:{" "}
                       {request.workflow.administrativeApproval.financialNextStep}
                     </p>
                     {request.workflow.administrativeApproval.reason ? (
                       <p>
-                        Condição atual:{" "}
+                        CondiÃ§Ã£o atual:{" "}
                         {request.workflow.administrativeApproval.reason}
                       </p>
                     ) : null}
                     {request.workflow.administrativeApproval.approver ? (
                       <p>
-                        Último aprovador:{" "}
+                        Ãšltimo aprovador:{" "}
                         {request.workflow.administrativeApproval.approver}
                       </p>
                     ) : null}
@@ -416,7 +420,7 @@ export default async function ReleasesPage() {
                     ) : null}
                     {request.workflow.administrativeApproval.notes ? (
                       <p>
-                        Fundamentação registrada:{" "}
+                        FundamentaÃ§Ã£o registrada:{" "}
                         {request.workflow.administrativeApproval.notes}
                       </p>
                     ) : null}
@@ -432,14 +436,14 @@ export default async function ReleasesPage() {
 
                 <div className="mt-5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-4">
                   <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
-                    Preparo da futura execução financeira
+                    Preparo da futura execuÃ§Ã£o financeira
                   </h3>
                   <div className="mt-3 grid gap-2 text-sm leading-6 text-[var(--color-muted)]">
                     <p>
-                      Situação: {getFinancialPreparationStateLabel(request)}
+                      SituaÃ§Ã£o: {getFinancialPreparationStateLabel(request)}
                     </p>
                     <p>
-                      Valor apto à futura execução:{" "}
+                      Valor apto Ã  futura execuÃ§Ã£o:{" "}
                       {formatCurrency(request.workflow.financialPreparation.eligibleAmount)}
                     </p>
                     <p>
@@ -447,13 +451,13 @@ export default async function ReleasesPage() {
                       {request.workflow.financialPreparation.expectedMovement}
                     </p>
                     <p>
-                      Evidências mínimas desta etapa:{" "}
+                      EvidÃªncias mÃ­nimas desta etapa:{" "}
                       {formatDocumentKinds(
                         request.workflow.financialPreparation.requiredEvidence,
                       )}
                     </p>
                     <p>
-                      Evidências ainda faltantes:{" "}
+                      EvidÃªncias ainda faltantes:{" "}
                       {formatDocumentKinds(
                         request.workflow.financialPreparation.missingEvidence,
                       )}
@@ -471,7 +475,7 @@ export default async function ReleasesPage() {
                     {request.workflow.financialPreparation.approvedPendingExecution !==
                     undefined ? (
                       <p>
-                        Valor já pendente na conciliação:{" "}
+                        Valor jÃ¡ pendente na conciliaÃ§Ã£o:{" "}
                         {formatCurrency(
                           request.workflow.financialPreparation
                             .approvedPendingExecution,
@@ -481,7 +485,7 @@ export default async function ReleasesPage() {
                     {request.workflow.financialPreparation.unexplainedDifference !==
                     undefined ? (
                       <p>
-                        Diferença não explicada considerada:{" "}
+                        DiferenÃ§a nÃ£o explicada considerada:{" "}
                         {formatCurrency(
                           request.workflow.financialPreparation
                             .unexplainedDifference,
@@ -490,7 +494,7 @@ export default async function ReleasesPage() {
                     ) : null}
                     {request.workflow.financialPreparation.reason ? (
                       <p>
-                        Condição atual:{" "}
+                        CondiÃ§Ã£o atual:{" "}
                         {request.workflow.financialPreparation.reason}
                       </p>
                     ) : null}
@@ -510,17 +514,10 @@ export default async function ReleasesPage() {
                     ) : null}
                     {request.workflow.financialPreparation.notes ? (
                       <p>
-                        Observações registradas:{" "}
+                        ObservaÃ§Ãµes registradas:{" "}
                         {request.workflow.financialPreparation.notes}
                       </p>
                     ) : null}
-                    <p>
-                      Execução financeira efetiva registrada:{" "}
-                      {request.workflow.financialPreparation
-                        .effectiveExecutionRecorded
-                        ? "sim"
-                        : "não"}
-                    </p>
                   </div>
 
                   {canPrepareFinancially ? (
@@ -530,56 +527,60 @@ export default async function ReleasesPage() {
 
                 <div className="mt-5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-4">
                   <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
-                    Execução financeira efetiva
+                    ExecuÃ§Ã£o financeira efetiva
                   </h3>
                   <div className="mt-3 grid gap-2 text-sm leading-6 text-[var(--color-muted)]">
                     <p>
-                      Situação: {getFinancialExecutionStateLabel(request)}
+                      SituaÃ§Ã£o: {getFinancialExecutionStateLabel(request)}
                     </p>
                     <p>
-                      Valor pendente de execução:{" "}
+                      Valor total aprovado:{" "}
+                      {formatCurrency(request.workflow.financialExecution.approvedAmount)}
+                    </p>
+                    <p>
+                      Valor executado acumulado:{" "}
+                      {formatCurrency(request.workflow.financialExecution.executedAmount)}
+                    </p>
+                    <p>
+                      Valor pendente de execuÃ§Ã£o:{" "}
                       {formatCurrency(request.workflow.financialExecution.pendingAmount)}
                     </p>
-                    {request.workflow.financialExecution.executedAmount !== undefined ? (
+                    <p>
+                      Quantidade de execuÃ§Ãµes registradas:{" "}
+                      {request.workflow.financialExecution.executionCount}
+                    </p>
+                    {request.workflow.financialExecution.lastExecutedAt ? (
                       <p>
-                        Valor executado:{" "}
-                        {formatCurrency(
-                          request.workflow.financialExecution.executedAmount,
-                        )}
-                      </p>
-                    ) : null}
-                    {request.workflow.financialExecution.executedAt ? (
-                      <p>
-                        Data da execução:{" "}
+                        Data da execuÃ§Ã£o:{" "}
                         {formatDateTimeLabel(
-                          request.workflow.financialExecution.executedAt,
+                          request.workflow.financialExecution.lastExecutedAt,
                         )}
                       </p>
                     ) : null}
-                    {request.workflow.financialExecution.bankEntryId ? (
+                    {request.workflow.financialExecution.lastBankEntryId ? (
                       <p>
-                        Lançamento bancário vinculado:{" "}
-                        {request.workflow.financialExecution.bankEntryId}
-                        {request.workflow.financialExecution.bankEntryDescription
-                          ? ` • ${request.workflow.financialExecution.bankEntryDescription}`
+                        LanÃ§amento bancÃ¡rio vinculado:{" "}
+                        {request.workflow.financialExecution.lastBankEntryId}
+                        {request.workflow.financialExecution.lastBankEntryDescription
+                          ? ` â€¢ ${request.workflow.financialExecution.lastBankEntryDescription}`
                           : ""}
                       </p>
                     ) : null}
                     {request.workflow.financialExecution.reason ? (
                       <p>
-                        Condição atual: {request.workflow.financialExecution.reason}
+                        CondiÃ§Ã£o atual: {request.workflow.financialExecution.reason}
                       </p>
                     ) : null}
                     <p>
-                      Esta etapa registra a execução efetiva com vínculo a
-                      lançamento bancário já existente e não substitui a leitura
+                      Esta etapa registra a execuÃ§Ã£o efetiva com vÃ­nculo a
+                      lanÃ§amento bancÃ¡rio jÃ¡ existente e nÃ£o substitui a leitura
                       do preparo financeiro.
                     </p>
                     {request.workflow.financialExecution.canExecute &&
                     executableBankEntries.length === 0 ? (
                       <p>
-                        Ainda não há lançamento bancário de liberação compatível
-                        disponível para vincular esta solicitação.
+                        Ainda nÃ£o hÃ¡ lanÃ§amento bancÃ¡rio de liberaÃ§Ã£o compatÃ­vel
+                        disponÃ­vel para vincular esta solicitaÃ§Ã£o.
                       </p>
                     ) : null}
                   </div>
@@ -601,7 +602,7 @@ export default async function ReleasesPage() {
                   </div>
                   <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-4">
                     {renderDocumentCategoryList(
-                      "Pendências documentais desta etapa",
+                      "PendÃªncias documentais desta etapa",
                       request.documentSummary.missingByCategory,
                     )}
                     {(request.documentSummary.deferredByCategory.operation.length > 0 ||
@@ -633,7 +634,7 @@ export default async function ReleasesPage() {
                             {item.releaseRubric.replaceAll("_", " ")}
                           </h4>
                           <p className="text-sm text-[var(--color-muted)]">
-                            Competência {formatCompetency(item.competencyRef)} •
+                            CompetÃªncia {formatCompetency(item.competencyRef)} â€¢
                             Empregado {item.employeeId}
                           </p>
                           <p className="mt-1 text-sm text-[var(--color-muted)]">
@@ -718,3 +719,4 @@ function formatDateTimeLabel(value: string) {
     minute: "2-digit",
   }).format(new Date(value));
 }
+

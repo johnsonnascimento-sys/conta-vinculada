@@ -507,6 +507,11 @@ export const reconciliations: ReconciliationRecord[] = [
     explainedDifference: 2827.3,
     unexplainedDifference: 943.18,
     differenceType: "nao_explicada",
+    operationalClosure: {
+      state: "com_pendencias",
+      reason:
+        "Ainda existe diferença não explicada e valor pendente de execução nesta competência.",
+    },
   },
   {
     id: "rec-002",
@@ -518,6 +523,10 @@ export const reconciliations: ReconciliationRecord[] = [
     explainedDifference: 444.12,
     unexplainedDifference: 0,
     differenceType: "explicada",
+    operationalClosure: {
+      state: "com_pendencias",
+      reason: "Ainda existe valor aprovado pendente de execução nesta competência.",
+    },
   },
 ];
 

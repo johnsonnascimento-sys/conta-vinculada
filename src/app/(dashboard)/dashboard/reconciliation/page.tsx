@@ -23,6 +23,7 @@ export default async function ReconciliationPage() {
               <th className="px-4 py-3">Diferença explicada</th>
               <th className="px-4 py-3">Diferença não explicada</th>
               <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Fechamento mÃ­nimo</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-black/8 bg-white">
@@ -50,6 +51,26 @@ export default async function ReconciliationPage() {
                   <Badge tone={item.unexplainedDifference > 0 ? "danger" : "success"}>
                     {item.differenceType}
                   </Badge>
+                </td>
+                <td className="px-4 py-4">
+                  <div className="space-y-2">
+                    <Badge
+                      tone={
+                        item.operationalClosure.state ===
+                        "pronta_para_fechamento_minimo"
+                          ? "success"
+                          : "warning"
+                      }
+                    >
+                      {item.operationalClosure.state ===
+                      "pronta_para_fechamento_minimo"
+                        ? "pronta"
+                        : "com pendÃªncias"}
+                    </Badge>
+                    <p className="text-xs leading-5 text-[var(--color-muted)]">
+                      {item.operationalClosure.reason}
+                    </p>
+                  </div>
                 </td>
               </tr>
             ))}

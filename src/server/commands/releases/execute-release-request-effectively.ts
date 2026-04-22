@@ -116,21 +116,15 @@ function getLatestWorkflowApproval(
   };
 }
 
-function getLatestFinancialExecution(
+function getFinancialExecutions(
   executions: ExecutableReleaseRequestRecord["releaseExecutions"],
 ) {
-  const latestExecution = executions.find(Boolean);
-
-  if (!latestExecution) {
-    return undefined;
-  }
-
-  return {
-    bankEntryId: latestExecution.bankEntryId,
-    bankEntryDescription: latestExecution.bankEntry?.description,
-    executedAmount: latestExecution.executedAmount.toNumber(),
-    executedAt: latestExecution.executedAt.toISOString(),
-  };
+  return executions.map((execution) => ({
+    bankEntryId: execution.bankEntryId,
+    bankEntryDescription: execution.bankEntry?.description,
+    executedAmount: execution.executedAmount.toNumber(),
+    executedAt: execution.executedAt.toISOString(),
+  }));
 }
 
 function validateFinancialExecutionInput(
@@ -350,7 +344,7 @@ export async function executeReleaseRequestEffectivelyWithDependencies(
         request.approvals,
         "execucao_financeira",
       );
-      const latestFinancialExecution = getLatestFinancialExecution(
+      const financialExecutions = getFinancialExecutions(
         request.releaseExecutions,
       );
       const linkedAccount = request.contract.linkedAccounts[0];
@@ -394,7 +388,7 @@ export async function executeReleaseRequestEffectivelyWithDependencies(
               notes: latestFinancialPreparationApproval.notes ?? undefined,
             }
           : undefined,
-        latestFinancialExecution,
+        financialExecutions,
       });
 
       if (!workflow.financialExecution.canExecute) {
@@ -474,7 +468,7 @@ export async function executeReleaseRequestEffectivelyWithDependencies(
 
       const executedAmount = Math.abs(bankEntry.amount.toNumber());
 
-      if (executedAmount !== workflow.financialExecution.pendingAmount) {
+      if (executedAmount > workflow.financialExecution.pendingAmount) {
         return {
           ok: false,
           code: "invalid_state",
@@ -486,6 +480,15 @@ export async function executeReleaseRequestEffectivelyWithDependencies(
           },
         } satisfies ExecuteReleaseRequestEffectivelyCommandResult;
       }
+
+      const accumulatedExecutedAmount =
+        workflow.financialExecution.executedAmount + executedAmount;
+      const remainingPendingAmount = Math.max(
+        workflow.financialExecution.pendingAmount - executedAmount,
+        0,
+      );
+      const nextFinancialExecutionState =
+        remainingPendingAmount === 0 ? "executada" : "execucao_parcial";
 
       await tx.releaseExecution.create({
         data: {
@@ -499,7 +502,7 @@ export async function executeReleaseRequestEffectivelyWithDependencies(
       await tx.releaseRequest.update({
         where: { id: request.id },
         data: {
-          status: "liberada",
+          status: remainingPendingAmount === 0 ? "liberada" : request.status,
         },
       });
 
@@ -530,8 +533,10 @@ export async function executeReleaseRequestEffectivelyWithDependencies(
           },
           after: {
             releaseRequestId: request.id,
-            financialExecutionState: "executada",
+            financialExecutionState: nextFinancialExecutionState,
             executedAmount,
+            accumulatedExecutedAmount,
+            remainingPendingAmount,
             executedAt: bankEntry.occurredOn.toISOString(),
             bankEntryId: bankEntry.id,
             bankEntryDescription: bankEntry.description,

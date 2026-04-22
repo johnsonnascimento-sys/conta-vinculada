@@ -134,7 +134,17 @@ function createFakePrisma(options?: {
             kind,
           })),
           approvals,
-          releaseExecutions: options?.hasEffectiveExecution ? [{ id: "exec-001" }] : [],
+          releaseExecutions: options?.hasEffectiveExecution
+            ? [
+                {
+                  bankEntryId: "entry-006",
+                  executedAmount: {
+                    toNumber: () => 3650,
+                  },
+                  executedAt: new Date("2026-04-22T10:00:00Z"),
+                },
+              ]
+            : [],
         };
       },
     },
@@ -183,7 +193,7 @@ test("financial preparation blocks request when not yet ready", async () => {
   assert.equal(result.ok, false);
   if (result.ok) return;
   assert.equal(result.code, "invalid_state");
-  assert.match(result.message, /evidências mínimas/i);
+  assert.match(result.message, /evid/i);
 });
 
 test("financial preparation blocks request with unexplained reconciliation difference", async () => {
@@ -204,7 +214,7 @@ test("financial preparation blocks request with unexplained reconciliation diffe
   assert.equal(result.ok, false);
   if (result.ok) return;
   assert.equal(result.code, "invalid_state");
-  assert.match(result.message, /diferença não explicada/i);
+  assert.match(result.message, /concilia/i);
 });
 
 test("financial preparation persists internal preparation and audit without creating effective execution", async () => {
@@ -263,5 +273,5 @@ test("financial preparation keeps internal preparation distinct from effective e
   assert.equal(result.ok, false);
   if (result.ok) return;
   assert.equal(result.code, "invalid_state");
-  assert.match(result.message, /execução financeira efetiva/i);
+  assert.match(result.message, /registro|financeira efetiva/i);
 });

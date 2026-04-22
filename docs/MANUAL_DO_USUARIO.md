@@ -584,3 +584,32 @@ Hoje ele serve principalmente para leitura e acompanhamento das diferenÃ§as.
 - `PendÃªncia documental`: indicaÃ§Ã£o de documento esperado para a etapa atual que ainda nÃ£o estÃ¡ considerado completo na leitura do pedido.
 - `ConciliaÃ§Ã£o`: comparaÃ§Ã£o entre valores bancÃ¡rios e valores gerenciais.
 - `Auditoria`: histÃ³rico de eventos relevantes do sistema.
+
+## 17. Atualização desta rodada
+
+O módulo de liberações passou a admitir execução financeira parcial da solicitação, sem perder a distinção entre:
+
+- preparo financeiro;
+- execução efetiva parcial;
+- execução efetiva total.
+
+Na leitura operacional da fila e do contrato, o usuário agora deve observar também:
+
+- `Valor total aprovado` para a etapa financeira;
+- `Valor executado acumulado`;
+- `Valor pendente de execução`;
+- `Quantidade de execuções registradas`;
+- última data e último lançamento bancário vinculado.
+
+Interpretação prática adicional:
+
+- `Execução financeira parcial registrada`: parte do valor já foi executada, mas a solicitação ainda não deve ser lida como totalmente liberada;
+- `Execução financeira efetiva registrada`: o valor pendente chegou a zero e a solicitação passou a ser lida como liberada;
+- um lançamento bancário compatível pode registrar apenas parte do saldo pendente, desde que não ultrapasse esse saldo.
+
+No módulo de conciliação, a tela passou a mostrar também a leitura de `Fechamento mínimo` da competência:
+
+- `pronta`: não existe valor aprovado pendente de execução e não existe diferença não explicada;
+- `com pendências`: ainda resta valor pendente de execução e/ou diferença não explicada.
+
+Essa leitura de fechamento mínimo é apenas operacional. Ela não substitui eventual fluxo futuro de fechamento formal da competência.

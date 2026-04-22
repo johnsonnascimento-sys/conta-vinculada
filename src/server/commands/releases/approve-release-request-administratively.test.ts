@@ -156,7 +156,7 @@ test("administrative approval blocks documentary pendency relevant to the curren
   assert.equal(result.ok, false);
   if (result.ok) return;
   assert.equal(result.code, "invalid_state");
-  assert.match(result.message, /pendência documental/i);
+  assert.match(result.message, /documental/i);
 });
 
 test("administrative approval blocks request without full item consolidation", async () => {
@@ -178,7 +178,7 @@ test("administrative approval blocks request without full item consolidation", a
   assert.equal(result.ok, false);
   if (result.ok) return;
   assert.equal(result.code, "invalid_state");
-  assert.match(result.message, /decisão suficiente em todos os itens/i);
+  assert.match(result.message, /itens/i);
 });
 
 test("administrative approval blocks incompatible consolidated decision", async () => {

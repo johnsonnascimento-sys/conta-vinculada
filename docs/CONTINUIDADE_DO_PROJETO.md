@@ -768,3 +768,11 @@ Regra permanente de continuidade:
 - o manual deve descrever uso operacional, sem detalhes de implementacao tecnica;
 - mudancas de tela, fluxo, nomenclatura, campos, status, permissoes funcionais, alertas e comportamento operacional devem ser refletidas no manual;
 - entregas funcionais nao devem ser consideradas completas se deixarem o manual desatualizado.
+
+## Atualização incremental mais recente
+
+A rodada atual expandiu a execução financeira efetiva para admitir múltiplos registros por solicitação, com acumulação de valor executado e permanência do saldo pendente até a baixa total.
+
+Também passou a existir leitura operacional mínima de fechamento da conciliação, sem criar ainda workflow completo de fechamento e reabertura por competência.
+
+Com isso, o próximo bloco seguro deixa de ser “execução parcial” e passa a ser a consolidação de fechamento formal da competência e tratamento controlado de ocorrências de conciliação.

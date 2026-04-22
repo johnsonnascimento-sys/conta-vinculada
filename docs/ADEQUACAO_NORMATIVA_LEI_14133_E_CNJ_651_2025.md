@@ -107,3 +107,9 @@ As decisoes adotadas nesta rodada foram:
 - banco publico oficial e termo de cooperacao ficam modelados no dominio da conta vinculada, mas sem qualquer integracao bancaria real neste ciclo;
 - o Caderno de Logistica de 2018 nao desaparece da documentacao, mas deixa de orientar modelagem principal;
 - sucessao contratual, saldo remanescente e garantia rescisoria foram tratados como backlog normativo controlado para evitar overengineering fora do fluxo atual.
+
+## Atualização operacional da rodada
+
+A execução financeira efetiva passou a admitir registro parcial, desde que cada lançamento bancário vinculado permaneça compatível com o contrato e não exceda o saldo pendente da solicitação.
+
+A leitura de conciliação também passou a refletir esse comportamento de forma mínima, reduzindo o aprovado pendente de execução conforme os registros efetivos e indicando apenas uma condição operacional de fechamento mínimo, sem presumir encerramento normativo completo da competência.

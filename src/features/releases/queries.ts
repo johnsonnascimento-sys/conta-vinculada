@@ -36,7 +36,7 @@ export async function getReleaseRequestsBoardData(): Promise<ReleaseRequestsBoar
   );
   const usedBankEntryIds = new Set(
     requests
-      .map((request) => request.workflow.financialExecution.bankEntryId)
+      .flatMap((request) => request.workflow.financialExecution.linkedBankEntryIds)
       .filter((value): value is string => Boolean(value)),
   );
   const executableBankEntriesByRequestId = requests.reduce<
@@ -56,9 +56,7 @@ export async function getReleaseRequestsBoardData(): Promise<ReleaseRequestsBoar
           return false;
         }
 
-        return (
-          Math.abs(entry.amount) === request.workflow.financialExecution.pendingAmount
-        );
+        return Math.abs(entry.amount) <= request.workflow.financialExecution.pendingAmount;
       })
       .map((entry) => ({
         id: entry.id,

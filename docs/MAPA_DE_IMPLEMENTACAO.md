@@ -254,3 +254,11 @@ Isso inclui, no minimo:
 - disponibilizacao ou retirada de operacoes para o usuario final.
 
 Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao documental nao acontecer no mesmo ciclo.
+
+### Atualização da rodada
+
+- [x] Expandir a execução financeira para cenários de execução parcial, com múltiplos `ReleaseExecution` por solicitação.
+- [x] Recalcular valor executado acumulado e valor pendente de execução sem duplicar regra fora do backend.
+- [x] Manter a solicitação como `liberada` apenas quando o pendente de execução chegar a zero.
+- [x] Expor leitura mínima de fechamento operacional da conciliação.
+- [ ] Consolidar fechamento formal e reabertura controlada da competência com ocorrências de conciliação.

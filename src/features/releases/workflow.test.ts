@@ -205,7 +205,13 @@ test("workflow summary marks prepared request as awaiting effective execution", 
     movementMode: "resgate_contratada",
     normativeRegime: "cnj_169_2013",
     approvedAmount: 3650,
-    providedDocuments: ["rescisao", "fgts", "comprovante_pagamento", "despacho"],
+    providedDocuments: [
+      "rescisao",
+      "fgts",
+      "comprovante_pagamento",
+      "despacho",
+      "parecer",
+    ],
     currentBalance: 232904.12,
     approvedPendingExecution: 3650,
     unexplainedDifference: 0,
@@ -228,10 +234,11 @@ test("workflow summary marks prepared request as awaiting effective execution", 
 
   assert.equal(summary.financialExecution.state, "aguardando_execucao");
   assert.equal(summary.financialExecution.canExecute, true);
+  assert.equal(summary.financialExecution.executedAmount, 0);
   assert.equal(summary.financialExecution.pendingAmount, 3650);
 });
 
-test("workflow summary exposes effective execution details from persisted execution", () => {
+test("workflow summary exposes partial effective execution details from persisted executions", () => {
   const summary = buildSummary({
     status: "aprovada_parcial",
     itemDecisions: ["aprovado_parcial"],
@@ -254,19 +261,68 @@ test("workflow summary exposes effective execution details from persisted execut
       decidedBy: "Rafaela Vasques",
       decidedAt: "2026-04-21T14:00:00.000Z",
     },
-    latestFinancialExecution: {
+    financialExecutions: [{
       bankEntryId: "entry-006",
       bankEntryDescription: "Liberação preparada para RR-2026-00021",
-      executedAmount: 3650,
+      executedAmount: 2000,
       executedAt: "2026-04-22T12:00:00.000Z",
+    }],
+  });
+
+  assert.equal(summary.derivedStatus, "aprovada_parcial");
+  assert.equal(summary.financialExecution.state, "execucao_parcial");
+  assert.equal(summary.financialExecution.canExecute, true);
+  assert.equal(summary.financialExecution.lastBankEntryId, "entry-006");
+  assert.equal(summary.financialExecution.executedAmount, 2000);
+  assert.equal(summary.financialExecution.pendingAmount, 1650);
+});
+
+test("workflow summary marks request as fully released only after accumulated execution reaches zero pending", () => {
+  const summary = buildSummary({
+    status: "aprovada_parcial",
+    itemDecisions: ["aprovado_parcial"],
+    approvedAmount: 3650,
+    providedDocuments: ["rescisao", "fgts", "comprovante_pagamento", "despacho"],
+    currentBalance: 232904.12,
+    approvedPendingExecution: 0,
+    unexplainedDifference: 0,
+    linkedAccount: {
+      isOfficialPublicBank: true,
+      cooperationTermRef: "TCT-CNJ-CEF-2024",
     },
+    latestAdministrativeApproval: {
+      decision: "aprovar_parcial",
+      decidedBy: "Beatriz Campos",
+      decidedAt: "2026-04-21T12:00:00.000Z",
+    },
+    latestFinancialPreparationApproval: {
+      decision: "aprovar",
+      decidedBy: "Rafaela Vasques",
+      decidedAt: "2026-04-21T14:00:00.000Z",
+    },
+    financialExecutions: [
+      {
+        bankEntryId: "entry-006",
+        bankEntryDescription: "LiberaÃ§Ã£o parcial 1",
+        executedAmount: 2000,
+        executedAt: "2026-04-22T12:00:00.000Z",
+      },
+      {
+        bankEntryId: "entry-007",
+        bankEntryDescription: "LiberaÃ§Ã£o parcial 2",
+        executedAmount: 1650,
+        executedAt: "2026-04-23T12:00:00.000Z",
+      },
+    ],
   });
 
   assert.equal(summary.derivedStatus, "liberada");
   assert.equal(summary.financialExecution.state, "executada");
   assert.equal(summary.financialExecution.canExecute, false);
-  assert.equal(summary.financialExecution.bankEntryId, "entry-006");
+  assert.equal(summary.financialExecution.executionCount, 2);
+  assert.equal(summary.financialExecution.lastBankEntryId, "entry-007");
   assert.equal(summary.financialExecution.executedAmount, 3650);
+  assert.equal(summary.financialExecution.pendingAmount, 0);
 });
 
 test("allowed administrative decisions follow the consolidated item result", () => {

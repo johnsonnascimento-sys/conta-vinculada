@@ -44,6 +44,25 @@ function getFormalClosureTone(item: ReconciliationRecord) {
   return "neutral" as const;
 }
 
+function getRecommendedActionTone(item: ReconciliationRecord) {
+  if (item.history.recommendedAction === "apta_para_fechamento") {
+    return "success" as const;
+  }
+
+  if (
+    item.history.recommendedAction === "verificar_divergencia_residual" ||
+    item.history.recommendedAction === "revisar_justificativa"
+  ) {
+    return "danger" as const;
+  }
+
+  if (item.history.recommendedAction === "reavaliar_apos_reabertura") {
+    return "warning" as const;
+  }
+
+  return "neutral" as const;
+}
+
 export default async function ReconciliationPage() {
   const [reconciliations, currentUser] = await Promise.all([
     getReconciliations(),
@@ -58,13 +77,13 @@ export default async function ReconciliationPage() {
   return (
     <TableCard
       title="Conciliação"
-      description="Comparação entre extrato bancário, provisões líquidas, valores pendentes de execução e fechamento operacional da competência. O módulo continua sem integração bancária automática."
+      description="Comparação entre extrato bancario, provisoes liquidas, valores pendentes de execucao e historico operacional da competencia. O modulo continua sem integracao bancaria automatica."
     >
       <div className="space-y-3">
         {!databaseEnabled ? (
           <div className="rounded-[1.3rem] border border-[rgba(127,47,29,0.14)] bg-[rgba(127,47,29,0.08)] px-4 py-3 text-sm text-[var(--color-danger)]">
-            O modo em memória permanece somente leitura para fechamento e
-            reabertura formal da competência.
+            O modo em memoria permanece somente leitura para fechamento e
+            reabertura formal da competencia.
           </div>
         ) : null}
 
@@ -72,12 +91,13 @@ export default async function ReconciliationPage() {
           <table className="min-w-full divide-y divide-black/8 text-left">
             <thead className="bg-[var(--color-surface)] font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
               <tr>
-                <th className="px-4 py-3">Competência</th>
+                <th className="px-4 py-3">Competencia</th>
                 <th className="px-4 py-3">Saldos</th>
-                <th className="px-4 py-3">Fechamento mínimo</th>
-                <th className="px-4 py-3">Fechamento formal</th>
-                <th className="px-4 py-3">Justificativas e ocorrências</th>
-                <th className="px-4 py-3">Ações</th>
+                <th className="px-4 py-3">Fechamento minimo</th>
+                <th className="px-4 py-3">Situacao atual</th>
+                <th className="px-4 py-3">Historico e justificativas</th>
+                <th className="px-4 py-3">Proxima acao sugerida</th>
+                <th className="px-4 py-3">Acoes</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/8 bg-white">
@@ -88,22 +108,20 @@ export default async function ReconciliationPage() {
                       {formatCompetency(item.competency)}
                     </p>
                     <p className="mt-1 text-sm text-[var(--color-muted)]">
-                      Status técnico atual: {item.competencyStatus}
+                      Status tecnico atual: {item.competencyStatus}
                     </p>
                   </td>
                   <td className="px-4 py-4 align-top text-sm text-[var(--color-ink)]">
-                    <p>Saldo bancário: {formatCurrency(item.bankBalance)}</p>
-                    <p>Provisões: {formatCurrency(item.provisionBalance)}</p>
+                    <p>Saldo bancario: {formatCurrency(item.bankBalance)}</p>
+                    <p>Provisoes: {formatCurrency(item.provisionBalance)}</p>
                     <p className="text-[var(--color-warning)]">
-                      Pendente de execução:{" "}
-                      {formatCurrency(item.approvedPendingExecution)}
+                      Pendente de execucao: {formatCurrency(item.approvedPendingExecution)}
                     </p>
                     <p className="text-[var(--color-success)]">
-                      Diferença explicada: {formatCurrency(item.explainedDifference)}
+                      Diferenca explicada: {formatCurrency(item.explainedDifference)}
                     </p>
                     <p className="text-[var(--color-danger)]">
-                      Diferença não explicada:{" "}
-                      {formatCurrency(item.unexplainedDifference)}
+                      Diferenca nao explicada: {formatCurrency(item.unexplainedDifference)}
                     </p>
                   </td>
                   <td className="px-4 py-4 align-top">
@@ -119,7 +137,7 @@ export default async function ReconciliationPage() {
                         {item.operationalClosure.state ===
                         "pronta_para_fechamento_minimo"
                           ? "pronta"
-                          : "com pendências"}
+                          : "com pendencias"}
                       </Badge>
                       <p className="text-xs leading-5 text-[var(--color-muted)]">
                         {item.operationalClosure.reason}
@@ -131,8 +149,11 @@ export default async function ReconciliationPage() {
                       <Badge tone={getFormalClosureTone(item)}>
                         {getFormalClosureLabel(item)}
                       </Badge>
+                      <p className="text-sm font-medium text-[var(--color-ink)]">
+                        {item.history.currentSituationLabel}
+                      </p>
                       <p className="text-xs leading-5 text-[var(--color-muted)]">
-                        {item.formalClosure.reason}
+                        {item.history.currentSituationReason}
                       </p>
                       {item.closedAt ? (
                         <p className="text-xs text-[var(--color-muted)]">
@@ -150,29 +171,45 @@ export default async function ReconciliationPage() {
                     <div className="space-y-2 text-sm text-[var(--color-muted)]">
                       <p>
                         Justificativa do fechamento:{" "}
-                        {item.closureJustification ?? "não registrada"}
+                        {item.closureJustification ?? "nao registrada"}
                       </p>
                       <p>
                         Justificativa da reabertura:{" "}
-                        {item.reopeningJustification ?? "não registrada"}
+                        {item.reopeningJustification ?? "nao registrada"}
                       </p>
                       <p>
-                        Ocorrências mínimas: {item.occurrences.length}
+                        Ultima ocorrencia relevante:{" "}
+                        {item.history.lastRelevantOccurrence
+                          ? `${item.history.lastRelevantOccurrence.label} em ${item.history.lastRelevantOccurrence.happenedAt}`
+                          : "nao registrada"}
                       </p>
-                      {item.occurrences.slice(-2).map((occurrence) => (
+                      <p>
+                        Linha do tempo operacional: {item.history.timeline.length} evento(s)
+                      </p>
+                      {item.history.timeline.map((event) => (
                         <div
-                          key={occurrence.id}
+                          key={event.id}
                           className="rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2 text-xs leading-5"
                         >
                           <p className="font-semibold text-[var(--color-ink)]">
-                            {occurrence.type}
+                            {event.label}
                           </p>
-                          <p>{occurrence.description}</p>
+                          <p>{event.description}</p>
                           <p>
-                            {occurrence.actor} • {occurrence.happenedAt}
+                            {event.actor} • {event.happenedAt}
                           </p>
                         </div>
                       ))}
+                    </div>
+                  </td>
+                  <td className="px-4 py-4 align-top">
+                    <div className="space-y-2">
+                      <Badge tone={getRecommendedActionTone(item)}>
+                        {item.history.recommendedActionLabel}
+                      </Badge>
+                      <p className="text-xs leading-5 text-[var(--color-muted)]">
+                        {item.history.recommendedActionReason}
+                      </p>
                     </div>
                   </td>
                   <td className="px-4 py-4 align-top">
@@ -185,7 +222,7 @@ export default async function ReconciliationPage() {
                       ) : null}
                       {!item.formalClosure.canClose && !item.formalClosure.canReopen ? (
                         <p className="text-sm text-[var(--color-muted)]">
-                          Nenhuma ação disponível nesta leitura operacional.
+                          Nenhuma acao disponivel nesta leitura operacional.
                         </p>
                       ) : null}
                     </div>

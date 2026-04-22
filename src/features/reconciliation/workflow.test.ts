@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   summarizeCompetencyFormalClosure,
+  summarizeCompetencyOperationalHistory,
   summarizeReconciliationOperationalClosure,
 } from "@/features/reconciliation/workflow";
 
@@ -50,4 +51,98 @@ test("formal closure exposes closed competency as reopenable", () => {
   assert.equal(summary.state, "fechada");
   assert.equal(summary.canClose, false);
   assert.equal(summary.canReopen, true);
+});
+
+test("operational history sorts events chronologically and exposes last relevant occurrence", () => {
+  const operationalClosure = summarizeReconciliationOperationalClosure({
+    approvedPendingExecution: 0,
+    unexplainedDifference: 120,
+  });
+  const formalClosure = summarizeCompetencyFormalClosure({
+    status: "calculada",
+    operationalClosureState: operationalClosure.state,
+    occurrences: [],
+  });
+
+  const summary = summarizeCompetencyOperationalHistory({
+    status: "calculada",
+    processedAt: "2026-04-02T18:10:00Z",
+    occurrences: [
+      {
+        id: "occ-2",
+        type: "apontamento",
+        actor: "Analista B",
+        description: "Divergencia ainda nao explicada.",
+        happenedAt: "2026-04-12T10:20:00Z",
+      },
+      {
+        id: "occ-1",
+        type: "apontamento",
+        actor: "Analista A",
+        description: "Leitura inicial da competencia.",
+        happenedAt: "2026-04-05T09:00:00Z",
+      },
+    ],
+    approvedPendingExecution: 0,
+    unexplainedDifference: 120,
+    operationalClosure,
+    formalClosure,
+  });
+
+  assert.deepEqual(
+    summary.timeline.map((event) => event.id),
+    ["processamento-2026-04-02T18:10:00Z", "occ-1", "occ-2"],
+  );
+  assert.equal(summary.lastRelevantOccurrence?.id, "occ-2");
+});
+
+test("operational history recommends residual difference review when competency remains open", () => {
+  const operationalClosure = summarizeReconciliationOperationalClosure({
+    approvedPendingExecution: 0,
+    unexplainedDifference: 50,
+  });
+  const formalClosure = summarizeCompetencyFormalClosure({
+    status: "conciliada",
+    operationalClosureState: operationalClosure.state,
+    occurrences: [],
+  });
+
+  const summary = summarizeCompetencyOperationalHistory({
+    status: "conciliada",
+    approvedPendingExecution: 0,
+    unexplainedDifference: 50,
+    operationalClosure,
+    formalClosure,
+    occurrences: [],
+  });
+
+  assert.equal(summary.recommendedAction, "verificar_divergencia_residual");
+});
+
+test("operational history keeps reopened competency in re-evaluation mode", () => {
+  const operationalClosure = summarizeReconciliationOperationalClosure({
+    approvedPendingExecution: 0,
+    unexplainedDifference: 0,
+  });
+  const formalClosure = summarizeCompetencyFormalClosure({
+    status: "reaberta",
+    operationalClosureState: operationalClosure.state,
+    reopeningJustification: "Reprocessamento necessario.",
+    occurrences: [],
+  });
+
+  const summary = summarizeCompetencyOperationalHistory({
+    status: "reaberta",
+    reopenedAt: "2026-04-04T11:00:00Z",
+    reopenedBy: "Beatriz Campos",
+    reopeningJustification: "Reprocessamento necessario.",
+    approvedPendingExecution: 0,
+    unexplainedDifference: 0,
+    operationalClosure,
+    formalClosure,
+    occurrences: [],
+  });
+
+  assert.equal(summary.recommendedAction, "reavaliar_apos_reabertura");
+  assert.equal(summary.currentSituationLabel, "Competencia reaberta em acompanhamento");
 });

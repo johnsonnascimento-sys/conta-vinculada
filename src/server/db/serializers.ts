@@ -15,6 +15,7 @@ import type {
 } from "@/features/platform/types";
 import {
   summarizeCompetencyFormalClosure,
+  summarizeCompetencyOperationalHistory,
   summarizeReconciliationOperationalClosure,
 } from "@/features/reconciliation/workflow";
 import { getReleaseDocumentPlan } from "@/features/releases/rules";
@@ -501,6 +502,7 @@ export function serializeReconciliation(record: {
     id: string;
     competency: string;
     status: Competency["status"];
+    processedAt?: Date | null;
     closedAt?: Date | null;
     closedBy?: string | null;
     closureJustification?: string | null;
@@ -554,6 +556,21 @@ export function serializeReconciliation(record: {
     reopenedAt: record.competency.reopenedAt?.toISOString(),
     reopenedBy: record.competency.reopenedBy ?? undefined,
     occurrences,
+    history: summarizeCompetencyOperationalHistory({
+      status: record.competency.status,
+      closureJustification: record.competency.closureJustification ?? undefined,
+      closedAt: record.competency.closedAt?.toISOString(),
+      closedBy: record.competency.closedBy ?? undefined,
+      processedAt: record.competency.processedAt?.toISOString(),
+      reopenedAt: record.competency.reopenedAt?.toISOString(),
+      reopenedBy: record.competency.reopenedBy ?? undefined,
+      reopeningJustification: record.competency.reopeningJustification ?? undefined,
+      occurrences,
+      approvedPendingExecution,
+      unexplainedDifference,
+      operationalClosure,
+      formalClosure,
+    }),
   };
 }
 

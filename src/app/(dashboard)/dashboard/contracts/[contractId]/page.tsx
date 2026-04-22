@@ -108,6 +108,25 @@ function getCompetencyFormalLabel(reconciliation?: ReconciliationRecord) {
   return reconciliation.formalClosure.state;
 }
 
+function getCompetencyRecommendedActionTone(reconciliation: ReconciliationRecord) {
+  if (reconciliation.history.recommendedAction === "apta_para_fechamento") {
+    return "success" as const;
+  }
+
+  if (
+    reconciliation.history.recommendedAction === "verificar_divergencia_residual" ||
+    reconciliation.history.recommendedAction === "revisar_justificativa"
+  ) {
+    return "danger" as const;
+  }
+
+  if (reconciliation.history.recommendedAction === "reavaliar_apos_reabertura") {
+    return "warning" as const;
+  }
+
+  return "neutral" as const;
+}
+
 interface ContractPageProps {
   params: Promise<{ contractId: string }>;
 }
@@ -233,7 +252,8 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                             >
                               {getCompetencyFormalLabel(reconciliation)}
                             </Badge>
-                            <p>{reconciliation.formalClosure.reason}</p>
+                            <p>{reconciliation.history.currentSituationLabel}</p>
+                            <p>{reconciliation.history.currentSituationReason}</p>
                             <p>
                               Fechamento:{" "}
                               {reconciliation.closureJustification ??
@@ -245,7 +265,14 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                                 "não registrada"}
                             </p>
                             <p>
-                              Ocorrências mínimas: {reconciliation.occurrences.length}
+                              Ultima ocorrencia:{" "}
+                              {reconciliation.history.lastRelevantOccurrence
+                                ? `${reconciliation.history.lastRelevantOccurrence.label} em ${reconciliation.history.lastRelevantOccurrence.happenedAt}`
+                                : "nao registrada"}
+                            </p>
+                            <p>
+                              Proxima acao sugerida:{" "}
+                              {reconciliation.history.recommendedActionLabel}
                             </p>
                           </>
                         ) : (
@@ -391,8 +418,30 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                     Fechamento mínimo: {item.operationalClosure.reason}
                   </p>
                   <p className="text-sm text-[var(--color-muted)]">
-                    Fechamento formal: {item.formalClosure.reason}
+                    Situação atual: {item.history.currentSituationLabel}
                   </p>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    Próxima ação sugerida: {item.history.recommendedActionLabel}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge tone={getCompetencyRecommendedActionTone(item)}>
+                      {item.history.recommendedActionLabel}
+                    </Badge>
+                  </div>
+                  {item.history.lastRelevantOccurrence ? (
+                    <p className="text-sm text-[var(--color-muted)]">
+                      Última ocorrência: {item.history.lastRelevantOccurrence.label} em{" "}
+                      {item.history.lastRelevantOccurrence.happenedAt}
+                    </p>
+                  ) : null}
+                  {item.history.timeline.slice(-3).map((event) => (
+                    <p
+                      key={event.id}
+                      className="text-sm text-[var(--color-muted)]"
+                    >
+                      {event.happenedAt} • {event.label}: {event.description}
+                    </p>
+                  ))}
                 </div>
               ))}
             </div>

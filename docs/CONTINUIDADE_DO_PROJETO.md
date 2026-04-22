@@ -784,3 +784,9 @@ A rodada atual consolidou o fechamento formal e a reabertura controlada da compe
 O modulo de conciliacao deixou de operar apenas com leitura de fechamento minimo e passou a distinguir estado operacional aberto, aptidao ao fechamento, fechamento formal e reabertura controlada, sem reabrir a logica central de liberacoes.
 
 Com isso, o proximo bloco seguro passa a ser a consolidacao de uma leitura mais estruturada das ocorrencias e do tratamento operacional das competencias ao longo do tempo, sem transformar o modulo em motor contabil complexo.
+
+## Atualizacao incremental mais recente
+
+A rodada atual estruturou a leitura historica minima das ocorrencias por competencia sem criar novo workflow contabil. A competencia passou a expor, na conciliacao e no detalhe do contrato, uma linha do tempo operacional derivada, a ultima ocorrencia relevante e uma recomendacao simples de tratamento subsequente.
+
+Com isso, o backlog deixa de tratar apenas de justificativas e fechamento/reabertura controlados e passa a ter como proximo bloco seguro a qualificacao leve das divergencias e dos apontamentos conciliatorios, ainda sem motor de tarefas ou SLA.

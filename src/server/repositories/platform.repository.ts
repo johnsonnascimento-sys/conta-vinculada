@@ -250,6 +250,7 @@ export async function getReconciliations(): Promise<ReconciliationRecord[]> {
           id: true,
           competency: true,
           status: true,
+          processedAt: true,
           closedAt: true,
           closedBy: true,
           closureJustification: true,

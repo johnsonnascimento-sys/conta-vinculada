@@ -217,6 +217,36 @@ export interface CompetencyOccurrence {
   happenedAt: string;
 }
 
+export type CompetencyTimelineEventType =
+  | CompetencyOccurrenceType
+  | "processamento";
+
+export interface CompetencyTimelineEvent {
+  id: string;
+  type: CompetencyTimelineEventType;
+  label: string;
+  actor: string;
+  description: string;
+  happenedAt: string;
+}
+
+export type CompetencyRecommendedAction =
+  | "acompanhar"
+  | "apta_para_fechamento"
+  | "revisar_justificativa"
+  | "reavaliar_apos_reabertura"
+  | "verificar_divergencia_residual";
+
+export interface CompetencyOperationalHistorySummary {
+  currentSituationLabel: string;
+  currentSituationReason: string;
+  recommendedAction: CompetencyRecommendedAction;
+  recommendedActionLabel: string;
+  recommendedActionReason: string;
+  lastRelevantOccurrence?: CompetencyTimelineEvent;
+  timeline: CompetencyTimelineEvent[];
+}
+
 export type CompetencyFormalClosureState =
   | "aberta"
   | "apta_para_fechamento"
@@ -422,6 +452,7 @@ export interface ReconciliationRecord {
   reopenedAt?: string;
   reopenedBy?: string;
   occurrences: CompetencyOccurrence[];
+  history: CompetencyOperationalHistorySummary;
 }
 
 export interface AuditEvent {

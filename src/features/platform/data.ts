@@ -16,6 +16,7 @@ import type {
 } from "@/features/platform/types";
 import {
   summarizeCompetencyFormalClosure,
+  summarizeCompetencyOperationalHistory,
   summarizeReconciliationOperationalClosure,
 } from "@/features/reconciliation/workflow";
 import { getReleaseDocumentPlan } from "@/features/releases/rules";
@@ -555,6 +556,13 @@ export const reconciliations: ReconciliationRecord[] = [
       approvedPendingExecution: 1560,
       unexplainedDifference: 943.18,
     });
+    const formalClosure = summarizeCompetencyFormalClosure({
+      status: competency.status,
+      operationalClosureState: operationalClosure.state,
+      closureJustification: competency.closureJustification,
+      reopeningJustification: competency.reopeningJustification,
+      occurrences: competency.occurrences,
+    });
 
     return {
       id: "rec-001",
@@ -569,13 +577,7 @@ export const reconciliations: ReconciliationRecord[] = [
       unexplainedDifference: 943.18,
       differenceType: "nao_explicada" as const,
       operationalClosure,
-      formalClosure: summarizeCompetencyFormalClosure({
-        status: competency.status,
-        operationalClosureState: operationalClosure.state,
-        closureJustification: competency.closureJustification,
-        reopeningJustification: competency.reopeningJustification,
-        occurrences: competency.occurrences,
-      }),
+      formalClosure,
       closureJustification: competency.closureJustification,
       closedAt: competency.closedAt,
       closedBy: competency.closedBy,
@@ -583,6 +585,21 @@ export const reconciliations: ReconciliationRecord[] = [
       reopenedAt: competency.reopenedAt,
       reopenedBy: competency.reopenedBy,
       occurrences: competency.occurrences,
+      history: summarizeCompetencyOperationalHistory({
+        status: competency.status,
+        processedAt: competency.processedAt,
+        closedAt: competency.closedAt,
+        closedBy: competency.closedBy,
+        closureJustification: competency.closureJustification,
+        reopenedAt: competency.reopenedAt,
+        reopenedBy: competency.reopenedBy,
+        reopeningJustification: competency.reopeningJustification,
+        occurrences: competency.occurrences,
+        approvedPendingExecution: 1560,
+        unexplainedDifference: 943.18,
+        operationalClosure,
+        formalClosure,
+      }),
     };
   })(),
   (() => {
@@ -590,6 +607,13 @@ export const reconciliations: ReconciliationRecord[] = [
     const operationalClosure = summarizeReconciliationOperationalClosure({
       approvedPendingExecution: 3650,
       unexplainedDifference: 0,
+    });
+    const formalClosure = summarizeCompetencyFormalClosure({
+      status: competency.status,
+      operationalClosureState: operationalClosure.state,
+      closureJustification: competency.closureJustification,
+      reopeningJustification: competency.reopeningJustification,
+      occurrences: competency.occurrences,
     });
 
     return {
@@ -605,13 +629,7 @@ export const reconciliations: ReconciliationRecord[] = [
       unexplainedDifference: 0,
       differenceType: "explicada" as const,
       operationalClosure,
-      formalClosure: summarizeCompetencyFormalClosure({
-        status: competency.status,
-        operationalClosureState: operationalClosure.state,
-        closureJustification: competency.closureJustification,
-        reopeningJustification: competency.reopeningJustification,
-        occurrences: competency.occurrences,
-      }),
+      formalClosure,
       closureJustification: competency.closureJustification,
       closedAt: competency.closedAt,
       closedBy: competency.closedBy,
@@ -619,6 +637,21 @@ export const reconciliations: ReconciliationRecord[] = [
       reopenedAt: competency.reopenedAt,
       reopenedBy: competency.reopenedBy,
       occurrences: competency.occurrences,
+      history: summarizeCompetencyOperationalHistory({
+        status: competency.status,
+        processedAt: competency.processedAt,
+        closedAt: competency.closedAt,
+        closedBy: competency.closedBy,
+        closureJustification: competency.closureJustification,
+        reopenedAt: competency.reopenedAt,
+        reopenedBy: competency.reopenedBy,
+        reopeningJustification: competency.reopeningJustification,
+        occurrences: competency.occurrences,
+        approvedPendingExecution: 3650,
+        unexplainedDifference: 0,
+        operationalClosure,
+        formalClosure,
+      }),
     };
   })(),
 ];

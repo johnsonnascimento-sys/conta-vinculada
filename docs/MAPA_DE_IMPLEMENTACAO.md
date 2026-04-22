@@ -271,3 +271,10 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 - [x] Expor leitura minima de fechamento operacional da conciliacao.
 - [x] Consolidar fechamento formal e reabertura controlada da competencia com ocorrencias de conciliacao.
 - [ ] Estruturar leitura historica minima das ocorrencias por competencia e criterios de tratamento operacional subsequente.
+
+### Atualizacao da rodada
+
+- [x] Estruturar leitura historica minima das ocorrencias por competencia.
+- [x] Expor linha do tempo operacional derivada na conciliacao e no detalhe do contrato.
+- [x] Diferenciar situacao atual, historico registrado e proxima acao sugerida.
+- [x] Manter a recomendacao operacional como leitura derivada simples, sem criar workflow adicional.

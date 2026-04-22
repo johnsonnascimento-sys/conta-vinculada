@@ -630,3 +630,35 @@ Leitura pr?tica adicional:
 - para reabrir uma compet?ncia fechada, o usu?rio tamb?m precisa registrar justificativa;
 - a tela passa a mostrar a justificativa do fechamento, a justificativa da reabertura e as ocorr?ncias m?nimas ligadas ? compet?ncia;
 - o detalhe do contrato passa a refletir essa mesma leitura por compet?ncia, sem tratar isso como encerramento cont?bil total do contrato.
+
+## 19. Atualizacao desta rodada
+
+O modulo de conciliacao passou a diferenciar com mais clareza tres camadas de leitura da competencia:
+
+- `situacao atual`;
+- `historico operacional`;
+- `proxima acao sugerida`.
+
+Na pratica, a tela de conciliacao agora mostra para cada competencia:
+
+- a situacao atual consolidada da competencia;
+- a ultima ocorrencia relevante;
+- a linha do tempo operacional em ordem cronologica;
+- as justificativas de fechamento e reabertura, quando existirem;
+- a proxima acao recomendada pelo sistema.
+
+Leitura pratica adicional:
+
+- `situacao atual` mostra como a competencia deve ser lida agora, considerando fechamento minimo, fechamento formal, reabertura e pendencias remanescentes;
+- `historico operacional` mostra o que ja foi registrado ao longo do tempo, sem confundir passado com estado atual;
+- `proxima acao sugerida` indica apenas um tratamento operacional recomendado, sem criar obrigacao automatica nem workflow adicional.
+
+As recomendacoes operacionais podem aparecer, de forma simples, como:
+
+- `acompanhar`;
+- `apta para fechamento`;
+- `revisar justificativa`;
+- `reavaliar apos reabertura`;
+- `verificar divergencia residual`.
+
+O detalhe do contrato passou a refletir a mesma leitura da conciliacao para cada competencia vinculada ao contrato. Assim, o usuario encontra a mesma interpretacao da competencia tanto no modulo de conciliacao quanto na visao detalhada do contrato.

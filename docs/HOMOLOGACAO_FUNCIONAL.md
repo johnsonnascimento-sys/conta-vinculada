@@ -374,3 +374,21 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] N?o aplic?vel
+
+### 11.4 Historico minimo e tratamento subsequente da competencia
+
+- [ ] A tela de conciliacao diferencia situacao atual, historico operacional e proxima acao sugerida da competencia.
+- [ ] A tela de conciliacao mostra a ultima ocorrencia relevante da competencia.
+- [ ] A linha do tempo operacional da competencia aparece em ordem cronologica.
+- [ ] As justificativas de fechamento e reabertura permanecem visiveis quando existirem.
+- [ ] A recomendacao operacional derivada pode aparecer como acompanhar, apta para fechamento, revisar justificativa, reavaliar apos reabertura ou verificar divergencia residual.
+- [ ] O detalhe do contrato reflete a mesma leitura historica e a mesma recomendacao operacional exibidas na conciliacao.
+- [ ] A serializacao preserva as ocorrencias existentes e a leitura derivada continua coerente no modo hibrido.
+
+Observacoes:
+
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel

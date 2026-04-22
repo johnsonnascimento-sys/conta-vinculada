@@ -76,6 +76,18 @@ function getItemKindTone(item: ReconciliationRecord["items"][number]) {
   return item.kind === "diferenca_explicada" ? "success" : "danger";
 }
 
+function getCoverageTone(item: ReconciliationRecord) {
+  if (item.differenceSummary.explainedCoverageState === "sem_itemizacao") {
+    return "danger" as const;
+  }
+
+  if (item.differenceSummary.explainedCoverageState === "itemizacao_parcial") {
+    return "warning" as const;
+  }
+
+  return "success" as const;
+}
+
 function getAvailableBankEntries(
   item: ReconciliationRecord,
   bankEntries: BankEntry[],
@@ -228,6 +240,14 @@ export default async function ReconciliationPage({
                           Itens explicados registrados:{" "}
                           {item.differenceSummary.explainedItemsCount}
                         </p>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge tone={getCoverageTone(item)}>
+                            {item.differenceSummary.explainedCoverageStateLabel}
+                          </Badge>
+                          <Badge tone="neutral">
+                            cobertura {item.differenceSummary.explainedCoveragePercentage}%
+                          </Badge>
+                        </div>
                         <p>
                           Diferenca explicada com itemizacao minima:{" "}
                           {formatCurrency(item.differenceSummary.explainedItemsAmount)}
@@ -242,6 +262,12 @@ export default async function ReconciliationPage({
                           Diferenca nao explicada remanescente:{" "}
                           {formatCurrency(item.differenceSummary.unexplainedAmount)}
                         </p>
+                        <p>{item.differenceSummary.explainedCoverageReason}</p>
+                        <p>
+                          Revisao dirigida:{" "}
+                          {item.differenceSummary.directedReviewRecommendation}
+                        </p>
+                        <p>{item.differenceSummary.directedReviewReason}</p>
                         <div className="space-y-2">
                           {item.items.map((reconciliationItem) => (
                             <div

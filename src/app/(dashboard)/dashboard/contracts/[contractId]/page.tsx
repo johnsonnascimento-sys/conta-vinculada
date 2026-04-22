@@ -143,6 +143,20 @@ function getReconciliationItemTone(item: ReconciliationRecord["items"][number]) 
   return item.kind === "diferenca_explicada" ? "success" as const : "danger" as const;
 }
 
+function getCoverageTone(reconciliation: ReconciliationRecord) {
+  if (reconciliation.differenceSummary.explainedCoverageState === "sem_itemizacao") {
+    return "danger" as const;
+  }
+
+  if (
+    reconciliation.differenceSummary.explainedCoverageState === "itemizacao_parcial"
+  ) {
+    return "warning" as const;
+  }
+
+  return "success" as const;
+}
+
 interface ContractPageProps {
   params: Promise<{ contractId: string }>;
 }
@@ -309,6 +323,19 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                               {formatCurrency(
                                 reconciliation.differenceSummary.unexplainedAmount,
                               )}
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              <Badge tone={getCoverageTone(reconciliation)}>
+                                {reconciliation.differenceSummary.explainedCoverageStateLabel}
+                              </Badge>
+                              <Badge tone="neutral">
+                                cobertura {reconciliation.differenceSummary.explainedCoveragePercentage}%
+                              </Badge>
+                            </div>
+                            <p>{reconciliation.differenceSummary.explainedCoverageReason}</p>
+                            <p>
+                              Revisao dirigida:{" "}
+                              {reconciliation.differenceSummary.directedReviewRecommendation}
                             </p>
                             <p>
                               Proxima acao sugerida:{" "}
@@ -481,6 +508,23 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                   <p className="text-sm text-[var(--color-muted)]">
                     Diferença não explicada residual:{" "}
                     {formatCurrency(item.differenceSummary.unexplainedAmount)}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge tone={getCoverageTone(item)}>
+                      {item.differenceSummary.explainedCoverageStateLabel}
+                    </Badge>
+                    <Badge tone="neutral">
+                      cobertura {item.differenceSummary.explainedCoveragePercentage}%
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    {item.differenceSummary.explainedCoverageReason}
+                  </p>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    Revisão dirigida: {item.differenceSummary.directedReviewRecommendation}
+                  </p>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    {item.differenceSummary.directedReviewReason}
                   </p>
                   <p className="text-sm text-[var(--color-muted)]">
                     Próxima ação sugerida: {item.history.recommendedActionLabel}

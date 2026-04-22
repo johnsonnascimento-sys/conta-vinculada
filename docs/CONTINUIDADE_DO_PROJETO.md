@@ -802,3 +802,9 @@ Com isso, o proximo bloco seguro passa a ser a estruturacao minima dos itens con
 A rodada atual materializou os itens conciliatorios minimos da competencia com vinculo simples a lancamentos bancarios e justificativa curta da diferenca explicada. A conciliacao e o detalhe do contrato passaram a distinguir melhor a parte explicada ja itemizada, a parte explicada ainda sem item minimo e a diferenca nao explicada residual, sem criar workflow contabil novo.
 
 Com isso, o proximo bloco seguro passa a ser a consolidacao minima de criterios de cobertura da diferenca explicada e revisao dirigida dos saldos ainda sem itemizacao, mantendo a conciliacao como leitura operacional leve.
+
+## Atualizacao incremental mais recente
+
+A rodada atual consolidou a cobertura minima da diferenca explicada por competencia, com grau simples de cobertura, percentual operacional e recomendacao leve de revisao dirigida quando ainda existir saldo explicado sem itemizacao relevante. A leitura passou a indicar de forma mais objetiva o que ja esta suficientemente coberto e o que ainda depende de revisao, sem criar fila de tarefas nem novo workflow contabil.
+
+Com isso, o proximo bloco seguro passa a ser a qualificacao minima das faixas de saldo explicado ainda sem itemizacao por origem operacional, mantendo a conciliacao como leitura leve e incremental.

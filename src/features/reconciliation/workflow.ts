@@ -310,6 +310,10 @@ function roundCurrency(value: number) {
   return Math.round(value * 100) / 100;
 }
 
+function roundPercentage(value: number) {
+  return Math.round(value * 10) / 10;
+}
+
 export function summarizeReconciliationItems({
   unexplainedDifference,
   items = [],
@@ -381,13 +385,83 @@ export function summarizeReconciliationDifferenceSummary({
     return total + Math.abs(item.bankEntry.amount);
   }, 0);
 
+  const roundedExplainedItemsAmount = roundCurrency(explainedItemsAmount);
+  const explainedBalanceStillUnitemized = roundCurrency(
+    Math.max(explainedDifference - explainedItemsAmount, 0),
+  );
+  const explainedCoveragePercentage =
+    explainedDifference <= 0
+      ? 100
+      : roundPercentage(
+          Math.min((roundedExplainedItemsAmount / explainedDifference) * 100, 100),
+        );
+
+  let explainedCoverageState:
+    | "sem_itemizacao"
+    | "itemizacao_parcial"
+    | "itemizacao_suficiente"
+    | "itemizacao_completa";
+  let explainedCoverageStateLabel: string;
+  let explainedCoverageReason: string;
+  let requiresDirectedReview: boolean;
+  let directedReviewRecommendation: string;
+  let directedReviewReason: string;
+
+  if (explainedDifference <= 0 || explainedBalanceStillUnitemized === 0) {
+    explainedCoverageState = "itemizacao_completa";
+    explainedCoverageStateLabel = "cobertura completa";
+    explainedCoverageReason =
+      explainedDifference <= 0
+        ? "Nao ha diferenca explicada pendente de itemizacao nesta competencia."
+        : "Toda a diferenca explicada ja possui itemizacao minima vinculada.";
+    requiresDirectedReview = false;
+    directedReviewRecommendation = "acompanhar cobertura";
+    directedReviewReason =
+      "A leitura atual nao indica saldo explicado remanescente sem itemizacao.";
+  } else if (roundedExplainedItemsAmount === 0) {
+    explainedCoverageState = "sem_itemizacao";
+    explainedCoverageStateLabel = "sem cobertura";
+    explainedCoverageReason =
+      "A competencia possui diferenca explicada, mas ainda sem item conciliatorio minimo registrado.";
+    requiresDirectedReview = true;
+    directedReviewRecommendation = "iniciar revisao dirigida";
+    directedReviewReason =
+      "O saldo explicado ainda precisa de itemizacao minima para rastreabilidade operacional.";
+  } else if (
+    explainedCoveragePercentage >= 80 ||
+    explainedBalanceStillUnitemized <= 500
+  ) {
+    explainedCoverageState = "itemizacao_suficiente";
+    explainedCoverageStateLabel = "cobertura suficiente";
+    explainedCoverageReason =
+      "A maior parte da diferenca explicada ja esta coberta por itemizacao minima, restando apenas saldo residual.";
+    requiresDirectedReview = false;
+    directedReviewRecommendation = "acompanhar saldo residual";
+    directedReviewReason =
+      "Ainda existe pequena faixa sem itemizacao, mas a cobertura minima ja esta operacionalmente suficiente.";
+  } else {
+    explainedCoverageState = "itemizacao_parcial";
+    explainedCoverageStateLabel = "cobertura parcial";
+    explainedCoverageReason =
+      "A diferenca explicada ja tem itemizacao minima inicial, mas ainda depende de revisao dirigida do saldo remanescente.";
+    requiresDirectedReview = true;
+    directedReviewRecommendation = "revisar saldo sem itemizacao";
+    directedReviewReason =
+      "O saldo explicado ainda sem itemizacao segue relevante para acompanhamento diario.";
+  }
+
   return {
     explainedAmount: explainedDifference,
-    explainedItemsAmount: roundCurrency(explainedItemsAmount),
+    explainedItemsAmount: roundedExplainedItemsAmount,
     explainedItemsCount: items.filter((item) => item.bankEntry).length,
-    explainedBalanceStillUnitemized: roundCurrency(
-      Math.max(explainedDifference - explainedItemsAmount, 0),
-    ),
+    explainedBalanceStillUnitemized,
+    explainedCoveragePercentage,
+    explainedCoverageState,
+    explainedCoverageStateLabel,
+    explainedCoverageReason,
+    requiresDirectedReview,
+    directedReviewRecommendation,
+    directedReviewReason,
     unexplainedAmount: roundCurrency(unexplainedDifference),
     hasResidualUnexplained: unexplainedDifference > 0,
   };

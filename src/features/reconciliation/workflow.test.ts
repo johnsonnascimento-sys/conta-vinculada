@@ -240,6 +240,60 @@ test("reconciliation items distinguish explained linkage from residual unexplain
   assert.equal(summary.explainedItemsCount, 1);
   assert.equal(summary.hasResidualUnexplained, true);
   assert.equal(summary.explainedBalanceStillUnitemized, 1885.12);
+  assert.equal(summary.explainedCoverageState, "itemizacao_parcial");
+  assert.equal(summary.requiresDirectedReview, true);
+  assert.equal(summary.directedReviewRecommendation, "revisar saldo sem itemizacao");
+});
+
+test("reconciliation difference summary marks complete coverage when explained balance is fully itemized", () => {
+  const summary = summarizeReconciliationDifferenceSummary({
+    explainedDifference: 444.12,
+    unexplainedDifference: 0,
+    items: [
+      {
+        id: "rec-item-002",
+        justification: "Rendimento identificado no extrato.",
+        createdAt: "2026-04-12T15:20:00Z",
+        bankEntry: {
+          id: "entry-007",
+          description: "Rendimento identificado na competencia",
+          type: "rendimento",
+          amount: 444.12,
+          occurredOn: "2026-04-12",
+        },
+      },
+    ],
+  });
+
+  assert.equal(summary.explainedCoverageState, "itemizacao_completa");
+  assert.equal(summary.explainedCoveragePercentage, 100);
+  assert.equal(summary.requiresDirectedReview, false);
+});
+
+test("reconciliation difference summary marks sufficient coverage for small residual without forcing review", () => {
+  const summary = summarizeReconciliationDifferenceSummary({
+    explainedDifference: 1000,
+    unexplainedDifference: 0,
+    items: [
+      {
+        id: "rec-item-003",
+        justification: "Cobranca identificada no extrato.",
+        createdAt: "2026-04-15T10:00:00Z",
+        bankEntry: {
+          id: "entry-008",
+          description: "Ajuste identificado",
+          type: "ajuste",
+          amount: -850,
+          occurredOn: "2026-04-15",
+        },
+      },
+    ],
+  });
+
+  assert.equal(summary.explainedCoverageState, "itemizacao_suficiente");
+  assert.equal(summary.explainedCoveragePercentage, 85);
+  assert.equal(summary.requiresDirectedReview, false);
+  assert.equal(summary.directedReviewRecommendation, "acompanhar saldo residual");
 });
 
 test("reconciliation filter matches apt and sensitive cases without changing closure rules", () => {

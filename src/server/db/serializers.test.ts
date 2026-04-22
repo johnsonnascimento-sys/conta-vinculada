@@ -60,6 +60,9 @@ test("serializeReconciliation preserves occurrences and derives ordered history"
   assert.equal(reconciliation.items.length, 1);
   assert.equal(reconciliation.items[0].bankEntryId, "entry-001");
   assert.equal(reconciliation.differenceSummary.explainedItemsAmount, 100);
+  assert.equal(reconciliation.differenceSummary.explainedCoverageState, "itemizacao_completa");
+  assert.equal(reconciliation.differenceSummary.explainedCoveragePercentage, 100);
+  assert.equal(reconciliation.differenceSummary.requiresDirectedReview, false);
   assert.deepEqual(
     reconciliation.history.timeline.map((event) => event.id),
     ["processamento-2026-04-02T18:10:00.000Z", "occ-1", "occ-2"],

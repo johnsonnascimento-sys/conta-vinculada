@@ -434,3 +434,24 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] Nao aplicavel
+
+### 11.7 Cobertura minima da diferenca explicada
+
+- [ ] A conciliacao mostra o valor total da diferenca explicada por competencia.
+- [ ] A conciliacao mostra o valor da diferenca explicada ja coberto por itemizacao minima.
+- [ ] A conciliacao mostra o valor da diferenca explicada ainda sem itemizacao.
+- [ ] A conciliacao mostra percentual simples de cobertura da diferenca explicada.
+- [ ] A conciliacao classifica a cobertura como sem cobertura, cobertura parcial, cobertura suficiente ou cobertura completa.
+- [ ] Quando houver saldo explicado sem itemizacao relevante, a conciliacao mostra recomendacao simples de revisao dirigida.
+- [ ] A classificacao de cobertura completa nao altera indevidamente o fechamento ou a reabertura da competencia.
+- [ ] A classificacao de cobertura suficiente nao cria tarefa formal nem workflow adicional.
+- [ ] O detalhe do contrato reflete a mesma leitura de cobertura e revisao dirigida exibida na conciliacao.
+- [ ] A leitura historica, a classificacao operacional e a diferenca nao explicada residual permanecem preservadas.
+
+Observacoes:
+
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel

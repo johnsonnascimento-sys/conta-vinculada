@@ -280,6 +280,17 @@ export interface ReconciliationDifferenceSummary {
   explainedItemsAmount: number;
   explainedItemsCount: number;
   explainedBalanceStillUnitemized: number;
+  explainedCoveragePercentage: number;
+  explainedCoverageState:
+    | "sem_itemizacao"
+    | "itemizacao_parcial"
+    | "itemizacao_suficiente"
+    | "itemizacao_completa";
+  explainedCoverageStateLabel: string;
+  explainedCoverageReason: string;
+  requiresDirectedReview: boolean;
+  directedReviewRecommendation: string;
+  directedReviewReason: string;
   unexplainedAmount: number;
   hasResidualUnexplained: boolean;
 }

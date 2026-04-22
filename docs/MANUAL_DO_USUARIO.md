@@ -725,3 +725,26 @@ Esse registro:
 - serve apenas para qualificar a leitura operacional da conciliacao.
 
 O detalhe do contrato passou a refletir os mesmos itens conciliatorios, os mesmos vinculos com lancamentos e a mesma separacao entre diferenca explicada com item minimo, diferenca explicada ainda sem item e diferenca nao explicada residual.
+
+### 11.7 Cobertura minima da diferenca explicada
+
+A conciliacao passou a mostrar, por competencia, o grau minimo de cobertura da diferenca explicada com base nos itens conciliatorios ja registrados.
+
+A leitura operacional agora destaca:
+
+- valor total da diferenca explicada;
+- valor da diferenca explicada ja coberto por itemizacao minima;
+- valor da diferenca explicada ainda sem itemizacao;
+- percentual simples de cobertura;
+- situacao operacional da cobertura.
+
+A situacao operacional da cobertura pode aparecer como:
+
+- sem cobertura, quando existe diferenca explicada sem qualquer item conciliatorio minimo;
+- cobertura parcial, quando ha itemizacao inicial, mas ainda resta saldo relevante sem itemizacao;
+- cobertura suficiente, quando a maior parte ja esta itemizada e sobra apenas saldo residual menor;
+- cobertura completa, quando toda a diferenca explicada ja esta coberta ou quando nao ha diferenca explicada a itemizar.
+
+Quando ainda houver saldo explicado sem itemizacao relevante, a conciliacao tambem mostra uma recomendacao simples de revisao dirigida para orientar a leitura diaria. Essa recomendacao nao cria tarefa formal, nao gera aprovacao adicional e nao encerra automaticamente a competencia.
+
+O detalhe do contrato passou a refletir a mesma leitura de cobertura, com o mesmo grau, o mesmo percentual e a mesma recomendacao simples de revisao dirigida exibidos no modulo de conciliacao.

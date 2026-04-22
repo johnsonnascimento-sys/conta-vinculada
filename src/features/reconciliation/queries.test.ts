@@ -34,4 +34,19 @@ test("reconciliation overview exposes minimum reconciliation items and explained
   assert.equal(reconciliation?.items[0].kind, "diferenca_explicada");
   assert.equal(reconciliation?.items.at(-1)?.kind, "diferenca_nao_explicada");
   assert.equal(reconciliation?.differenceSummary.explainedItemsCount, 1);
+  assert.equal(reconciliation?.differenceSummary.explainedCoverageState, "itemizacao_parcial");
+  assert.equal(reconciliation?.differenceSummary.requiresDirectedReview, true);
+  assert.equal(
+    reconciliation?.differenceSummary.directedReviewRecommendation,
+    "revisar saldo sem itemizacao",
+  );
+
+  const completeCoverage = overview.reconciliations.find(
+    (item) => item.contractId === "c-2cjm-002" && item.competency === "2026-03",
+  );
+
+  assert.equal(
+    completeCoverage?.differenceSummary.explainedCoverageState,
+    "itemizacao_completa",
+  );
 });

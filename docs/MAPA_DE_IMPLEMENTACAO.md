@@ -296,3 +296,14 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 ### Proximo bloco sugerido
 
 - [ ] Consolidar criterios minimos de cobertura da diferenca explicada e revisao dirigida dos saldos ainda sem itemizacao.
+
+### Atualizacao da rodada
+
+- [x] Derivar grau simples de cobertura da diferenca explicada por competencia.
+- [x] Expor percentual minimo de cobertura, saldo itemizado e saldo ainda sem itemizacao.
+- [x] Diferenciar cobertura parcial, suficiente e completa sem criar workflow novo.
+- [x] Expor recomendacao leve de revisao dirigida para saldo explicado ainda sem itemizacao relevante.
+
+### Proximo bloco sugerido
+
+- [ ] Qualificar minimamente as faixas de saldo explicado ainda sem itemizacao por origem operacional.

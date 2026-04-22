@@ -204,6 +204,33 @@ export interface ReconciliationOperationalClosureSummary {
   reason: string;
 }
 
+export type CompetencyOccurrenceType =
+  | "apontamento"
+  | "fechamento_formal"
+  | "reabertura_controlada";
+
+export interface CompetencyOccurrence {
+  id: string;
+  type: CompetencyOccurrenceType;
+  actor: string;
+  description: string;
+  happenedAt: string;
+}
+
+export type CompetencyFormalClosureState =
+  | "aberta"
+  | "apta_para_fechamento"
+  | "fechada"
+  | "reaberta";
+
+export interface CompetencyFormalClosureSummary {
+  state: CompetencyFormalClosureState;
+  canClose: boolean;
+  canReopen: boolean;
+  reason: string;
+  occurrenceCount: number;
+}
+
 export interface ReleaseRequestWorkflowSummary {
   derivedStatus: ReleaseRequestStatus;
   documentState: ReleaseRequestDocumentState;
@@ -283,6 +310,13 @@ export interface Competency {
   competency: string;
   status: CompetencyStatus;
   processedAt?: string;
+  closedAt?: string;
+  closedBy?: string;
+  closureJustification?: string;
+  reopenedAt?: string;
+  reopenedBy?: string;
+  reopeningJustification?: string;
+  occurrences: CompetencyOccurrence[];
 }
 
 export interface ProvisionBalance {
@@ -370,7 +404,9 @@ export interface ReleaseRequest {
 export interface ReconciliationRecord {
   id: string;
   contractId: string;
+  competencyId: string;
   competency: string;
+  competencyStatus: CompetencyStatus;
   bankBalance: number;
   provisionBalance: number;
   approvedPendingExecution: number;
@@ -378,6 +414,14 @@ export interface ReconciliationRecord {
   unexplainedDifference: number;
   differenceType: ReconciliationDifferenceType;
   operationalClosure: ReconciliationOperationalClosureSummary;
+  formalClosure: CompetencyFormalClosureSummary;
+  closureJustification?: string;
+  closedAt?: string;
+  closedBy?: string;
+  reopeningJustification?: string;
+  reopenedAt?: string;
+  reopenedBy?: string;
+  occurrences: CompetencyOccurrence[];
 }
 
 export interface AuditEvent {

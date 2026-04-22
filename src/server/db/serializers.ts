@@ -4,6 +4,7 @@ import type {
   AuditEvent,
   BankEntry,
   Competency,
+  CompetencyOccurrence,
   Contract,
   Employee,
   EmployeeAllocation,
@@ -12,6 +13,10 @@ import type {
   ReleaseRequest,
   Tenant,
 } from "@/features/platform/types";
+import {
+  summarizeCompetencyFormalClosure,
+  summarizeReconciliationOperationalClosure,
+} from "@/features/reconciliation/workflow";
 import { getReleaseDocumentPlan } from "@/features/releases/rules";
 import { summarizeReleaseRequestWorkflow } from "@/features/releases/workflow";
 
@@ -138,6 +143,42 @@ function serializeCalculationMemory(value: unknown) {
   };
 }
 
+function serializeCompetencyOccurrences(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.flatMap((item, index) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      return [];
+    }
+
+    const record = item as Record<string, unknown>;
+
+    if (
+      typeof record.type !== "string" ||
+      typeof record.actor !== "string" ||
+      typeof record.description !== "string" ||
+      typeof record.happenedAt !== "string"
+    ) {
+      return [];
+    }
+
+    return [
+      {
+        id:
+          typeof record.id === "string"
+            ? record.id
+            : `competency-occurrence-${index + 1}`,
+        type: record.type as CompetencyOccurrence["type"],
+        actor: record.actor,
+        description: record.description,
+        happenedAt: record.happenedAt,
+      },
+    ];
+  });
+}
+
 export function serializeTenant(tenant: {
   id: string;
   name: string;
@@ -209,10 +250,29 @@ export function serializeCompetency(competency: {
   competency: string;
   status: Competency["status"];
   processedAt: Date | null;
+  closedAt?: Date | null;
+  closedBy?: string | null;
+  closureJustification?: string | null;
+  reopenedAt?: Date | null;
+  reopenedBy?: string | null;
+  reopeningJustification?: string | null;
+  operationalOccurrences?: unknown;
 }): Competency {
   return {
-    ...competency,
+    id: competency.id,
+    contractId: competency.contractId,
+    competency: competency.competency,
+    status: competency.status,
     processedAt: competency.processedAt?.toISOString(),
+    closedAt: competency.closedAt?.toISOString(),
+    closedBy: competency.closedBy ?? undefined,
+    closureJustification: competency.closureJustification ?? undefined,
+    reopenedAt: competency.reopenedAt?.toISOString(),
+    reopenedBy: competency.reopenedBy ?? undefined,
+    reopeningJustification: competency.reopeningJustification ?? undefined,
+    occurrences: serializeCompetencyOccurrences(
+      competency.operationalOccurrences ?? [],
+    ),
   };
 }
 
@@ -437,7 +497,18 @@ export function serializeReleaseRequest(request: {
 export function serializeReconciliation(record: {
   id: string;
   contractId: string;
-  competency: { competency: string };
+  competency: {
+    id: string;
+    competency: string;
+    status: Competency["status"];
+    closedAt?: Date | null;
+    closedBy?: string | null;
+    closureJustification?: string | null;
+    reopenedAt?: Date | null;
+    reopenedBy?: string | null;
+    reopeningJustification?: string | null;
+    operationalOccurrences?: unknown;
+  };
   bankBalance: { toNumber(): number };
   provisionBalance: { toNumber(): number };
   approvedPendingExecution: { toNumber(): number };
@@ -447,31 +518,42 @@ export function serializeReconciliation(record: {
 }): ReconciliationRecord {
   const approvedPendingExecution = record.approvedPendingExecution.toNumber();
   const unexplainedDifference = record.unexplainedDifference.toNumber();
+  const operationalClosure = summarizeReconciliationOperationalClosure({
+    approvedPendingExecution,
+    unexplainedDifference,
+  });
+  const occurrences = serializeCompetencyOccurrences(
+    record.competency.operationalOccurrences ?? [],
+  );
+  const formalClosure = summarizeCompetencyFormalClosure({
+    status: record.competency.status,
+    operationalClosureState: operationalClosure.state,
+    closureJustification: record.competency.closureJustification ?? undefined,
+    reopeningJustification: record.competency.reopeningJustification ?? undefined,
+    occurrences,
+  });
 
   return {
     id: record.id,
     contractId: record.contractId,
+    competencyId: record.competency.id,
     competency: record.competency.competency,
+    competencyStatus: record.competency.status,
     bankBalance: record.bankBalance.toNumber(),
     provisionBalance: record.provisionBalance.toNumber(),
     approvedPendingExecution,
     explainedDifference: record.explainedDifference.toNumber(),
     unexplainedDifference,
     differenceType: record.differenceType,
-    operationalClosure:
-      approvedPendingExecution === 0 && unexplainedDifference === 0
-        ? {
-            state: "pronta_para_fechamento_minimo",
-            reason:
-              "CompetÃªncia sem valor aprovado pendente de execuÃ§Ã£o e sem diferenÃ§a nÃ£o explicada.",
-          }
-        : {
-            state: "com_pendencias",
-            reason:
-              approvedPendingExecution > 0
-                ? "Ainda existe valor aprovado pendente de execuÃ§Ã£o para esta competÃªncia."
-                : "A competÃªncia ainda possui diferenÃ§a nÃ£o explicada na conciliaÃ§Ã£o.",
-          },
+    operationalClosure,
+    formalClosure,
+    closureJustification: record.competency.closureJustification ?? undefined,
+    closedAt: record.competency.closedAt?.toISOString(),
+    closedBy: record.competency.closedBy ?? undefined,
+    reopeningJustification: record.competency.reopeningJustification ?? undefined,
+    reopenedAt: record.competency.reopenedAt?.toISOString(),
+    reopenedBy: record.competency.reopenedBy ?? undefined,
+    occurrences,
   };
 }
 

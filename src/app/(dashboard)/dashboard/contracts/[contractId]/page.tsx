@@ -7,6 +7,7 @@ import type {
   Employee,
   EmployeeAllocation,
   ProvisionBalance,
+  ReconciliationRecord,
   ReleaseRequest,
 } from "@/features/platform/types";
 import { Badge } from "@/shared/components/ui/badge";
@@ -95,6 +96,18 @@ function getFinancialExecutionLabel(request: ReleaseRequest) {
   return "ainda nÃ£o apta para execuÃ§Ã£o efetiva";
 }
 
+function getCompetencyFormalLabel(reconciliation?: ReconciliationRecord) {
+  if (!reconciliation) {
+    return "aberta";
+  }
+
+  if (reconciliation.formalClosure.state === "apta_para_fechamento") {
+    return "apta ao fechamento";
+  }
+
+  return reconciliation.formalClosure.state;
+}
+
 interface ContractPageProps {
   params: Promise<{ contractId: string }>;
 }
@@ -116,6 +129,12 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
     (total: number, item: ProvisionBalance & { employee?: Employee }) =>
       total + item.reserved,
     0,
+  );
+  const reconciliationByCompetency = new Map(
+    (detail.reconciliations ?? []).map((item: ReconciliationRecord) => [
+      item.competency,
+      item,
+    ]),
   );
 
   return (
@@ -173,7 +192,12 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/8 bg-white">
-                {detail.competencies.map((competency: Competency) => (
+                {detail.competencies.map((competency: Competency) => {
+                  const reconciliation = reconciliationByCompetency.get(
+                    competency.competency,
+                  );
+
+                  return (
                   <tr key={competency.id}>
                     <td className="px-4 py-4 font-semibold text-[var(--color-ink)]">
                       {formatCompetency(competency.competency)}
@@ -193,10 +217,45 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                       </Badge>
                     </td>
                     <td className="px-4 py-4 text-sm text-[var(--color-muted)]">
-                      {competency.processedAt ?? "Pendente"}
+                      <div className="space-y-2">
+                        <p>{competency.processedAt ?? "Pendente"}</p>
+                        {reconciliation ? (
+                          <>
+                            <Badge
+                              tone={
+                                reconciliation.formalClosure.state === "fechada"
+                                  ? "success"
+                                  : reconciliation.formalClosure.state ===
+                                      "reaberta"
+                                    ? "danger"
+                                    : "warning"
+                              }
+                            >
+                              {getCompetencyFormalLabel(reconciliation)}
+                            </Badge>
+                            <p>{reconciliation.formalClosure.reason}</p>
+                            <p>
+                              Fechamento:{" "}
+                              {reconciliation.closureJustification ??
+                                "não registrado"}
+                            </p>
+                            <p>
+                              Reabertura:{" "}
+                              {reconciliation.reopeningJustification ??
+                                "não registrada"}
+                            </p>
+                            <p>
+                              Ocorrências mínimas: {reconciliation.occurrences.length}
+                            </p>
+                          </>
+                        ) : (
+                          <p>Sem leitura conciliatória vinculada.</p>
+                        )}
+                      </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -305,6 +364,37 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                 label="DiferenÃ§a nÃ£o explicada"
                 value={formatCurrency(detail.reconciliation?.unexplainedDifference ?? 0)}
               />
+            </div>
+            <div className="space-y-3 rounded-[1.4rem] border border-black/8 bg-white px-4 py-4">
+              {(detail.reconciliations ?? []).map((item: ReconciliationRecord) => (
+                <div
+                  key={item.id}
+                  className="space-y-2 border-b border-black/8 pb-3 last:border-b-0 last:pb-0"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="font-semibold text-[var(--color-ink)]">
+                      {formatCompetency(item.competency)}
+                    </p>
+                    <Badge
+                      tone={
+                        item.formalClosure.state === "fechada"
+                          ? "success"
+                          : item.formalClosure.state === "reaberta"
+                            ? "danger"
+                            : "warning"
+                      }
+                    >
+                      {getCompetencyFormalLabel(item)}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    Fechamento mínimo: {item.operationalClosure.reason}
+                  </p>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    Fechamento formal: {item.formalClosure.reason}
+                  </p>
+                </div>
+              ))}
             </div>
             <div className="space-y-3 rounded-[1.4rem] border border-black/8 bg-white px-4 py-4">
               {detail.bankEntries.map((entry: BankEntry) => (

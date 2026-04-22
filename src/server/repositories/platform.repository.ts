@@ -244,7 +244,22 @@ export async function getReconciliations(): Promise<ReconciliationRecord[]> {
 
   const prisma = getPrismaClient();
   const reconciliations = await prisma!.bankReconciliation.findMany({
-    include: { competency: true },
+    include: {
+      competency: {
+        select: {
+          id: true,
+          competency: true,
+          status: true,
+          closedAt: true,
+          closedBy: true,
+          closureJustification: true,
+          reopenedAt: true,
+          reopenedBy: true,
+          reopeningJustification: true,
+          operationalOccurrences: true,
+        },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
   return reconciliations.map(serializeReconciliation);

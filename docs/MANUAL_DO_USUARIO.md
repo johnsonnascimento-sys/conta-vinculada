@@ -613,3 +613,20 @@ No módulo de conciliação, a tela passou a mostrar também a leitura de `Fechament
 - `com pendências`: ainda resta valor pendente de execução e/ou diferença não explicada.
 
 Essa leitura de fechamento mínimo é apenas operacional. Ela não substitui eventual fluxo futuro de fechamento formal da competência.
+
+## 18. Atualiza??o desta rodada
+
+O m?dulo de concilia??o passou a diferenciar tamb?m o `Fechamento formal` da compet?ncia:
+
+- `aberta`: a compet?ncia segue em acompanhamento operacional;
+- `apta ao fechamento`: a compet?ncia j? atende ao fechamento m?nimo e pode receber fechamento formal;
+- `fechada`: o fechamento formal foi registrado com justificativa;
+- `reaberta`: a compet?ncia foi reaberta de forma controlada, tamb?m com justificativa pr?pria.
+
+Leitura pr?tica adicional:
+
+- o fechamento formal n?o acontece automaticamente s? porque a compet?ncia ficou pronta no fechamento m?nimo;
+- para fechar formalmente, o usu?rio precisa registrar uma justificativa operacional;
+- para reabrir uma compet?ncia fechada, o usu?rio tamb?m precisa registrar justificativa;
+- a tela passa a mostrar a justificativa do fechamento, a justificativa da reabertura e as ocorr?ncias m?nimas ligadas ? compet?ncia;
+- o detalhe do contrato passa a refletir essa mesma leitura por compet?ncia, sem tratar isso como encerramento cont?bil total do contrato.

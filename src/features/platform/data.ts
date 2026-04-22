@@ -14,6 +14,10 @@ import type {
   ReleaseRequest,
   Tenant,
 } from "@/features/platform/types";
+import {
+  summarizeCompetencyFormalClosure,
+  summarizeReconciliationOperationalClosure,
+} from "@/features/reconciliation/workflow";
 import { getReleaseDocumentPlan } from "@/features/releases/rules";
 import { summarizeReleaseRequestWorkflow } from "@/features/releases/workflow";
 
@@ -164,6 +168,20 @@ export const competencies: Competency[] = [
     competency: "2026-01",
     status: "fechada",
     processedAt: "2026-02-03T15:00:00Z",
+    closedAt: "2026-02-06T17:20:00Z",
+    closedBy: "Beatriz Campos",
+    closureJustification:
+      "Fechamento formal registrado após conferência sem pendências operacionais.",
+    occurrences: [
+      {
+        id: "occ-comp-2026-01-c1-1",
+        type: "fechamento_formal",
+        actor: "Beatriz Campos",
+        description:
+          "Competência encerrada formalmente após conferência de saldo, provisões e pendências de execução.",
+        happenedAt: "2026-02-06T17:20:00Z",
+      },
+    ],
   },
   {
     id: "comp-2026-02-c1",
@@ -171,6 +189,16 @@ export const competencies: Competency[] = [
     competency: "2026-02",
     status: "conciliada",
     processedAt: "2026-03-05T13:00:00Z",
+    occurrences: [
+      {
+        id: "occ-comp-2026-02-c1-1",
+        type: "apontamento",
+        actor: "Rafaela Vasques",
+        description:
+          "Competência conciliada e sem ocorrência impeditiva, aguardando fechamento formal.",
+        happenedAt: "2026-03-06T09:00:00Z",
+      },
+    ],
   },
   {
     id: "comp-2026-03-c1",
@@ -178,6 +206,16 @@ export const competencies: Competency[] = [
     competency: "2026-03",
     status: "calculada",
     processedAt: "2026-04-02T18:10:00Z",
+    occurrences: [
+      {
+        id: "occ-comp-2026-03-c1-1",
+        type: "apontamento",
+        actor: "Felipe Costa",
+        description:
+          "Competência segue aberta porque ainda há diferença não explicada na conciliação.",
+        happenedAt: "2026-04-12T10:20:00Z",
+      },
+    ],
   },
   {
     id: "comp-2026-03-c2",
@@ -185,6 +223,20 @@ export const competencies: Competency[] = [
     competency: "2026-03",
     status: "reaberta",
     processedAt: "2026-04-04T11:00:00Z",
+    reopenedAt: "2026-04-04T11:00:00Z",
+    reopenedBy: "Beatriz Campos",
+    reopeningJustification:
+      "Competência reaberta para revisar efeitos rescisórios e reprocessamento operacional mínimo.",
+    occurrences: [
+      {
+        id: "occ-comp-2026-03-c2-1",
+        type: "reabertura_controlada",
+        actor: "Beatriz Campos",
+        description:
+          "Competência reaberta para reprocessamento após desligamento retroativo.",
+        happenedAt: "2026-04-04T11:00:00Z",
+      },
+    ],
   },
 ];
 
@@ -497,37 +549,78 @@ export const releaseRequests: ReleaseRequest[] = [
 ];
 
 export const reconciliations: ReconciliationRecord[] = [
-  {
-    id: "rec-001",
-    contractId: "c-2cjm-001",
-    competency: "2026-03",
-    bankBalance: 148320.48,
-    provisionBalance: 142990,
-    approvedPendingExecution: 1560,
-    explainedDifference: 2827.3,
-    unexplainedDifference: 943.18,
-    differenceType: "nao_explicada",
-    operationalClosure: {
-      state: "com_pendencias",
-      reason:
-        "Ainda existe diferença não explicada e valor pendente de execução nesta competência.",
-    },
-  },
-  {
-    id: "rec-002",
-    contractId: "c-2cjm-002",
-    competency: "2026-03",
-    bankBalance: 232904.12,
-    provisionBalance: 230810,
-    approvedPendingExecution: 3650,
-    explainedDifference: 444.12,
-    unexplainedDifference: 0,
-    differenceType: "explicada",
-    operationalClosure: {
-      state: "com_pendencias",
-      reason: "Ainda existe valor aprovado pendente de execução nesta competência.",
-    },
-  },
+  (() => {
+    const competency = competencies.find((item) => item.id === "comp-2026-03-c1")!;
+    const operationalClosure = summarizeReconciliationOperationalClosure({
+      approvedPendingExecution: 1560,
+      unexplainedDifference: 943.18,
+    });
+
+    return {
+      id: "rec-001",
+      contractId: "c-2cjm-001",
+      competencyId: competency.id,
+      competency: "2026-03",
+      competencyStatus: competency.status,
+      bankBalance: 148320.48,
+      provisionBalance: 142990,
+      approvedPendingExecution: 1560,
+      explainedDifference: 2827.3,
+      unexplainedDifference: 943.18,
+      differenceType: "nao_explicada" as const,
+      operationalClosure,
+      formalClosure: summarizeCompetencyFormalClosure({
+        status: competency.status,
+        operationalClosureState: operationalClosure.state,
+        closureJustification: competency.closureJustification,
+        reopeningJustification: competency.reopeningJustification,
+        occurrences: competency.occurrences,
+      }),
+      closureJustification: competency.closureJustification,
+      closedAt: competency.closedAt,
+      closedBy: competency.closedBy,
+      reopeningJustification: competency.reopeningJustification,
+      reopenedAt: competency.reopenedAt,
+      reopenedBy: competency.reopenedBy,
+      occurrences: competency.occurrences,
+    };
+  })(),
+  (() => {
+    const competency = competencies.find((item) => item.id === "comp-2026-03-c2")!;
+    const operationalClosure = summarizeReconciliationOperationalClosure({
+      approvedPendingExecution: 3650,
+      unexplainedDifference: 0,
+    });
+
+    return {
+      id: "rec-002",
+      contractId: "c-2cjm-002",
+      competencyId: competency.id,
+      competency: "2026-03",
+      competencyStatus: competency.status,
+      bankBalance: 232904.12,
+      provisionBalance: 230810,
+      approvedPendingExecution: 3650,
+      explainedDifference: 444.12,
+      unexplainedDifference: 0,
+      differenceType: "explicada" as const,
+      operationalClosure,
+      formalClosure: summarizeCompetencyFormalClosure({
+        status: competency.status,
+        operationalClosureState: operationalClosure.state,
+        closureJustification: competency.closureJustification,
+        reopeningJustification: competency.reopeningJustification,
+        occurrences: competency.occurrences,
+      }),
+      closureJustification: competency.closureJustification,
+      closedAt: competency.closedAt,
+      closedBy: competency.closedBy,
+      reopeningJustification: competency.reopeningJustification,
+      reopenedAt: competency.reopenedAt,
+      reopenedBy: competency.reopenedBy,
+      occurrences: competency.occurrences,
+    };
+  })(),
 ];
 
 export const auditEvents: AuditEvent[] = [

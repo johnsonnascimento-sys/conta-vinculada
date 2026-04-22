@@ -776,3 +776,11 @@ A rodada atual expandiu a execução financeira efetiva para admitir múltiplos reg
 Também passou a existir leitura operacional mínima de fechamento da conciliação, sem criar ainda workflow completo de fechamento e reabertura por competência.
 
 Com isso, o próximo bloco seguro deixa de ser “execução parcial” e passa a ser a consolidação de fechamento formal da competência e tratamento controlado de ocorrências de conciliação.
+
+## Atualizacao incremental mais recente
+
+A rodada atual consolidou o fechamento formal e a reabertura controlada da competencia de conciliacao, com justificativas proprias, ocorrencias minimas por competencia e trilha de auditoria das mutacoes.
+
+O modulo de conciliacao deixou de operar apenas com leitura de fechamento minimo e passou a distinguir estado operacional aberto, aptidao ao fechamento, fechamento formal e reabertura controlada, sem reabrir a logica central de liberacoes.
+
+Com isso, o proximo bloco seguro passa a ser a consolidacao de uma leitura mais estruturada das ocorrencias e do tratamento operacional das competencias ao longo do tempo, sem transformar o modulo em motor contabil complexo.

@@ -26,9 +26,10 @@ export async function getContractsOverview() {
 
   return contracts.map((contract: Contract) => {
     const company = companies.find((item: Company) => item.id === contract.companyId);
-    const reconciliation = reconciliations.find(
+    const contractReconciliations = reconciliations.filter(
       (item: ReconciliationRecord) => item.contractId === contract.id,
     );
+    const reconciliation = contractReconciliations[0];
     const pendingRequests = releaseRequests.filter(
       (item: ReleaseRequest) =>
         item.contractId === contract.id &&
@@ -111,6 +112,9 @@ export async function getContractDetail(contractId: string) {
     bankEntries: bankEntries.filter((item: BankEntry) => item.contractId === contractId),
     releaseRequests: releaseRequests.filter(
       (item: ReleaseRequest) => item.contractId === contractId,
+    ),
+    reconciliations: reconciliations.filter(
+      (item: ReconciliationRecord) => item.contractId === contractId,
     ),
     reconciliation: reconciliations.find(
       (item: ReconciliationRecord) => item.contractId === contractId,

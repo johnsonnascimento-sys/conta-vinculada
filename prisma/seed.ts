@@ -336,6 +336,20 @@ async function main() {
       competency: "2026-01",
       status: "fechada" as const,
       processedAt: new Date("2026-02-03T15:00:00Z"),
+      closedAt: new Date("2026-02-06T17:20:00Z"),
+      closedBy: "Beatriz Campos",
+      closureJustification:
+        "Fechamento formal registrado após conferência sem pendências operacionais.",
+      operationalOccurrences: [
+        {
+          id: "occ-comp-2026-01-c1-1",
+          type: "fechamento_formal",
+          actor: "Beatriz Campos",
+          description:
+            "Competência encerrada formalmente após conferência de saldo, provisões e pendências de execução.",
+          happenedAt: "2026-02-06T17:20:00Z",
+        },
+      ],
     },
     {
       id: "comp-2026-02-c1",
@@ -343,6 +357,16 @@ async function main() {
       competency: "2026-02",
       status: "conciliada" as const,
       processedAt: new Date("2026-03-05T13:00:00Z"),
+      operationalOccurrences: [
+        {
+          id: "occ-comp-2026-02-c1-1",
+          type: "apontamento",
+          actor: "Rafaela Vasques",
+          description:
+            "Competência conciliada e sem ocorrência impeditiva, aguardando fechamento formal.",
+          happenedAt: "2026-03-06T09:00:00Z",
+        },
+      ],
     },
     {
       id: "comp-2026-03-c1",
@@ -350,6 +374,16 @@ async function main() {
       competency: "2026-03",
       status: "calculada" as const,
       processedAt: new Date("2026-04-02T18:10:00Z"),
+      operationalOccurrences: [
+        {
+          id: "occ-comp-2026-03-c1-1",
+          type: "apontamento",
+          actor: "Felipe Costa",
+          description:
+            "Competência segue aberta porque ainda há diferença não explicada na conciliação.",
+          happenedAt: "2026-04-12T10:20:00Z",
+        },
+      ],
     },
     {
       id: "comp-2026-03-c2",
@@ -357,13 +391,27 @@ async function main() {
       competency: "2026-03",
       status: "reaberta" as const,
       processedAt: new Date("2026-04-04T11:00:00Z"),
+      reopenedAt: new Date("2026-04-04T11:00:00Z"),
+      reopenedBy: "Beatriz Campos",
+      reopeningJustification:
+        "Competência reaberta para revisar efeitos rescisórios e reprocessamento operacional mínimo.",
+      operationalOccurrences: [
+        {
+          id: "occ-comp-2026-03-c2-1",
+          type: "reabertura_controlada",
+          actor: "Beatriz Campos",
+          description:
+            "Competência reaberta para reprocessamento após desligamento retroativo.",
+          happenedAt: "2026-04-04T11:00:00Z",
+        },
+      ],
     },
   ];
 
   for (const competency of competencies) {
     await prisma.competency.upsert({
       where: { id: competency.id },
-      update: {},
+      update: competency,
       create: competency,
     });
   }

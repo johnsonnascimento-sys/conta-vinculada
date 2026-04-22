@@ -132,6 +132,13 @@ model Competency {
   competency         String
   status             CompetencyStatus
   processedAt        DateTime?
+  closedAt           DateTime?
+  closedBy           String?
+  closureJustification String?
+  reopenedAt         DateTime?
+  reopenedBy         String?
+  reopeningJustification String?
+  operationalOccurrences Json?
   contract           Contract               @relation(fields: [contractId], references: [id], onDelete: Cascade)
   payrollEntries     PayrollEntry[]
   provisionEntries   ProvisionEntry[]

@@ -262,3 +262,12 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 - [x] Manter a solicitação como `liberada` apenas quando o pendente de execução chegar a zero.
 - [x] Expor leitura mínima de fechamento operacional da conciliação.
 - [ ] Consolidar fechamento formal e reabertura controlada da competência com ocorrências de conciliação.
+
+### Atualizacao da rodada
+
+- [x] Expandir a execucao financeira para cenarios de execucao parcial, com multiplos ReleaseExecution por solicitacao.
+- [x] Recalcular valor executado acumulado e valor pendente de execucao sem duplicar regra fora do backend.
+- [x] Manter a solicitacao como liberada apenas quando o pendente de execucao chegar a zero.
+- [x] Expor leitura minima de fechamento operacional da conciliacao.
+- [x] Consolidar fechamento formal e reabertura controlada da competencia com ocorrencias de conciliacao.
+- [ ] Estruturar leitura historica minima das ocorrencias por competencia e criterios de tratamento operacional subsequente.

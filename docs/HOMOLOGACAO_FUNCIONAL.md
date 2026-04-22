@@ -353,3 +353,24 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] Não aplicável
+
+### 11.3 Fechamento formal e reabertura controlada da compet?ncia
+
+- [ ] A tela de concilia??o mostra se a compet?ncia est? aberta, apta ao fechamento, fechada ou reaberta.
+- [ ] O sistema s? permite fechamento formal quando a compet?ncia estiver pronta para fechamento m?nimo.
+- [ ] O fechamento formal exige justificativa operacional.
+- [ ] A reabertura controlada s? ? permitida para compet?ncia formalmente fechada.
+- [ ] A reabertura controlada exige justificativa operacional.
+- [ ] A tela mostra justificativa do fechamento e da reabertura quando existirem.
+- [ ] A tela mostra ocorr?ncias m?nimas associadas ? compet?ncia.
+- [ ] O detalhe do contrato reflete a mesma leitura operacional da compet?ncia.
+- [ ] A auditoria registra o fechamento formal da compet?ncia.
+- [ ] A auditoria registra a reabertura controlada da compet?ncia.
+
+Observa??es:
+
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] N?o aplic?vel

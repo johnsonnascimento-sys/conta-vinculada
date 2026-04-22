@@ -260,6 +260,22 @@ export async function getReconciliations(): Promise<ReconciliationRecord[]> {
           operationalOccurrences: true,
         },
       },
+      items: {
+        include: {
+          bankEntry: {
+            select: {
+              id: true,
+              description: true,
+              type: true,
+              amount: true,
+              occurredOn: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
   });

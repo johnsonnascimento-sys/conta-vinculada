@@ -413,3 +413,24 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] Nao aplicavel
+
+### 11.6 Itens conciliatorios minimos e diferenca explicada
+
+- [ ] A tela de conciliacao mostra itens conciliatorios minimos por competencia.
+- [ ] Cada item conciliatorio informa se representa diferenca explicada registrada ou diferenca nao explicada residual.
+- [ ] Quando houver item conciliatorio explicado, a tela mostra o lancamento bancario vinculado.
+- [ ] Quando houver item conciliatorio explicado, a tela mostra a justificativa minima registrada.
+- [ ] A conciliacao mostra a diferenca explicada com itemizacao minima.
+- [ ] A conciliacao mostra a diferenca explicada ainda sem item conciliatorio minimo.
+- [ ] A conciliacao mostra o que permanece como diferenca nao explicada residual.
+- [ ] O registro de item conciliatorio minimo exige selecao de lancamento bancario e justificativa.
+- [ ] O registro de item conciliatorio minimo nao altera indevidamente o fechamento ou a reabertura da competencia.
+- [ ] O detalhe do contrato reflete os mesmos itens conciliatorios e a mesma leitura de diferenca explicada x nao explicada exibida na conciliacao.
+
+Observacoes:
+
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel

@@ -89,3 +89,52 @@ export interface ReopenCompetencyReconciliationActionState {
   fieldErrors?: ReopenCompetencyReconciliationFieldErrors;
   data?: ReopenCompetencyReconciliationSuccess;
 }
+
+export interface RegisterReconciliationItemInput {
+  reconciliationId: string;
+  bankEntryId: string;
+  justification: string;
+}
+
+export interface RegisterReconciliationItemFieldErrors {
+  reconciliationId?: string;
+  bankEntryId?: string;
+  justification?: string;
+}
+
+export interface RegisterReconciliationItemSuccess {
+  itemId: string;
+  reconciliationId: string;
+  contractId: string;
+  competency: string;
+  bankEntryId: string;
+}
+
+export type RegisterReconciliationItemErrorCode =
+  | "validation_error"
+  | "unauthorized"
+  | "database_unavailable"
+  | "not_found"
+  | "invalid_state"
+  | "conflict"
+  | "unexpected_error";
+
+export type RegisterReconciliationItemCommandResult =
+  | {
+      ok: true;
+      data: RegisterReconciliationItemSuccess;
+    }
+  | {
+      ok: false;
+      code: RegisterReconciliationItemErrorCode;
+      message: string;
+      fieldErrors?: RegisterReconciliationItemFieldErrors;
+    };
+
+export interface RegisterReconciliationItemActionState {
+  status: "idle" | "success" | "error";
+  code?: RegisterReconciliationItemErrorCode;
+  message?: string;
+  fieldErrors?: RegisterReconciliationItemFieldErrors;
+  data?: RegisterReconciliationItemSuccess;
+}

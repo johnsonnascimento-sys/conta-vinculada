@@ -139,6 +139,10 @@ function getCompetencyPriorityTone(reconciliation: ReconciliationRecord) {
   return "success" as const;
 }
 
+function getReconciliationItemTone(item: ReconciliationRecord["items"][number]) {
+  return item.kind === "diferenca_explicada" ? "success" as const : "danger" as const;
+}
+
 interface ContractPageProps {
   params: Promise<{ contractId: string }>;
 }
@@ -289,6 +293,22 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                               {reconciliation.history.lastRelevantOccurrence
                                 ? `${reconciliation.history.lastRelevantOccurrence.label} em ${reconciliation.history.lastRelevantOccurrence.happenedAt}`
                                 : "nao registrada"}
+                            </p>
+                            <p>
+                              Itens conciliatorios:{" "}
+                              {reconciliation.differenceSummary.explainedItemsCount} vinculado(s)
+                              {" "}e{" "}
+                              {formatCurrency(
+                                reconciliation.differenceSummary
+                                  .explainedBalanceStillUnitemized,
+                              )}{" "}
+                              ainda sem item minimo.
+                            </p>
+                            <p>
+                              Diferenca nao explicada residual:{" "}
+                              {formatCurrency(
+                                reconciliation.differenceSummary.unexplainedAmount,
+                              )}
                             </p>
                             <p>
                               Proxima acao sugerida:{" "}
@@ -451,6 +471,18 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                     Classificação: {item.qualification.classificationLabel}
                   </p>
                   <p className="text-sm text-[var(--color-muted)]">
+                    Diferença explicada com item mínimo:{" "}
+                    {formatCurrency(item.differenceSummary.explainedItemsAmount)}
+                  </p>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    Diferença explicada ainda sem item:{" "}
+                    {formatCurrency(item.differenceSummary.explainedBalanceStillUnitemized)}
+                  </p>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    Diferença não explicada residual:{" "}
+                    {formatCurrency(item.differenceSummary.unexplainedAmount)}
+                  </p>
+                  <p className="text-sm text-[var(--color-muted)]">
                     Próxima ação sugerida: {item.history.recommendedActionLabel}
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -467,6 +499,31 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                       <Badge key={pointing.code} tone="neutral">
                         {pointing.label}
                       </Badge>
+                    ))}
+                  </div>
+                  <div className="space-y-2 rounded-[1.2rem] border border-black/8 bg-[var(--color-surface)] px-3 py-3">
+                    {item.items.map((reconciliationItem) => (
+                      <div key={reconciliationItem.id} className="space-y-1 text-sm text-[var(--color-muted)]">
+                        <div className="flex flex-wrap gap-2">
+                          <Badge tone={getReconciliationItemTone(reconciliationItem)}>
+                            {reconciliationItem.kindLabel}
+                          </Badge>
+                          <Badge tone="neutral">{reconciliationItem.source}</Badge>
+                        </div>
+                        <p>{formatCurrency(reconciliationItem.amount)}</p>
+                        <p>{reconciliationItem.summary}</p>
+                        {reconciliationItem.bankEntryId ? (
+                          <p>
+                            Lançamento vinculado: {reconciliationItem.bankEntryId}
+                            {reconciliationItem.bankEntryDescription
+                              ? ` • ${reconciliationItem.bankEntryDescription}`
+                              : ""}
+                          </p>
+                        ) : null}
+                        {reconciliationItem.justification ? (
+                          <p>Justificativa: {reconciliationItem.justification}</p>
+                        ) : null}
+                      </div>
                     ))}
                   </div>
                   {item.history.lastRelevantOccurrence ? (

@@ -1,13 +1,16 @@
 import Link from "next/link";
-import type { ReconciliationRecord } from "@/features/platform/types";
+import type { BankEntry, ReconciliationRecord } from "@/features/platform/types";
 import { getCurrentUser } from "@/features/auth/queries";
 import { CloseCompetencyForm } from "@/features/reconciliation/components/close-competency-form";
+import { RegisterReconciliationItemForm } from "@/features/reconciliation/components/register-reconciliation-item-form";
 import { ReopenCompetencyForm } from "@/features/reconciliation/components/reopen-competency-form";
 import { getReconciliationOverview } from "@/features/reconciliation/queries";
 import {
   canCloseCompetencyReconciliation,
+  canRegisterReconciliationItem,
   canReopenCompetencyReconciliation,
 } from "@/features/reconciliation/policy";
+import { getBankEntries } from "@/server/repositories/platform.repository";
 import { isDatabaseEnabled } from "@/server/db/prisma";
 import { Badge } from "@/shared/components/ui/badge";
 import { TableCard } from "@/shared/components/ui/table-card";
@@ -69,6 +72,28 @@ function getTrackingTone(item: ReconciliationRecord) {
   return "success" as const;
 }
 
+function getItemKindTone(item: ReconciliationRecord["items"][number]) {
+  return item.kind === "diferenca_explicada" ? "success" : "danger";
+}
+
+function getAvailableBankEntries(
+  item: ReconciliationRecord,
+  bankEntries: BankEntry[],
+) {
+  const linkedBankEntryIds = new Set(
+    item.items.flatMap((reconciliationItem) =>
+      reconciliationItem.bankEntryId ? [reconciliationItem.bankEntryId] : [],
+    ),
+  );
+
+  return bankEntries.filter(
+    (entry) =>
+      entry.contractId === item.contractId &&
+      entry.competency === item.competency &&
+      !linkedBankEntryIds.has(entry.id),
+  );
+}
+
 interface ReconciliationPageProps {
   searchParams?: Promise<{ filtro?: string }>;
 }
@@ -77,27 +102,31 @@ export default async function ReconciliationPage({
   searchParams,
 }: ReconciliationPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const [{ reconciliations, filters, selectedFilter }, currentUser] =
+  const [{ reconciliations, filters, selectedFilter }, currentUser, bankEntries] =
     await Promise.all([
       getReconciliationOverview(resolvedSearchParams?.filtro),
       getCurrentUser(),
+      getBankEntries(),
     ]);
   const databaseEnabled = isDatabaseEnabled();
   const canClose = currentUser ? canCloseCompetencyReconciliation(currentUser) : false;
   const canReopen = currentUser
     ? canReopenCompetencyReconciliation(currentUser)
     : false;
+  const canRegisterItem = currentUser
+    ? canRegisterReconciliationItem(currentUser)
+    : false;
 
   return (
     <TableCard
-      title="Conciliação"
-      description="Comparação entre extrato bancario, provisoes liquidas, divergencias residuais e apontamentos operacionais minimos da competencia. O modulo continua sem integracao bancaria automatica e sem motor de tarefas."
+      title="Conciliacao"
+      description="Comparacao entre extrato bancario, provisoes liquidas, diferencas e itens conciliatorios minimos da competencia. O modulo continua sem integracao bancaria automatica e sem workflow contabil pesado."
     >
       <div className="space-y-3">
         {!databaseEnabled ? (
           <div className="rounded-[1.3rem] border border-[rgba(127,47,29,0.14)] bg-[rgba(127,47,29,0.08)] px-4 py-3 text-sm text-[var(--color-danger)]">
-            O modo em memoria permanece somente leitura para fechamento e
-            reabertura formal da competencia.
+            O modo em memoria permanece somente leitura para fechamento,
+            reabertura e registro de item conciliatorio.
           </div>
         ) : null}
 
@@ -129,139 +158,202 @@ export default async function ReconciliationPage({
                 <th className="px-4 py-3">Saldos</th>
                 <th className="px-4 py-3">Classificacao e prioridade</th>
                 <th className="px-4 py-3">Situacao atual</th>
-                <th className="px-4 py-3">Apontamentos e historico</th>
-                <th className="px-4 py-3">Proxima acao sugerida</th>
+                <th className="px-4 py-3">Itens conciliatorios</th>
+                <th className="px-4 py-3">Historico e proxima acao</th>
                 <th className="px-4 py-3">Acoes</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/8 bg-white">
-              {reconciliations.map((item: ReconciliationRecord) => (
-                <tr key={item.id}>
-                  <td className="px-4 py-4 align-top">
-                    <p className="font-semibold text-[var(--color-ink)]">
-                      {formatCompetency(item.competency)}
-                    </p>
-                    <p className="mt-1 text-sm text-[var(--color-muted)]">
-                      Status tecnico atual: {item.competencyStatus}
-                    </p>
-                  </td>
-                  <td className="px-4 py-4 align-top text-sm text-[var(--color-ink)]">
-                    <p>Saldo bancario: {formatCurrency(item.bankBalance)}</p>
-                    <p>Provisoes: {formatCurrency(item.provisionBalance)}</p>
-                    <p className="text-[var(--color-warning)]">
-                      Pendente de execucao: {formatCurrency(item.approvedPendingExecution)}
-                    </p>
-                    <p className="text-[var(--color-success)]">
-                      Diferenca explicada: {formatCurrency(item.explainedDifference)}
-                    </p>
-                    <p className="text-[var(--color-danger)]">
-                      Diferenca nao explicada: {formatCurrency(item.unexplainedDifference)}
-                    </p>
-                  </td>
-                  <td className="px-4 py-4 align-top">
-                    <div className="space-y-2">
-                      <Badge tone={getPriorityTone(item)}>
-                        prioridade {item.qualification.priorityLabel}
-                      </Badge>
-                      <Badge tone={getTrackingTone(item)}>
-                        {item.qualification.trackingStateLabel}
-                      </Badge>
-                      <p className="text-sm font-medium text-[var(--color-ink)]">
-                        {item.qualification.classificationLabel}
+              {reconciliations.map((item: ReconciliationRecord) => {
+                const availableBankEntries = getAvailableBankEntries(item, bankEntries);
+
+                return (
+                  <tr key={item.id}>
+                    <td className="px-4 py-4 align-top">
+                      <p className="font-semibold text-[var(--color-ink)]">
+                        {formatCompetency(item.competency)}
                       </p>
-                      <p className="text-xs leading-5 text-[var(--color-muted)]">
-                        {item.qualification.classificationReason}
+                      <p className="mt-1 text-sm text-[var(--color-muted)]">
+                        Status tecnico atual: {item.competencyStatus}
                       </p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 align-top">
-                    <div className="space-y-2">
-                      <Badge tone={getFormalClosureTone(item)}>
-                        {getFormalClosureLabel(item)}
-                      </Badge>
-                      <p className="text-sm font-medium text-[var(--color-ink)]">
-                        {item.history.currentSituationLabel}
+                    </td>
+                    <td className="px-4 py-4 align-top text-sm text-[var(--color-ink)]">
+                      <p>Saldo bancario: {formatCurrency(item.bankBalance)}</p>
+                      <p>Provisoes: {formatCurrency(item.provisionBalance)}</p>
+                      <p className="text-[var(--color-warning)]">
+                        Pendente de execucao: {formatCurrency(item.approvedPendingExecution)}
                       </p>
-                      <p className="text-xs leading-5 text-[var(--color-muted)]">
-                        {item.history.currentSituationReason}
+                      <p className="text-[var(--color-success)]">
+                        Diferenca explicada: {formatCurrency(item.explainedDifference)}
                       </p>
-                      <p className="text-xs leading-5 text-[var(--color-muted)]">
-                        Fechamento minimo: {item.operationalClosure.reason}
+                      <p className="text-[var(--color-danger)]">
+                        Diferenca nao explicada: {formatCurrency(item.unexplainedDifference)}
                       </p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 align-top">
-                    <div className="space-y-2 text-sm text-[var(--color-muted)]">
-                      <p>
-                        Justificativa do fechamento:{" "}
-                        {item.closureJustification ?? "nao registrada"}
-                      </p>
-                      <p>
-                        Justificativa da reabertura:{" "}
-                        {item.reopeningJustification ?? "nao registrada"}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {item.qualification.pointings.map((pointing) => (
-                          <Badge key={pointing.code} tone="neutral">
-                            {pointing.label}
-                          </Badge>
-                        ))}
+                    </td>
+                    <td className="px-4 py-4 align-top">
+                      <div className="space-y-2">
+                        <Badge tone={getPriorityTone(item)}>
+                          prioridade {item.qualification.priorityLabel}
+                        </Badge>
+                        <Badge tone={getTrackingTone(item)}>
+                          {item.qualification.trackingStateLabel}
+                        </Badge>
+                        <p className="text-sm font-medium text-[var(--color-ink)]">
+                          {item.qualification.classificationLabel}
+                        </p>
+                        <p className="text-xs leading-5 text-[var(--color-muted)]">
+                          {item.qualification.classificationReason}
+                        </p>
                       </div>
-                      {item.history.lastRelevantOccurrence ? (
+                    </td>
+                    <td className="px-4 py-4 align-top">
+                      <div className="space-y-2">
+                        <Badge tone={getFormalClosureTone(item)}>
+                          {getFormalClosureLabel(item)}
+                        </Badge>
+                        <p className="text-sm font-medium text-[var(--color-ink)]">
+                          {item.history.currentSituationLabel}
+                        </p>
+                        <p className="text-xs leading-5 text-[var(--color-muted)]">
+                          {item.history.currentSituationReason}
+                        </p>
+                        <p className="text-xs leading-5 text-[var(--color-muted)]">
+                          Fechamento minimo: {item.operationalClosure.reason}
+                        </p>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 align-top">
+                      <div className="space-y-2 text-sm text-[var(--color-muted)]">
                         <p>
-                          Ultima ocorrencia relevante:{" "}
-                          {item.history.lastRelevantOccurrence.label} em{" "}
-                          {item.history.lastRelevantOccurrence.happenedAt}
+                          Itens explicados registrados:{" "}
+                          {item.differenceSummary.explainedItemsCount}
                         </p>
-                      ) : (
-                        <p>Ultima ocorrencia relevante: nao registrada</p>
-                      )}
-                      {item.history.timeline.slice(-3).map((event) => (
-                        <div
-                          key={event.id}
-                          className="rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2 text-xs leading-5"
-                        >
-                          <p className="font-semibold text-[var(--color-ink)]">
-                            {event.label}
-                          </p>
-                          <p>{event.description}</p>
-                          <p>
-                            {event.actor} • {event.happenedAt}
-                          </p>
+                        <p>
+                          Diferenca explicada com itemizacao minima:{" "}
+                          {formatCurrency(item.differenceSummary.explainedItemsAmount)}
+                        </p>
+                        <p>
+                          Diferenca explicada ainda sem item:{" "}
+                          {formatCurrency(
+                            item.differenceSummary.explainedBalanceStillUnitemized,
+                          )}
+                        </p>
+                        <p>
+                          Diferenca nao explicada remanescente:{" "}
+                          {formatCurrency(item.differenceSummary.unexplainedAmount)}
+                        </p>
+                        <div className="space-y-2">
+                          {item.items.map((reconciliationItem) => (
+                            <div
+                              key={reconciliationItem.id}
+                              className="rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2 text-xs leading-5"
+                            >
+                              <div className="flex flex-wrap items-center gap-2">
+                                <Badge tone={getItemKindTone(reconciliationItem)}>
+                                  {reconciliationItem.kindLabel}
+                                </Badge>
+                                <Badge tone="neutral">
+                                  {reconciliationItem.source}
+                                </Badge>
+                              </div>
+                              <p className="mt-2 font-semibold text-[var(--color-ink)]">
+                                {formatCurrency(reconciliationItem.amount)}
+                              </p>
+                              <p>{reconciliationItem.summary}</p>
+                              {reconciliationItem.bankEntryId ? (
+                                <p>
+                                  Lancamento: {reconciliationItem.bankEntryId} |{" "}
+                                  {reconciliationItem.bankEntryDescription} |{" "}
+                                  {reconciliationItem.bankEntryOccurredOn}
+                                </p>
+                              ) : null}
+                              {reconciliationItem.justification ? (
+                                <p>Justificativa: {reconciliationItem.justification}</p>
+                              ) : null}
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 align-top">
-                    <div className="space-y-2">
-                      <Badge tone={getTrackingTone(item)}>
-                        {item.history.recommendedActionLabel}
-                      </Badge>
-                      <p className="text-xs leading-5 text-[var(--color-muted)]">
-                        {item.history.recommendedActionReason}
-                      </p>
-                      <p className="text-xs leading-5 text-[var(--color-muted)]">
-                        Prioridade operacional: {item.qualification.priorityReason}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 align-top">
-                    <div className="space-y-3 rounded-[1.3rem] border border-black/8 bg-[var(--color-surface)] px-4 py-4">
-                      {item.formalClosure.canClose && canClose && databaseEnabled ? (
-                        <CloseCompetencyForm competencyId={item.competencyId} />
-                      ) : null}
-                      {item.formalClosure.canReopen && canReopen && databaseEnabled ? (
-                        <ReopenCompetencyForm competencyId={item.competencyId} />
-                      ) : null}
-                      {!item.formalClosure.canClose && !item.formalClosure.canReopen ? (
-                        <p className="text-sm text-[var(--color-muted)]">
-                          Nenhuma acao disponivel nesta leitura operacional.
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 align-top">
+                      <div className="space-y-2 text-sm text-[var(--color-muted)]">
+                        <p>
+                          Justificativa do fechamento:{" "}
+                          {item.closureJustification ?? "nao registrada"}
                         </p>
-                      ) : null}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        <p>
+                          Justificativa da reabertura:{" "}
+                          {item.reopeningJustification ?? "nao registrada"}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {item.qualification.pointings.map((pointing) => (
+                            <Badge key={pointing.code} tone="neutral">
+                              {pointing.label}
+                            </Badge>
+                          ))}
+                        </div>
+                        {item.history.lastRelevantOccurrence ? (
+                          <p>
+                            Ultima ocorrencia relevante:{" "}
+                            {item.history.lastRelevantOccurrence.label} em{" "}
+                            {item.history.lastRelevantOccurrence.happenedAt}
+                          </p>
+                        ) : (
+                          <p>Ultima ocorrencia relevante: nao registrada</p>
+                        )}
+                        {item.history.timeline.slice(-3).map((event) => (
+                          <div
+                            key={event.id}
+                            className="rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2 text-xs leading-5"
+                          >
+                            <p className="font-semibold text-[var(--color-ink)]">
+                              {event.label}
+                            </p>
+                            <p>{event.description}</p>
+                            <p>
+                              {event.actor} | {event.happenedAt}
+                            </p>
+                          </div>
+                        ))}
+                        <div className="rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2 text-xs leading-5">
+                          <Badge tone={getTrackingTone(item)}>
+                            {item.history.recommendedActionLabel}
+                          </Badge>
+                          <p className="mt-2">
+                            {item.history.recommendedActionReason}
+                          </p>
+                          <p>Prioridade operacional: {item.qualification.priorityReason}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 align-top">
+                      <div className="space-y-3 rounded-[1.3rem] border border-black/8 bg-[var(--color-surface)] px-4 py-4">
+                        {item.formalClosure.canClose && canClose && databaseEnabled ? (
+                          <CloseCompetencyForm competencyId={item.competencyId} />
+                        ) : null}
+                        {item.formalClosure.canReopen && canReopen && databaseEnabled ? (
+                          <ReopenCompetencyForm competencyId={item.competencyId} />
+                        ) : null}
+                        {canRegisterItem &&
+                        databaseEnabled &&
+                        item.explainedDifference > 0 ? (
+                          <RegisterReconciliationItemForm
+                            reconciliationId={item.id}
+                            bankEntries={availableBankEntries}
+                          />
+                        ) : null}
+                        {!item.formalClosure.canClose &&
+                        !item.formalClosure.canReopen &&
+                        !(canRegisterItem && databaseEnabled && item.explainedDifference > 0) ? (
+                          <p className="text-sm text-[var(--color-muted)]">
+                            Nenhuma acao disponivel nesta leitura operacional.
+                          </p>
+                        ) : null}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

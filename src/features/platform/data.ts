@@ -17,6 +17,8 @@ import type {
 import {
   summarizeCompetencyFormalClosure,
   summarizeCompetencyOperationalHistory,
+  summarizeReconciliationDifferenceSummary,
+  summarizeReconciliationItems,
   summarizeReconciliationOperationalQualification,
   summarizeReconciliationOperationalClosure,
 } from "@/features/reconciliation/workflow";
@@ -369,6 +371,16 @@ export const bankEntries: BankEntry[] = [
     amount: -3650,
     occurredOn: "2026-04-15",
   },
+  {
+    id: "entry-007",
+    accountId: "bank-002",
+    contractId: "c-2cjm-002",
+    competency: "2026-03",
+    type: "rendimento",
+    description: "Rendimento identificado e conciliado da competÃªncia 03/2026",
+    amount: 444.12,
+    occurredOn: "2026-04-12",
+  },
 ];
 
 const releaseRequestOneDocumentPlan = getReleaseDocumentPlan(
@@ -553,9 +565,26 @@ export const releaseRequests: ReleaseRequest[] = [
 export const reconciliations: ReconciliationRecord[] = [
   (() => {
     const competency = competencies.find((item) => item.id === "comp-2026-03-c1")!;
+    const explainedDifference = 2827.3;
+    const unexplainedDifference = 943.18;
+    const persistedItems = [
+      {
+        id: "rec-item-001",
+        justification:
+          "Rendimento bancario da competencia reconhecido como diferenca explicada.",
+        createdAt: "2026-04-12T10:40:00Z",
+        bankEntry: {
+          id: "entry-002",
+          description: "Rendimento banc??rio de mar??o",
+          type: "rendimento" as const,
+          amount: 942.18,
+          occurredOn: "2026-04-01",
+        },
+      },
+    ];
     const operationalClosure = summarizeReconciliationOperationalClosure({
       approvedPendingExecution: 1560,
-      unexplainedDifference: 943.18,
+      unexplainedDifference,
     });
     const formalClosure = summarizeCompetencyFormalClosure({
       status: competency.status,
@@ -574,8 +603,8 @@ export const reconciliations: ReconciliationRecord[] = [
       bankBalance: 148320.48,
       provisionBalance: 142990,
       approvedPendingExecution: 1560,
-      explainedDifference: 2827.3,
-      unexplainedDifference: 943.18,
+      explainedDifference,
+      unexplainedDifference,
       differenceType: "nao_explicada" as const,
       operationalClosure,
       formalClosure,
@@ -586,6 +615,15 @@ export const reconciliations: ReconciliationRecord[] = [
       reopenedAt: competency.reopenedAt,
       reopenedBy: competency.reopenedBy,
       occurrences: competency.occurrences,
+      items: summarizeReconciliationItems({
+        unexplainedDifference,
+        items: persistedItems,
+      }),
+      differenceSummary: summarizeReconciliationDifferenceSummary({
+        explainedDifference,
+        unexplainedDifference,
+        items: persistedItems,
+      }),
       history: summarizeCompetencyOperationalHistory({
         status: competency.status,
         processedAt: competency.processedAt,
@@ -597,13 +635,13 @@ export const reconciliations: ReconciliationRecord[] = [
         reopeningJustification: competency.reopeningJustification,
         occurrences: competency.occurrences,
         approvedPendingExecution: 1560,
-        unexplainedDifference: 943.18,
+        unexplainedDifference,
         operationalClosure,
         formalClosure,
       }),
       qualification: summarizeReconciliationOperationalQualification({
         approvedPendingExecution: 1560,
-        unexplainedDifference: 943.18,
+        unexplainedDifference,
         formalClosure,
         closureJustification: competency.closureJustification,
         reopeningJustification: competency.reopeningJustification,
@@ -612,9 +650,27 @@ export const reconciliations: ReconciliationRecord[] = [
   })(),
   (() => {
     const competency = competencies.find((item) => item.id === "comp-2026-03-c2")!;
+    const explainedDifference = 444.12;
+    const unexplainedDifference = 0;
+    const persistedItems = [
+      {
+        id: "rec-item-002",
+        justification:
+          "Rendimento bancario identificado no extrato e tratado como diferenca explicada.",
+        createdAt: "2026-04-12T15:20:00Z",
+        bankEntry: {
+          id: "entry-007",
+          description:
+            "Rendimento identificado e conciliado da compet??ncia 03/2026",
+          type: "rendimento" as const,
+          amount: 444.12,
+          occurredOn: "2026-04-12",
+        },
+      },
+    ];
     const operationalClosure = summarizeReconciliationOperationalClosure({
       approvedPendingExecution: 3650,
-      unexplainedDifference: 0,
+      unexplainedDifference,
     });
     const formalClosure = summarizeCompetencyFormalClosure({
       status: competency.status,
@@ -633,8 +689,8 @@ export const reconciliations: ReconciliationRecord[] = [
       bankBalance: 232904.12,
       provisionBalance: 230810,
       approvedPendingExecution: 3650,
-      explainedDifference: 444.12,
-      unexplainedDifference: 0,
+      explainedDifference,
+      unexplainedDifference,
       differenceType: "explicada" as const,
       operationalClosure,
       formalClosure,
@@ -645,6 +701,15 @@ export const reconciliations: ReconciliationRecord[] = [
       reopenedAt: competency.reopenedAt,
       reopenedBy: competency.reopenedBy,
       occurrences: competency.occurrences,
+      items: summarizeReconciliationItems({
+        unexplainedDifference,
+        items: persistedItems,
+      }),
+      differenceSummary: summarizeReconciliationDifferenceSummary({
+        explainedDifference,
+        unexplainedDifference,
+        items: persistedItems,
+      }),
       history: summarizeCompetencyOperationalHistory({
         status: competency.status,
         processedAt: competency.processedAt,
@@ -656,13 +721,13 @@ export const reconciliations: ReconciliationRecord[] = [
         reopeningJustification: competency.reopeningJustification,
         occurrences: competency.occurrences,
         approvedPendingExecution: 3650,
-        unexplainedDifference: 0,
+        unexplainedDifference,
         operationalClosure,
         formalClosure,
       }),
       qualification: summarizeReconciliationOperationalQualification({
         approvedPendingExecution: 3650,
-        unexplainedDifference: 0,
+        unexplainedDifference,
         formalClosure,
         closureJustification: competency.closureJustification,
         reopeningJustification: competency.reopeningJustification,

@@ -796,3 +796,9 @@ Com isso, o backlog deixa de tratar apenas de justificativas e fechamento/reaber
 A rodada atual qualificou de forma leve as divergencias conciliatorias por competencia, com classificacao operacional minima, prioridade derivada e apontamentos simples de acompanhamento. Tambem passaram a existir filtros leves na conciliacao para localizar divergencias residuais, competencias reabertas, competencias aptas a fechamento e justificativas sensiveis.
 
 Com isso, o proximo bloco seguro passa a ser a estruturacao minima dos itens conciliatorios vinculaveis a lancamentos e justificativas de diferenca explicada, ainda sem abrir workflow contabil complexo.
+
+## Atualizacao incremental mais recente
+
+A rodada atual materializou os itens conciliatorios minimos da competencia com vinculo simples a lancamentos bancarios e justificativa curta da diferenca explicada. A conciliacao e o detalhe do contrato passaram a distinguir melhor a parte explicada ja itemizada, a parte explicada ainda sem item minimo e a diferenca nao explicada residual, sem criar workflow contabil novo.
+
+Com isso, o proximo bloco seguro passa a ser a consolidacao minima de criterios de cobertura da diferenca explicada e revisao dirigida dos saldos ainda sem itemizacao, mantendo a conciliacao como leitura operacional leve.

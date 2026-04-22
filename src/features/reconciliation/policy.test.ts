@@ -3,6 +3,7 @@ import test from "node:test";
 import type { AppUser } from "@/features/platform/types";
 import {
   canCloseCompetencyReconciliation,
+  canRegisterReconciliationItem,
   canReopenCompetencyReconciliation,
 } from "@/features/reconciliation/policy";
 
@@ -43,4 +44,10 @@ test("reconciliation reopening follows the same authorization boundary", () => {
   assert.equal(canReopenCompetencyReconciliation(adminUser), true);
   assert.equal(canReopenCompetencyReconciliation(financialUser), true);
   assert.equal(canReopenCompetencyReconciliation(analystUser), false);
+});
+
+test("reconciliation item registration follows the same authorization boundary", () => {
+  assert.equal(canRegisterReconciliationItem(adminUser), true);
+  assert.equal(canRegisterReconciliationItem(financialUser), true);
+  assert.equal(canRegisterReconciliationItem(analystUser), false);
 });

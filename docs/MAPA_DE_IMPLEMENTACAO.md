@@ -285,3 +285,14 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 - [x] Expor apontamentos simples por competencia sem criar fila de tarefas.
 - [x] Adicionar filtros leves de acompanhamento na conciliacao.
 - [x] Diferenciar tipo de problema, situacao atual e prioridade operacional.
+
+### Atualizacao da rodada
+
+- [x] Materializar itens conciliatorios minimos por competencia.
+- [x] Permitir vinculo simples de item conciliatorio a lancamento bancario da mesma competencia.
+- [x] Registrar justificativa minima da diferenca explicada sem criar nova etapa formal.
+- [x] Expor na conciliacao e no detalhe do contrato a separacao entre diferenca explicada itemizada, diferenca explicada ainda sem item e diferenca nao explicada residual.
+
+### Proximo bloco sugerido
+
+- [ ] Consolidar criterios minimos de cobertura da diferenca explicada e revisao dirigida dos saldos ainda sem itemizacao.

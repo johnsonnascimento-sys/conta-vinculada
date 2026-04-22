@@ -696,3 +696,32 @@ Leitura pratica adicional:
 - `prioridade operacional` serve para ordenar a atencao diaria do usuario, sem transformar a conciliacao em gerenciador de tarefas.
 
 O detalhe do contrato passou a refletir a mesma classificacao, a mesma prioridade e os mesmos apontamentos simples exibidos no modulo de conciliacao.
+
+### 11.6 Itens conciliatorios minimos e diferenca explicada
+
+A conciliacao passou a exibir, por competencia, itens conciliatorios minimos para detalhar a parte da diferenca que ja esta tratada como explicada.
+
+Cada item conciliatorio pode apresentar:
+
+- classificacao simples do item;
+- valor associado ao item;
+- indicacao se o item foi registrado manualmente ou apenas derivado da leitura residual;
+- lancamento bancario vinculado, quando existir;
+- justificativa minima da diferenca explicada.
+
+Leitura pratica da tela:
+
+- diferenca explicada com itemizacao minima mostra o montante da diferenca explicada que ja possui item conciliatorio registrado;
+- diferenca explicada ainda sem item mostra a parte explicada que ainda nao recebeu detalhamento minimo por item;
+- diferenca nao explicada remanescente mostra o saldo que continua sem explicacao na competencia.
+
+Quando houver permissao operacional e banco habilitado, o usuario pode registrar um item conciliatorio minimo selecionando um lancamento bancario da mesma competencia e informando justificativa curta da diferenca explicada.
+
+Esse registro:
+
+- nao fecha automaticamente a competencia;
+- nao elimina, por si so, a diferenca nao explicada residual;
+- nao cria nova etapa formal de aprovacao;
+- serve apenas para qualificar a leitura operacional da conciliacao.
+
+O detalhe do contrato passou a refletir os mesmos itens conciliatorios, os mesmos vinculos com lancamentos e a mesma separacao entre diferenca explicada com item minimo, diferenca explicada ainda sem item e diferenca nao explicada residual.

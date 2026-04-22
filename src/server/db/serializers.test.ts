@@ -40,9 +40,26 @@ test("serializeReconciliation preserves occurrences and derives ordered history"
     explainedDifference: { toNumber: () => 100 },
     unexplainedDifference: { toNumber: () => 0 },
     differenceType: "explicada",
+    items: [
+      {
+        id: "rec-item-001",
+        justification: "Rendimento bancario identificado.",
+        createdAt: new Date("2026-04-04T12:00:00Z"),
+        bankEntry: {
+          id: "entry-001",
+          description: "Rendimento bancario de marco",
+          type: "rendimento",
+          amount: { toNumber: () => 100 },
+          occurredOn: new Date("2026-04-01T00:00:00Z"),
+        },
+      },
+    ],
   });
 
   assert.equal(reconciliation.occurrences.length, 2);
+  assert.equal(reconciliation.items.length, 1);
+  assert.equal(reconciliation.items[0].bankEntryId, "entry-001");
+  assert.equal(reconciliation.differenceSummary.explainedItemsAmount, 100);
   assert.deepEqual(
     reconciliation.history.timeline.map((event) => event.id),
     ["processamento-2026-04-02T18:10:00.000Z", "occ-1", "occ-2"],

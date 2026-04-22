@@ -4,6 +4,8 @@ import {
   matchesReconciliationFilter,
   summarizeCompetencyFormalClosure,
   summarizeCompetencyOperationalHistory,
+  summarizeReconciliationDifferenceSummary,
+  summarizeReconciliationItems,
   summarizeReconciliationOperationalQualification,
   summarizeReconciliationOperationalClosure,
 } from "@/features/reconciliation/workflow";
@@ -192,6 +194,52 @@ test("reconciliation qualification identifies sensitive justification after reop
 
   assert.equal(summary.classification, "justificativa_sensivel");
   assert.equal(summary.hasSensitiveJustification, true);
+});
+
+test("reconciliation items distinguish explained linkage from residual unexplained difference", () => {
+  const items = summarizeReconciliationItems({
+    unexplainedDifference: 943.18,
+    items: [
+      {
+        id: "rec-item-001",
+        justification: "Rendimento identificado no extrato.",
+        createdAt: "2026-04-12T10:40:00Z",
+        bankEntry: {
+          id: "entry-002",
+          description: "Rendimento bancario de marco",
+          type: "rendimento",
+          amount: 942.18,
+          occurredOn: "2026-04-01",
+        },
+      },
+    ],
+  });
+
+  const summary = summarizeReconciliationDifferenceSummary({
+    explainedDifference: 2827.3,
+    unexplainedDifference: 943.18,
+    items: [
+      {
+        id: "rec-item-001",
+        justification: "Rendimento identificado no extrato.",
+        createdAt: "2026-04-12T10:40:00Z",
+        bankEntry: {
+          id: "entry-002",
+          description: "Rendimento bancario de marco",
+          type: "rendimento",
+          amount: 942.18,
+          occurredOn: "2026-04-01",
+        },
+      },
+    ],
+  });
+
+  assert.equal(items.length, 2);
+  assert.equal(items[0].kind, "diferenca_explicada");
+  assert.equal(items[1].kind, "diferenca_nao_explicada");
+  assert.equal(summary.explainedItemsCount, 1);
+  assert.equal(summary.hasResidualUnexplained, true);
+  assert.equal(summary.explainedBalanceStillUnitemized, 1885.12);
 });
 
 test("reconciliation filter matches apt and sensitive cases without changing closure rules", () => {

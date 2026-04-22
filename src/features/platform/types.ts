@@ -253,6 +253,37 @@ export interface ReconciliationOperationalQualificationSummary {
   pointings: ReconciliationOperationalPointing[];
 }
 
+export type ReconciliationItemKind =
+  | "diferenca_explicada"
+  | "diferenca_nao_explicada";
+
+export type ReconciliationItemSource = "registrado" | "derivado";
+
+export interface ReconciliationItem {
+  id: string;
+  kind: ReconciliationItemKind;
+  kindLabel: string;
+  source: ReconciliationItemSource;
+  amount: number;
+  summary: string;
+  justification?: string;
+  bankEntryId?: string;
+  bankEntryDescription?: string;
+  bankEntryType?: BankEntryType;
+  bankEntryAmount?: number;
+  bankEntryOccurredOn?: string;
+  createdAt?: string;
+}
+
+export interface ReconciliationDifferenceSummary {
+  explainedAmount: number;
+  explainedItemsAmount: number;
+  explainedItemsCount: number;
+  explainedBalanceStillUnitemized: number;
+  unexplainedAmount: number;
+  hasResidualUnexplained: boolean;
+}
+
 export type CompetencyOccurrenceType =
   | "apontamento"
   | "fechamento_formal"
@@ -501,6 +532,8 @@ export interface ReconciliationRecord {
   reopenedAt?: string;
   reopenedBy?: string;
   occurrences: CompetencyOccurrence[];
+  items: ReconciliationItem[];
+  differenceSummary: ReconciliationDifferenceSummary;
   history: CompetencyOperationalHistorySummary;
   qualification: ReconciliationOperationalQualificationSummary;
 }

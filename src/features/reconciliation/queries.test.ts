@@ -23,3 +23,15 @@ test("reconciliation overview exposes simple tracking filters", async () => {
     overview.filters.find((item) => item.key === "reabertas" && item.count >= 1),
   );
 });
+
+test("reconciliation overview exposes minimum reconciliation items and explained coverage", async () => {
+  const overview = await getReconciliationOverview();
+  const reconciliation = overview.reconciliations.find(
+    (item) => item.contractId === "c-2cjm-001" && item.competency === "2026-03",
+  );
+
+  assert.ok(reconciliation);
+  assert.equal(reconciliation?.items[0].kind, "diferenca_explicada");
+  assert.equal(reconciliation?.items.at(-1)?.kind, "diferenca_nao_explicada");
+  assert.equal(reconciliation?.differenceSummary.explainedItemsCount, 1);
+});

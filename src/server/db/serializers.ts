@@ -16,6 +16,8 @@ import type {
 import {
   summarizeCompetencyFormalClosure,
   summarizeCompetencyOperationalHistory,
+  summarizeReconciliationDifferenceSummary,
+  summarizeReconciliationItems,
   summarizeReconciliationOperationalQualification,
   summarizeReconciliationOperationalClosure,
 } from "@/features/reconciliation/workflow";
@@ -518,9 +520,36 @@ export function serializeReconciliation(record: {
   explainedDifference: { toNumber(): number };
   unexplainedDifference: { toNumber(): number };
   differenceType: ReconciliationRecord["differenceType"];
+  items?: Array<{
+    id: string;
+    justification: string | null;
+    createdAt: Date;
+    bankEntry?: {
+      id: string;
+      description: string;
+      type: BankEntry["type"];
+      amount: { toNumber(): number };
+      occurredOn: Date;
+    } | null;
+  }>;
 }): ReconciliationRecord {
   const approvedPendingExecution = record.approvedPendingExecution.toNumber();
+  const explainedDifference = record.explainedDifference.toNumber();
   const unexplainedDifference = record.unexplainedDifference.toNumber();
+  const persistedItems = (record.items ?? []).map((item) => ({
+    id: item.id,
+    justification: item.justification ?? undefined,
+    createdAt: item.createdAt.toISOString(),
+    bankEntry: item.bankEntry
+      ? {
+          id: item.bankEntry.id,
+          description: item.bankEntry.description,
+          type: item.bankEntry.type,
+          amount: item.bankEntry.amount.toNumber(),
+          occurredOn: item.bankEntry.occurredOn.toISOString().slice(0, 10),
+        }
+      : undefined,
+  }));
   const operationalClosure = summarizeReconciliationOperationalClosure({
     approvedPendingExecution,
     unexplainedDifference,
@@ -545,7 +574,7 @@ export function serializeReconciliation(record: {
     bankBalance: record.bankBalance.toNumber(),
     provisionBalance: record.provisionBalance.toNumber(),
     approvedPendingExecution,
-    explainedDifference: record.explainedDifference.toNumber(),
+    explainedDifference,
     unexplainedDifference,
     differenceType: record.differenceType,
     operationalClosure,
@@ -557,6 +586,15 @@ export function serializeReconciliation(record: {
     reopenedAt: record.competency.reopenedAt?.toISOString(),
     reopenedBy: record.competency.reopenedBy ?? undefined,
     occurrences,
+    items: summarizeReconciliationItems({
+      unexplainedDifference,
+      items: persistedItems,
+    }),
+    differenceSummary: summarizeReconciliationDifferenceSummary({
+      explainedDifference,
+      unexplainedDifference,
+      items: persistedItems,
+    }),
     history: summarizeCompetencyOperationalHistory({
       status: record.competency.status,
       closureJustification: record.competency.closureJustification ?? undefined,

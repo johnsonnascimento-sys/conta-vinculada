@@ -16,3 +16,7 @@ export function canCloseCompetencyReconciliation(user: AppUser) {
 export function canReopenCompetencyReconciliation(user: AppUser) {
   return canOperateReconciliation(user);
 }
+
+export function canRegisterReconciliationItem(user: AppUser) {
+  return canOperateReconciliation(user);
+}

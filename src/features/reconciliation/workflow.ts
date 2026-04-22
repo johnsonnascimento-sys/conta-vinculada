@@ -3,6 +3,8 @@ import type {
   CompetencyOccurrence,
   CompetencyOperationalHistorySummary,
   ReconciliationFilterKey,
+  ReconciliationItem,
+  ReconciliationDifferenceSummary,
   ReconciliationOperationalPointing,
   ReconciliationOperationalQualificationSummary,
   CompetencyStatus,
@@ -48,6 +50,19 @@ interface ReconciliationQualificationInput {
   formalClosure: CompetencyFormalClosureSummary;
   closureJustification?: string;
   reopeningJustification?: string;
+}
+
+interface PersistedReconciliationItemInput {
+  id: string;
+  justification?: string;
+  createdAt?: string;
+  bankEntry?: {
+    id: string;
+    description: string;
+    type: ReconciliationItem["bankEntryType"];
+    amount: number;
+    occurredOn: string;
+  };
 }
 
 function getTimelineLabel(type: CompetencyTimelineEventType) {
@@ -272,6 +287,109 @@ function buildPointings(input: ReconciliationQualificationInput) {
     pointings,
     hasPendingJustification,
     hasSensitiveJustification,
+  };
+}
+
+function compareOptionalIsoDateStrings(left?: string, right?: string) {
+  if (!left && !right) {
+    return 0;
+  }
+
+  if (!left) {
+    return 1;
+  }
+
+  if (!right) {
+    return -1;
+  }
+
+  return compareIsoDateStrings(left, right);
+}
+
+function roundCurrency(value: number) {
+  return Math.round(value * 100) / 100;
+}
+
+export function summarizeReconciliationItems({
+  unexplainedDifference,
+  items = [],
+}: {
+  unexplainedDifference: number;
+  items?: PersistedReconciliationItemInput[];
+}): ReconciliationItem[] {
+  const normalizedItems = items
+    .filter((item) => item.bankEntry)
+    .map((item) => ({
+      id: item.id,
+      kind: "diferenca_explicada" as const,
+      kindLabel: "diferenca explicada",
+      source: "registrado" as const,
+      amount: Math.abs(item.bankEntry!.amount),
+      summary: "Diferenca explicada vinculada a lancamento bancario.",
+      justification: item.justification?.trim() || undefined,
+      bankEntryId: item.bankEntry!.id,
+      bankEntryDescription: item.bankEntry!.description,
+      bankEntryType: item.bankEntry!.type,
+      bankEntryAmount: item.bankEntry!.amount,
+      bankEntryOccurredOn: item.bankEntry!.occurredOn,
+      createdAt: item.createdAt,
+    }))
+    .sort((left, right) => {
+      const dateComparison = compareOptionalIsoDateStrings(
+        left.createdAt,
+        right.createdAt,
+      );
+
+      if (dateComparison !== 0) {
+        return dateComparison;
+      }
+
+      return left.id.localeCompare(right.id);
+    });
+
+  if (unexplainedDifference <= 0) {
+    return normalizedItems;
+  }
+
+  return [
+    ...normalizedItems,
+    {
+      id: "residual-unexplained-difference",
+      kind: "diferenca_nao_explicada",
+      kindLabel: "diferenca nao explicada",
+      source: "derivado",
+      amount: unexplainedDifference,
+      summary: "Saldo residual ainda nao explicado na competencia.",
+    },
+  ];
+}
+
+export function summarizeReconciliationDifferenceSummary({
+  explainedDifference,
+  unexplainedDifference,
+  items = [],
+}: {
+  explainedDifference: number;
+  unexplainedDifference: number;
+  items?: PersistedReconciliationItemInput[];
+}): ReconciliationDifferenceSummary {
+  const explainedItemsAmount = items.reduce((total, item) => {
+    if (!item.bankEntry) {
+      return total;
+    }
+
+    return total + Math.abs(item.bankEntry.amount);
+  }, 0);
+
+  return {
+    explainedAmount: explainedDifference,
+    explainedItemsAmount: roundCurrency(explainedItemsAmount),
+    explainedItemsCount: items.filter((item) => item.bankEntry).length,
+    explainedBalanceStillUnitemized: roundCurrency(
+      Math.max(explainedDifference - explainedItemsAmount, 0),
+    ),
+    unexplainedAmount: roundCurrency(unexplainedDifference),
+    hasResidualUnexplained: unexplainedDifference > 0,
   };
 }
 

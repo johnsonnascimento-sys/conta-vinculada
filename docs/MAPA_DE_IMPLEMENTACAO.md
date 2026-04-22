@@ -307,3 +307,14 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 ### Proximo bloco sugerido
 
 - [ ] Qualificar minimamente as faixas de saldo explicado ainda sem itemizacao por origem operacional.
+
+### Atualizacao da rodada
+
+- [x] Classificar minimamente a origem operacional do saldo explicado ainda sem itemizacao.
+- [x] Distinguir cobertura parcial de justificativa insuficiente e de saldo residual de baixa materialidade.
+- [x] Manter a recomendacao de revisao dirigida coerente com a origem classificada.
+- [x] Expor a mesma leitura na conciliacao e no detalhe do contrato.
+
+### Proximo bloco sugerido
+
+- [ ] Consolidar criterios minimos de priorizacao visual e filtros leves para faixas explicadas remanescentes.

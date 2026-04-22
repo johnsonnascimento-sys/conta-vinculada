@@ -403,6 +403,14 @@ export function summarizeReconciliationDifferenceSummary({
     | "itemizacao_completa";
   let explainedCoverageStateLabel: string;
   let explainedCoverageReason: string;
+  let unitemizedBalanceOrigin:
+    | "sem_saldo_remanescente"
+    | "saldo_explicado_sem_detalhamento"
+    | "itemizacao_em_andamento"
+    | "justificativa_insuficiente"
+    | "saldo_residual_baixa_materialidade";
+  let unitemizedBalanceOriginLabel: string;
+  let unitemizedBalanceOriginReason: string;
   let requiresDirectedReview: boolean;
   let directedReviewRecommendation: string;
   let directedReviewReason: string;
@@ -414,6 +422,10 @@ export function summarizeReconciliationDifferenceSummary({
       explainedDifference <= 0
         ? "Nao ha diferenca explicada pendente de itemizacao nesta competencia."
         : "Toda a diferenca explicada ja possui itemizacao minima vinculada.";
+    unitemizedBalanceOrigin = "sem_saldo_remanescente";
+    unitemizedBalanceOriginLabel = "sem saldo remanescente";
+    unitemizedBalanceOriginReason =
+      "Nao resta saldo explicado sem itemizacao nesta leitura operacional.";
     requiresDirectedReview = false;
     directedReviewRecommendation = "acompanhar cobertura";
     directedReviewReason =
@@ -423,10 +435,29 @@ export function summarizeReconciliationDifferenceSummary({
     explainedCoverageStateLabel = "sem cobertura";
     explainedCoverageReason =
       "A competencia possui diferenca explicada, mas ainda sem item conciliatorio minimo registrado.";
+    unitemizedBalanceOrigin = "saldo_explicado_sem_detalhamento";
+    unitemizedBalanceOriginLabel = "saldo explicado sem detalhamento";
+    unitemizedBalanceOriginReason =
+      "A diferenca explicada existe, mas ainda nao recebeu itemizacao minima que a torne rastreavel.";
     requiresDirectedReview = true;
     directedReviewRecommendation = "iniciar revisao dirigida";
     directedReviewReason =
       "O saldo explicado ainda precisa de itemizacao minima para rastreabilidade operacional.";
+  } else if (
+    items.some((item) => item.bankEntry && !item.justification?.trim())
+  ) {
+    explainedCoverageState = "itemizacao_parcial";
+    explainedCoverageStateLabel = "cobertura parcial";
+    explainedCoverageReason =
+      "Ja existe itemizacao minima, mas parte do tratamento ainda depende de justificativa operacional suficiente.";
+    unitemizedBalanceOrigin = "justificativa_insuficiente";
+    unitemizedBalanceOriginLabel = "justificativa insuficiente";
+    unitemizedBalanceOriginReason =
+      "Ha item conciliatorio registrado sem justificativa minima suficiente para sustentar a leitura do saldo remanescente.";
+    requiresDirectedReview = true;
+    directedReviewRecommendation = "complementar justificativa operacional";
+    directedReviewReason =
+      "Antes de ampliar a itemizacao, vale completar a justificativa dos itens ja registrados.";
   } else if (
     explainedCoveragePercentage >= 80 ||
     explainedBalanceStillUnitemized <= 500
@@ -435,6 +466,10 @@ export function summarizeReconciliationDifferenceSummary({
     explainedCoverageStateLabel = "cobertura suficiente";
     explainedCoverageReason =
       "A maior parte da diferenca explicada ja esta coberta por itemizacao minima, restando apenas saldo residual.";
+    unitemizedBalanceOrigin = "saldo_residual_baixa_materialidade";
+    unitemizedBalanceOriginLabel = "saldo residual de baixa materialidade";
+    unitemizedBalanceOriginReason =
+      "O remanescente sem itemizacao existe, mas ja aparece como faixa residual pequena dentro da cobertura atual.";
     requiresDirectedReview = false;
     directedReviewRecommendation = "acompanhar saldo residual";
     directedReviewReason =
@@ -444,6 +479,10 @@ export function summarizeReconciliationDifferenceSummary({
     explainedCoverageStateLabel = "cobertura parcial";
     explainedCoverageReason =
       "A diferenca explicada ja tem itemizacao minima inicial, mas ainda depende de revisao dirigida do saldo remanescente.";
+    unitemizedBalanceOrigin = "itemizacao_em_andamento";
+    unitemizedBalanceOriginLabel = "itemizacao em andamento";
+    unitemizedBalanceOriginReason =
+      "Ja existe itemizacao minima parcial, mas o saldo explicado remanescente ainda depende de novos vinculos ou detalhamento complementar.";
     requiresDirectedReview = true;
     directedReviewRecommendation = "revisar saldo sem itemizacao";
     directedReviewReason =
@@ -459,6 +498,9 @@ export function summarizeReconciliationDifferenceSummary({
     explainedCoverageState,
     explainedCoverageStateLabel,
     explainedCoverageReason,
+    unitemizedBalanceOrigin,
+    unitemizedBalanceOriginLabel,
+    unitemizedBalanceOriginReason,
     requiresDirectedReview,
     directedReviewRecommendation,
     directedReviewReason,

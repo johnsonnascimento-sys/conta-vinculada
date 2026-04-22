@@ -267,6 +267,7 @@ test("reconciliation difference summary marks complete coverage when explained b
 
   assert.equal(summary.explainedCoverageState, "itemizacao_completa");
   assert.equal(summary.explainedCoveragePercentage, 100);
+  assert.equal(summary.unitemizedBalanceOrigin, "sem_saldo_remanescente");
   assert.equal(summary.requiresDirectedReview, false);
 });
 
@@ -292,8 +293,56 @@ test("reconciliation difference summary marks sufficient coverage for small resi
 
   assert.equal(summary.explainedCoverageState, "itemizacao_suficiente");
   assert.equal(summary.explainedCoveragePercentage, 85);
+  assert.equal(
+    summary.unitemizedBalanceOrigin,
+    "saldo_residual_baixa_materialidade",
+  );
   assert.equal(summary.requiresDirectedReview, false);
   assert.equal(summary.directedReviewRecommendation, "acompanhar saldo residual");
+});
+
+test("reconciliation difference summary classifies missing itemization origin as no-detail explained balance", () => {
+  const summary = summarizeReconciliationDifferenceSummary({
+    explainedDifference: 700,
+    unexplainedDifference: 0,
+    items: [],
+  });
+
+  assert.equal(summary.explainedCoverageState, "sem_itemizacao");
+  assert.equal(
+    summary.unitemizedBalanceOrigin,
+    "saldo_explicado_sem_detalhamento",
+  );
+  assert.equal(summary.requiresDirectedReview, true);
+  assert.equal(summary.directedReviewRecommendation, "iniciar revisao dirigida");
+});
+
+test("reconciliation difference summary classifies insufficient justification separately from itemization coverage", () => {
+  const summary = summarizeReconciliationDifferenceSummary({
+    explainedDifference: 900,
+    unexplainedDifference: 0,
+    items: [
+      {
+        id: "rec-item-004",
+        justification: "",
+        createdAt: "2026-04-18T09:00:00Z",
+        bankEntry: {
+          id: "entry-009",
+          description: "Ajuste operacional",
+          type: "ajuste",
+          amount: -300,
+          occurredOn: "2026-04-18",
+        },
+      },
+    ],
+  });
+
+  assert.equal(summary.explainedCoverageState, "itemizacao_parcial");
+  assert.equal(summary.unitemizedBalanceOrigin, "justificativa_insuficiente");
+  assert.equal(
+    summary.directedReviewRecommendation,
+    "complementar justificativa operacional",
+  );
 });
 
 test("reconciliation filter matches apt and sensitive cases without changing closure rules", () => {

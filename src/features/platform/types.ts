@@ -288,6 +288,14 @@ export interface ReconciliationDifferenceSummary {
     | "itemizacao_completa";
   explainedCoverageStateLabel: string;
   explainedCoverageReason: string;
+  unitemizedBalanceOrigin:
+    | "sem_saldo_remanescente"
+    | "saldo_explicado_sem_detalhamento"
+    | "itemizacao_em_andamento"
+    | "justificativa_insuficiente"
+    | "saldo_residual_baixa_materialidade";
+  unitemizedBalanceOriginLabel: string;
+  unitemizedBalanceOriginReason: string;
   requiresDirectedReview: boolean;
   directedReviewRecommendation: string;
   directedReviewReason: string;

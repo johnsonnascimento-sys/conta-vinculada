@@ -455,3 +455,22 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] Nao aplicavel
+
+### 11.8 Origem operacional do saldo explicado sem itemizacao
+
+- [ ] A conciliacao mostra a origem operacional presumida do saldo explicado ainda sem itemizacao.
+- [ ] A leitura diferencia saldo explicado sem detalhamento de itemizacao em andamento.
+- [ ] A leitura diferencia justificativa insuficiente de mera cobertura parcial.
+- [ ] A leitura diferencia saldo residual de baixa materialidade de saldo ainda relevante para revisao.
+- [ ] Quando nao houver saldo remanescente, a conciliacao mostra essa situacao sem gerar revisao indevida.
+- [ ] A recomendacao de revisao dirigida permanece coerente com a origem operacional classificada.
+- [ ] O detalhe do contrato reflete a mesma origem operacional presumida exibida na conciliacao.
+- [ ] A classificacao nao altera indevidamente o fechamento, a reabertura, a cobertura minima ou a diferenca nao explicada residual.
+
+Observacoes:
+
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel

@@ -334,6 +334,13 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                             </div>
                             <p>{reconciliation.differenceSummary.explainedCoverageReason}</p>
                             <p>
+                              Origem operacional:{" "}
+                              {reconciliation.differenceSummary.unitemizedBalanceOriginLabel}
+                            </p>
+                            <p>
+                              {reconciliation.differenceSummary.unitemizedBalanceOriginReason}
+                            </p>
+                            <p>
                               Revisao dirigida:{" "}
                               {reconciliation.differenceSummary.directedReviewRecommendation}
                             </p>
@@ -519,6 +526,12 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                   </div>
                   <p className="text-sm text-[var(--color-muted)]">
                     {item.differenceSummary.explainedCoverageReason}
+                  </p>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    Origem operacional: {item.differenceSummary.unitemizedBalanceOriginLabel}
+                  </p>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    {item.differenceSummary.unitemizedBalanceOriginReason}
                   </p>
                   <p className="text-sm text-[var(--color-muted)]">
                     Revisão dirigida: {item.differenceSummary.directedReviewRecommendation}

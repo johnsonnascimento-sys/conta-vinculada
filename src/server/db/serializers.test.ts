@@ -62,6 +62,10 @@ test("serializeReconciliation preserves occurrences and derives ordered history"
   assert.equal(reconciliation.differenceSummary.explainedItemsAmount, 100);
   assert.equal(reconciliation.differenceSummary.explainedCoverageState, "itemizacao_completa");
   assert.equal(reconciliation.differenceSummary.explainedCoveragePercentage, 100);
+  assert.equal(
+    reconciliation.differenceSummary.unitemizedBalanceOrigin,
+    "sem_saldo_remanescente",
+  );
   assert.equal(reconciliation.differenceSummary.requiresDirectedReview, false);
   assert.deepEqual(
     reconciliation.history.timeline.map((event) => event.id),

@@ -748,3 +748,19 @@ A situacao operacional da cobertura pode aparecer como:
 Quando ainda houver saldo explicado sem itemizacao relevante, a conciliacao tambem mostra uma recomendacao simples de revisao dirigida para orientar a leitura diaria. Essa recomendacao nao cria tarefa formal, nao gera aprovacao adicional e nao encerra automaticamente a competencia.
 
 O detalhe do contrato passou a refletir a mesma leitura de cobertura, com o mesmo grau, o mesmo percentual e a mesma recomendacao simples de revisao dirigida exibidos no modulo de conciliacao.
+
+### 11.8 Origem operacional do saldo explicado sem itemizacao
+
+Quando ainda existir saldo explicado sem itemizacao minima, a conciliacao passa a indicar uma origem operacional presumida para esse remanescente.
+
+Essa origem pode aparecer, de forma simples, como:
+
+- saldo explicado sem detalhamento, quando existe diferenca explicada, mas ainda sem item conciliatorio minimo;
+- itemizacao em andamento, quando ja existe itemizacao parcial, mas ainda resta saldo relevante sem cobertura;
+- justificativa insuficiente, quando ja existe item conciliatorio, mas a sustentacao operacional ainda depende de justificativa minima melhor definida;
+- saldo residual de baixa materialidade, quando o remanescente sem itemizacao e pequeno diante da cobertura ja registrada;
+- sem saldo remanescente, quando nao resta faixa explicada sem itemizacao.
+
+Essa classificacao serve apenas para orientar a revisao dirigida do saldo explicado remanescente. Ela nao cria tarefa formal, nao representa verdade contabil definitiva e nao substitui a leitura do historico, da cobertura e da diferenca nao explicada residual.
+
+O detalhe do contrato passou a refletir a mesma origem operacional presumida exibida na conciliacao, junto com a mesma recomendacao simples de revisao dirigida.

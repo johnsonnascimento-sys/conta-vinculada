@@ -37,6 +37,10 @@ test("reconciliation overview exposes minimum reconciliation items and explained
   assert.equal(reconciliation?.differenceSummary.explainedCoverageState, "itemizacao_parcial");
   assert.equal(reconciliation?.differenceSummary.requiresDirectedReview, true);
   assert.equal(
+    reconciliation?.differenceSummary.unitemizedBalanceOrigin,
+    "itemizacao_em_andamento",
+  );
+  assert.equal(
     reconciliation?.differenceSummary.directedReviewRecommendation,
     "revisar saldo sem itemizacao",
   );
@@ -48,5 +52,9 @@ test("reconciliation overview exposes minimum reconciliation items and explained
   assert.equal(
     completeCoverage?.differenceSummary.explainedCoverageState,
     "itemizacao_completa",
+  );
+  assert.equal(
+    completeCoverage?.differenceSummary.unitemizedBalanceOrigin,
+    "sem_saldo_remanescente",
   );
 });

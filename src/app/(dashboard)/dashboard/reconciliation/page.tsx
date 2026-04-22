@@ -264,6 +264,11 @@ export default async function ReconciliationPage({
                         </p>
                         <p>{item.differenceSummary.explainedCoverageReason}</p>
                         <p>
+                          Origem operacional:{" "}
+                          {item.differenceSummary.unitemizedBalanceOriginLabel}
+                        </p>
+                        <p>{item.differenceSummary.unitemizedBalanceOriginReason}</p>
+                        <p>
                           Revisao dirigida:{" "}
                           {item.differenceSummary.directedReviewRecommendation}
                         </p>

@@ -808,3 +808,9 @@ Com isso, o proximo bloco seguro passa a ser a consolidacao minima de criterios 
 A rodada atual consolidou a cobertura minima da diferenca explicada por competencia, com grau simples de cobertura, percentual operacional e recomendacao leve de revisao dirigida quando ainda existir saldo explicado sem itemizacao relevante. A leitura passou a indicar de forma mais objetiva o que ja esta suficientemente coberto e o que ainda depende de revisao, sem criar fila de tarefas nem novo workflow contabil.
 
 Com isso, o proximo bloco seguro passa a ser a qualificacao minima das faixas de saldo explicado ainda sem itemizacao por origem operacional, mantendo a conciliacao como leitura leve e incremental.
+
+## Atualizacao incremental mais recente
+
+A rodada atual qualificou minimamente a origem operacional do saldo explicado ainda sem itemizacao, distinguindo falta de detalhamento inicial, itemizacao em andamento, justificativa insuficiente e saldo residual de baixa materialidade. A leitura da conciliacao passou a explicar melhor por que ainda existe faixa explicada remanescente e qual revisao dirigida faz mais sentido, sem abrir workflow contabil novo.
+
+Com isso, o proximo bloco seguro passa a ser a consolidacao minima de criterios de priorizacao visual e filtros leves para faixas explicadas remanescentes, ainda sem criar fila de tarefas.

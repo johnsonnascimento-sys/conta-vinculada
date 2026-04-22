@@ -117,6 +117,95 @@ async function main() {
     },
   });
 
+  for (const entry of [
+    [
+      "entry-001",
+      contractOne.id,
+      "bank-001",
+      "comp-2026-03-c1",
+      "deposito",
+      "Deposito mensal da competencia 03/2026",
+      25480,
+      "2026-04-05T00:00:00Z",
+    ],
+    [
+      "entry-002",
+      contractOne.id,
+      "bank-001",
+      "comp-2026-03-c1",
+      "rendimento",
+      "Rendimento bancario de marco",
+      942.18,
+      "2026-04-01T00:00:00Z",
+    ],
+    [
+      "entry-003",
+      contractOne.id,
+      "bank-001",
+      "comp-2026-03-c1",
+      "liberacao",
+      "Liberacao aprovada RR-2026-00018",
+      -3120,
+      "2026-04-09T00:00:00Z",
+    ],
+    [
+      "entry-004",
+      contractTwo.id,
+      "bank-002",
+      "comp-2026-03-c2",
+      "deposito",
+      "Deposito mensal da competencia 03/2026",
+      41820,
+      "2026-04-04T00:00:00Z",
+    ],
+    [
+      "entry-005",
+      contractTwo.id,
+      "bank-002",
+      "comp-2026-03-c2",
+      "ajuste",
+      "Ajuste pendente de classificacao do extrato",
+      -1940,
+      "2026-04-10T00:00:00Z",
+    ],
+    [
+      "entry-006",
+      contractTwo.id,
+      "bank-002",
+      "comp-2026-03-c2",
+      "liberacao",
+      "Liberacao preparada para RR-2026-00021",
+      -3650,
+      "2026-04-15T00:00:00Z",
+    ],
+  ] as const) {
+    const [
+      id,
+      contractId,
+      linkedAccountId,
+      competencyId,
+      type,
+      description,
+      amount,
+      occurredOn,
+    ] = entry;
+
+    await prisma.bankEntry.upsert({
+      where: { id },
+      update: {},
+      create: {
+        id,
+        contractId,
+        linkedAccountId,
+        competencyId,
+        type,
+        description,
+        amount,
+        occurredOn: new Date(occurredOn),
+      },
+    });
+  }
+
   const parameterOne = await prisma.contractParameter.upsert({
     where: { id: "param-001" },
     update: {},
@@ -460,6 +549,20 @@ async function main() {
       notes:
         "Aprovação administrativa parcial mantida após glosa identificada na análise do item.",
       createdAt: new Date("2026-04-10T15:04:00Z"),
+    },
+  });
+
+  await prisma.approval.upsert({
+    where: { id: "approval-rr-002-prep" },
+    update: {},
+    create: {
+      id: "approval-rr-002-prep",
+      releaseRequestId: requestTwo.id,
+      stage: "execucao_financeira",
+      decision: "aprovar",
+      decidedBy: "Rafaela Vasques",
+      notes: "Preparo financeiro interno concluido para futura execucao.",
+      createdAt: new Date("2026-04-11T10:30:00Z"),
     },
   });
 

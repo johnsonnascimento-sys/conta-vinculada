@@ -1,6 +1,7 @@
 import type { ReleaseRequest, ReleaseRequestItem } from "@/features/platform/types";
 import { AdministrativeApprovalForm } from "@/features/releases/components/administrative-approval-form";
 import { CreateReleaseRequestForm } from "@/features/releases/components/create-release-request-form";
+import { FinancialExecutionForm } from "@/features/releases/components/financial-execution-form";
 import { FinancialPreparationForm } from "@/features/releases/components/financial-preparation-form";
 import { ReviewReleaseRequestForm } from "@/features/releases/components/review-release-request-form";
 import { canReviewReleaseRequestItem } from "@/features/releases/policy";
@@ -142,6 +143,18 @@ function getFinancialPreparationStateLabel(request: ReleaseRequest) {
   return "Ainda não apta para preparo da futura execução";
 }
 
+function getFinancialExecutionStateLabel(request: ReleaseRequest) {
+  if (request.workflow.financialExecution.state === "executada") {
+    return "Execução financeira efetiva registrada";
+  }
+
+  if (request.workflow.financialExecution.state === "aguardando_execucao") {
+    return "Preparada e aguardando execução efetiva";
+  }
+
+  return "Ainda não apta para execução efetiva";
+}
+
 function getBalanceCheckLabel(request: ReleaseRequest) {
   if (request.workflow.financialPreparation.balanceCheck === "suficiente") {
     return "Saldo suficiente para o valor apto";
@@ -227,6 +240,9 @@ export default async function ReleasesPage() {
   const financiallyPreparableRequestIds = new Set(
     boardData.financiallyPreparableRequestIds,
   );
+  const financiallyExecutableRequestIds = new Set(
+    boardData.financiallyExecutableRequestIds,
+  );
 
   return (
     <div className="space-y-4">
@@ -264,6 +280,13 @@ export default async function ReleasesPage() {
               boardData.databaseEnabled &&
               financiallyPreparableRequestIds.has(request.id) &&
               request.workflow.financialPreparation.canPrepare;
+            const executableBankEntries =
+              boardData.executableBankEntriesByRequestId[request.id] ?? [];
+            const canExecuteFinancially =
+              boardData.databaseEnabled &&
+              financiallyExecutableRequestIds.has(request.id) &&
+              request.workflow.financialExecution.canExecute &&
+              executableBankEntries.length > 0;
 
             return (
               <div
@@ -319,10 +342,10 @@ export default async function ReleasesPage() {
                   </div>
                   <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
                     <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                      Preparo financeiro
+                      Execução efetiva
                     </span>
                     <p className="mt-2 text-sm leading-6 text-[var(--color-ink)]">
-                      {getFinancialPreparationStateLabel(request)}
+                      {getFinancialExecutionStateLabel(request)}
                     </p>
                   </div>
                 </div>
@@ -502,6 +525,70 @@ export default async function ReleasesPage() {
 
                   {canPrepareFinancially ? (
                     <FinancialPreparationForm requestId={request.id} />
+                  ) : null}
+                </div>
+
+                <div className="mt-5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-4">
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
+                    Execução financeira efetiva
+                  </h3>
+                  <div className="mt-3 grid gap-2 text-sm leading-6 text-[var(--color-muted)]">
+                    <p>
+                      Situação: {getFinancialExecutionStateLabel(request)}
+                    </p>
+                    <p>
+                      Valor pendente de execução:{" "}
+                      {formatCurrency(request.workflow.financialExecution.pendingAmount)}
+                    </p>
+                    {request.workflow.financialExecution.executedAmount !== undefined ? (
+                      <p>
+                        Valor executado:{" "}
+                        {formatCurrency(
+                          request.workflow.financialExecution.executedAmount,
+                        )}
+                      </p>
+                    ) : null}
+                    {request.workflow.financialExecution.executedAt ? (
+                      <p>
+                        Data da execução:{" "}
+                        {formatDateTimeLabel(
+                          request.workflow.financialExecution.executedAt,
+                        )}
+                      </p>
+                    ) : null}
+                    {request.workflow.financialExecution.bankEntryId ? (
+                      <p>
+                        Lançamento bancário vinculado:{" "}
+                        {request.workflow.financialExecution.bankEntryId}
+                        {request.workflow.financialExecution.bankEntryDescription
+                          ? ` • ${request.workflow.financialExecution.bankEntryDescription}`
+                          : ""}
+                      </p>
+                    ) : null}
+                    {request.workflow.financialExecution.reason ? (
+                      <p>
+                        Condição atual: {request.workflow.financialExecution.reason}
+                      </p>
+                    ) : null}
+                    <p>
+                      Esta etapa registra a execução efetiva com vínculo a
+                      lançamento bancário já existente e não substitui a leitura
+                      do preparo financeiro.
+                    </p>
+                    {request.workflow.financialExecution.canExecute &&
+                    executableBankEntries.length === 0 ? (
+                      <p>
+                        Ainda não há lançamento bancário de liberação compatível
+                        disponível para vincular esta solicitação.
+                      </p>
+                    ) : null}
+                  </div>
+
+                  {canExecuteFinancially ? (
+                    <FinancialExecutionForm
+                      requestId={request.id}
+                      bankEntries={executableBankEntries}
+                    />
                   ) : null}
                 </div>
 

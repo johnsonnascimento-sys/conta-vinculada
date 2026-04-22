@@ -3,12 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { approveReleaseRequestAdministratively } from "@/server/commands/releases/approve-release-request-administratively";
 import { createReleaseRequest } from "@/server/commands/releases/create-release-request";
+import { executeReleaseRequestEffectively } from "@/server/commands/releases/execute-release-request-effectively";
 import { prepareReleaseRequestForExecution } from "@/server/commands/releases/prepare-release-request-for-execution";
 import { reviewReleaseRequest } from "@/server/commands/releases/review-release-request";
 import type {
   AdministrativeApproveReleaseRequestActionState,
   CreateReleaseRequestActionState,
   CreateReleaseRequestItemInput,
+  ExecuteReleaseRequestEffectivelyActionState,
   PrepareReleaseRequestForExecutionActionState,
   ReviewReleaseRequestActionState,
   ReviewReleaseRequestDecision,
@@ -163,6 +165,37 @@ export async function prepareReleaseRequestForExecutionAction(
   return {
     status: "success",
     message: `Preparo interno registrado para futura execução do valor de ${result.data.eligibleAmount.toFixed(2)}.`,
+    data: result.data,
+  };
+}
+
+export async function executeReleaseRequestEffectivelyAction(
+  _: ExecuteReleaseRequestEffectivelyActionState,
+  formData: FormData,
+): Promise<ExecuteReleaseRequestEffectivelyActionState> {
+  const result = await executeReleaseRequestEffectively({
+    requestId: String(formData.get("requestId") ?? "").trim(),
+    bankEntryId: String(formData.get("bankEntryId") ?? "").trim(),
+    notes: String(formData.get("notes") ?? "").trim(),
+  });
+
+  if (!result.ok) {
+    return {
+      status: "error",
+      code: result.code,
+      message: result.message,
+      fieldErrors: result.fieldErrors,
+    };
+  }
+
+  revalidatePath("/dashboard/releases");
+  revalidatePath(`/dashboard/contracts/${result.data.contractId}`);
+  revalidatePath("/dashboard/reconciliation");
+  revalidatePath("/dashboard");
+
+  return {
+    status: "success",
+    message: `Execução efetiva registrada em ${result.data.executedAt} no valor de ${result.data.executedAmount.toFixed(2)}.`,
     data: result.data,
   };
 }

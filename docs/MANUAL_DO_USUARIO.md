@@ -201,7 +201,8 @@ Funcionalmente, o usuário deve entender o fluxo assim:
 - os itens podem ser acompanhados pelo status e pelos valores;
 - quando o perfil tiver permissão e a gravação estiver habilitada, a decisão por item pode ser registrada na própria fila;
 - a aprovação total, a aprovação parcial e a rejeição ou glosa exigem conferência do valor aprovado e, quando necessário, justificativa;
-- a execução financeira completa ainda não está concluída no sistema.
+- a execução financeira efetiva agora pode ser registrada com vínculo a lançamento bancário já existente;
+- a integração bancária automática continua fora do sistema.
 
 ### 8.4.1 Fronteira entre exigência documental, análise e decisão agregada
 
@@ -276,6 +277,35 @@ O sistema também passa a mostrar:
 - leitura de saldo considerada;
 - leitura da conciliação considerada;
 - indicação explícita de que não existe execução financeira efetiva registrada, quando for o caso.
+
+### 8.4.4 Execução financeira efetiva
+
+Depois do preparo financeiro interno, o sistema passa a mostrar também a leitura de `Execução financeira efetiva`.
+
+Essa leitura serve para o usuário entender:
+
+- se a solicitação ainda não pode ser executada;
+- se ela já está preparada e apenas aguarda vínculo com lançamento bancário compatível;
+- se a execução efetiva já foi registrada;
+- qual valor foi efetivamente executado;
+- em que data a execução foi registrada;
+- a qual lançamento bancário a execução ficou vinculada.
+
+Na prática, essa etapa:
+
+- exige que o preparo financeiro já tenha sido registrado;
+- usa lançamento bancário já existente e compatível com a solicitação;
+- grava internamente a execução efetiva da solicitação;
+- reduz a leitura de valor pendente de execução na conciliação;
+- não representa integração automática com o banco nem importação automática de extrato.
+
+O usuário deve interpretar essa etapa assim:
+
+- `Ainda não apta para execução efetiva`: a solicitação ainda não reuniu as condições mínimas para o registro final;
+- `Preparada e aguardando execução efetiva`: a solicitação já foi preparada e aguarda apenas o vínculo com o lançamento bancário compatível;
+- `Execução financeira efetiva registrada`: o sistema já registrou a execução, com valor, data e vínculo bancário.
+
+Quando houver permissão e ambiente de gravação habilitado, a fila permite registrar a execução efetiva escolhendo o lançamento bancário compatível da própria etapa.
 
 ### 8.5 Pendências documentais e acompanhamento
 
@@ -440,7 +470,7 @@ Interpretação prática:
 - `aprovada`: pedido aceito integralmente;
 - `aprovada parcial`: parte do pedido foi acolhida;
 - `rejeitada`: pedido não acolhido;
-- `liberada`: etapa financeira considerada concluída;
+- `liberada`: execução financeira efetiva já registrada com vínculo interno ao lançamento bancário;
 - `cancelada`: pedido interrompido.
 
 Leitura complementar importante:
@@ -451,6 +481,7 @@ Leitura complementar importante:
 - a aptidão para futura etapa financeira depende da consolidação administrativa e não deve ser confundida com liberação bancária efetivamente realizada;
 - o preparo da futura execução financeira também deve ser lido separadamente da execução bancária efetiva;
 - uma solicitação pode estar preparada internamente para a etapa financeira e, ainda assim, continuar sem execução financeira registrada;
+- a execução financeira efetiva depende de vínculo explícito com lançamento bancário compatível;
 - a decisão agregada só deve ser considerada consolidada quando os itens necessários já tiverem recebido decisão suficiente;
 - o usuário deve observar também a contagem de itens ainda pendentes e as pendências documentais da etapa.
 
@@ -519,7 +550,7 @@ Sim. O formulário permite adicionar mais de um item.
 
 ### O sistema já faz a execução financeira completa?
 
-Não. O sistema já cobre o registro e o acompanhamento inicial das solicitações, mas a execução financeira completa ainda não está concluída.
+Parcialmente. O sistema já permite registrar a execução financeira efetiva com vínculo a lançamento bancário existente, mas ainda não faz integração bancária automática nem cobre todo o ciclo operacional de forma externa.
 
 ### O que significa “aprovação administrativa”?
 
@@ -528,6 +559,10 @@ Não. O sistema já cobre o registro e o acompanhamento inicial das solicitaçõ
 ### O que significa “preparo da futura execução financeira”?
 
 É o registro interno de que a solicitação já reuniu condições mínimas para seguir à próxima etapa financeira. Esse preparo continua diferente da execução bancária efetiva e não substitui lançamento bancário real.
+
+### O que significa “execução financeira efetiva”?
+
+É o registro interno de que a solicitação foi efetivamente executada, com valor, data e vínculo a um lançamento bancário já existente. Essa etapa continua diferente de integração bancária automática.
 
 ### O módulo de administração já permite gerir tudo sobre usuários?
 

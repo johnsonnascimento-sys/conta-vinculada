@@ -79,6 +79,18 @@ function getFinancialPreparationLabel(request: ReleaseRequest) {
   return "ainda não apta para preparo da futura execução";
 }
 
+function getFinancialExecutionLabel(request: ReleaseRequest) {
+  if (request.workflow.financialExecution.state === "executada") {
+    return "execução efetiva registrada";
+  }
+
+  if (request.workflow.financialExecution.state === "aguardando_execucao") {
+    return "preparada e aguardando execução efetiva";
+  }
+
+  return "ainda não apta para execução efetiva";
+}
+
 interface ContractPageProps {
   params: Promise<{ contractId: string }>;
 }
@@ -395,8 +407,16 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                     {getFinancialPreparationLabel(request)}
                   </p>
                   <p>
+                    Execução financeira efetiva:{" "}
+                    {getFinancialExecutionLabel(request)}
+                  </p>
+                  <p>
                     Valor apto à futura execução:{" "}
                     {formatCurrency(request.workflow.financialPreparation.eligibleAmount)}
+                  </p>
+                  <p>
+                    Valor pendente de execução:{" "}
+                    {formatCurrency(request.workflow.financialExecution.pendingAmount)}
                   </p>
                   <p>
                     Movimento esperado:{" "}
@@ -462,6 +482,33 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                       ? "sim"
                       : "não"}
                   </p>
+                  <p>
+                    Situação detalhada da execução:{" "}
+                    {getFinancialExecutionLabel(request)}
+                  </p>
+                  {request.workflow.financialExecution.executedAmount !== undefined ? (
+                    <p>
+                      Valor executado:{" "}
+                      {formatCurrency(
+                        request.workflow.financialExecution.executedAmount,
+                      )}
+                    </p>
+                  ) : null}
+                  {request.workflow.financialExecution.executedAt ? (
+                    <p>
+                      Data da execução:{" "}
+                      {request.workflow.financialExecution.executedAt}
+                    </p>
+                  ) : null}
+                  {request.workflow.financialExecution.bankEntryId ? (
+                    <p>
+                      Lançamento bancário vinculado:{" "}
+                      {request.workflow.financialExecution.bankEntryId}
+                      {request.workflow.financialExecution.bankEntryDescription
+                        ? ` • ${request.workflow.financialExecution.bankEntryDescription}`
+                        : ""}
+                    </p>
+                  ) : null}
                   {request.documentSummary.deferredByCategory.operation.length > 0 ||
                   request.documentSummary.deferredByCategory.closure.length > 0 ? (
                     <p>

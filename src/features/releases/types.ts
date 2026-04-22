@@ -133,6 +133,16 @@ export interface ReleaseRequestsBoardData {
   reviewableRequestIds: string[];
   administrativelyApprovableRequestIds: string[];
   financiallyPreparableRequestIds: string[];
+  financiallyExecutableRequestIds: string[];
+  executableBankEntriesByRequestId: Record<
+    string,
+    Array<{
+      id: string;
+      description: string;
+      amount: number;
+      occurredOn: string;
+    }>
+  >;
 }
 
 export type ReviewReleaseRequestDecision =
@@ -291,6 +301,54 @@ export interface PrepareReleaseRequestForExecutionActionState {
   message?: string;
   fieldErrors?: PrepareReleaseRequestForExecutionFieldErrors;
   data?: PrepareReleaseRequestForExecutionSuccess;
+}
+
+export interface ExecuteReleaseRequestEffectivelyInput {
+  requestId: string;
+  bankEntryId: string;
+  notes: string;
+}
+
+export interface ExecuteReleaseRequestEffectivelyFieldErrors {
+  requestId?: string;
+  bankEntryId?: string;
+  notes?: string;
+}
+
+export interface ExecuteReleaseRequestEffectivelySuccess {
+  releaseRequestId: string;
+  contractId: string;
+  bankEntryId: string;
+  executedAmount: number;
+  executedAt: string;
+}
+
+export type ExecuteReleaseRequestEffectivelyErrorCode =
+  | "validation_error"
+  | "unauthorized"
+  | "database_unavailable"
+  | "not_found"
+  | "invalid_state"
+  | "unexpected_error";
+
+export type ExecuteReleaseRequestEffectivelyCommandResult =
+  | {
+      ok: true;
+      data: ExecuteReleaseRequestEffectivelySuccess;
+    }
+  | {
+      ok: false;
+      code: ExecuteReleaseRequestEffectivelyErrorCode;
+      message: string;
+      fieldErrors?: ExecuteReleaseRequestEffectivelyFieldErrors;
+    };
+
+export interface ExecuteReleaseRequestEffectivelyActionState {
+  status: "idle" | "success" | "error";
+  code?: ExecuteReleaseRequestEffectivelyErrorCode;
+  message?: string;
+  fieldErrors?: ExecuteReleaseRequestEffectivelyFieldErrors;
+  data?: ExecuteReleaseRequestEffectivelySuccess;
 }
 
 export interface OpenReleaseRequestDuplicate {

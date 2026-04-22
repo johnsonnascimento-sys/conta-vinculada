@@ -305,6 +305,16 @@ export const bankEntries: BankEntry[] = [
     amount: -1940,
     occurredOn: "2026-04-10",
   },
+  {
+    id: "entry-006",
+    accountId: "bank-002",
+    contractId: "c-2cjm-002",
+    competency: "2026-03",
+    type: "liberacao",
+    description: "Liberação preparada para RR-2026-00021",
+    amount: -3650,
+    occurredOn: "2026-04-15",
+  },
 ];
 
 const releaseRequestOneDocumentPlan = getReleaseDocumentPlan(
@@ -475,6 +485,12 @@ export const releaseRequests: ReleaseRequest[] = [
         decidedBy: "Cap. Rodrigo Neves",
         decidedAt: "2026-04-10T15:04:00Z",
         notes: "Aprovação administrativa parcial mantida após glosa da análise.",
+      },
+      latestFinancialPreparationApproval: {
+        decision: "aprovar",
+        decidedBy: "Rafaela Vasques",
+        decidedAt: "2026-04-11T10:30:00Z",
+        notes: "Preparo financeiro interno concluído para futura execução.",
       },
     }),
   },

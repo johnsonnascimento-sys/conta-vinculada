@@ -46,6 +46,7 @@ Apos esta rodada, o sistema passou a atender estruturalmente os seguintes pontos
 - manutencao do fluxo ja implementado de criacao de `ReleaseRequest` e `ReleaseRequestItem`, sem destruir a arquitetura nem o modo hibrido mock/Prisma.
 - consolidacao da aprovacao administrativa posterior da solicitacao, sem confundir essa etapa com execucao bancaria.
 - leitura e registro interno do preparo da futura execucao financeira, considerando forma de movimentacao, regime normativo, evidencias minimas, saldo e conciliacao, sem criar integracao bancaria real.
+- registro da execucao financeira efetiva com vinculo a `ReleaseExecution` e a lancamento bancario ja existente, sem integracao externa automatica.
 
 ## 4. O que ainda nao atende
 
@@ -54,7 +55,7 @@ O sistema ainda nao atende integralmente, nesta rodada, os seguintes pontos norm
 - workflow completo dos prazos de 10 dias uteis da Resolucao CNJ no 651/2025 para autorizacao e comprovacao da movimentacao;
 - fluxo operacional de pagamento direto aos empregados com comprovacao bancaria posterior;
 - fluxo operacional de resgate/reembolso com conferencias especificas por etapa;
-- execucao financeira efetiva com vinculacao a lancamento bancario real e baixa correspondente;
+- integracao bancaria automatica, importacao de extrato e comprovacao externa automatizada da movimentacao;
 - uso proporcional do saldo remanescente para empregados remanescentes, com calculo e autorizacao formal;
 - sucessao contratual com a mesma empresa e reaproveitamento do saldo remanescente, com planilhas individualizadas por empregado;
 - garantia contratual especifica para verbas rescisorias inadimplidas como parte do cadastro/gestao contratual;
@@ -78,6 +79,8 @@ Fluxo de liberacao:
 - o workflow passou a separar aprovacao administrativa, preparo da futura execucao e execucao financeira efetiva.
 - o preparo financeiro passou a considerar conta vinculada, saldo, diferenca nao explicada da conciliacao e evidencias minimas da etapa.
 - o registro do preparo financeiro passou a ser interno e auditavel, sem gerar `BankEntry` ficticio nem `ReleaseExecution` efetiva.
+- a execucao financeira efetiva passou a exigir preparo previo, lancamento bancario do tipo liberacao, compatibilidade de valor e vinculo unico com `BankEntry`.
+- o registro efetivo passou a persistir `ReleaseExecution`, atualizar a leitura de solicitacao para executada e reduzir o valor pendente de execucao na conciliacao.
 
 Leitura e mocks:
 

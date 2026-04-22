@@ -1,5 +1,6 @@
 import {
   getAllocations,
+  getBankEntries,
   getContracts,
   getEmployees,
   getReleaseRequests,
@@ -7,6 +8,7 @@ import {
 import { getCurrentUser } from "@/features/auth/queries";
 import {
   canApproveReleaseRequestAdministratively,
+  canExecuteReleaseRequestEffectively,
   canInitiateReleaseRequest,
   canPrepareReleaseRequestForExecution,
   canReviewReleaseRequest,
@@ -23,14 +25,50 @@ import type {
 } from "@/features/releases/types";
 
 export async function getReleaseRequestsBoardData(): Promise<ReleaseRequestsBoardData> {
-  const [requests, contracts, user] = await Promise.all([
+  const [requests, contracts, bankEntries, user] = await Promise.all([
     getReleaseRequests(),
     getContracts(),
+    getBankEntries(),
     getCurrentUser(),
   ]);
   const contractsById = new Map(
     contracts.map((contract: Contract) => [contract.id, contract]),
   );
+  const usedBankEntryIds = new Set(
+    requests
+      .map((request) => request.workflow.financialExecution.bankEntryId)
+      .filter((value): value is string => Boolean(value)),
+  );
+  const executableBankEntriesByRequestId = requests.reduce<
+    ReleaseRequestsBoardData["executableBankEntriesByRequestId"]
+  >((accumulator, request) => {
+    accumulator[request.id] = bankEntries
+      .filter((entry) => {
+        if (entry.contractId !== request.contractId) {
+          return false;
+        }
+
+        if (entry.type !== "liberacao" || entry.amount >= 0) {
+          return false;
+        }
+
+        if (usedBankEntryIds.has(entry.id)) {
+          return false;
+        }
+
+        return (
+          Math.abs(entry.amount) === request.workflow.financialExecution.pendingAmount
+        );
+      })
+      .map((entry) => ({
+        id: entry.id,
+        description: entry.description,
+        amount: entry.amount,
+        occurredOn: entry.occurredOn,
+      }));
+
+    return accumulator;
+  }, {});
 
   return {
     requests,
@@ -63,6 +101,17 @@ export async function getReleaseRequestsBoardData(): Promise<ReleaseRequestsBoar
           )
           .map((request) => request.id)
       : [],
+    financiallyExecutableRequestIds: user
+      ? requests
+          .filter(
+            (request) =>
+              canExecuteReleaseRequestEffectively(user) &&
+              request.workflow.financialExecution.canExecute &&
+              (executableBankEntriesByRequestId[request.id]?.length ?? 0) > 0,
+          )
+          .map((request) => request.id)
+      : [],
+    executableBankEntriesByRequestId,
   };
 }
 

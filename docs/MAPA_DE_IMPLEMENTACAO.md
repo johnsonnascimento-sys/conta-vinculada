@@ -62,6 +62,7 @@ Fora de escopo neste ciclo:
 - [x] Separar operacionalmente exigência documental, análise e decisão agregada na leitura da solicitação.
 - [x] Consolidar aprovação administrativa posterior da solicitação com registro explícito em `Approval`.
 - [x] Consolidar o preparo da futura execução financeira sem criar execução bancária real.
+- [x] Consolidar a execução financeira efetiva com vínculo controlado a `ReleaseExecution` e `BankEntry`.
 - [ ] Expandir a cobertura para múltiplos itens por solicitação com UX mais refinada.
 - [x] Definir com mais precisão a fronteira entre aprovação administrativa posterior e execução financeira.
 
@@ -235,7 +236,7 @@ Ajuste de ordem de execucao:
 
 Proximo passo recomendado apos esta rodada:
 
-- consolidar a execução financeira efetiva da solicitação com vínculo controlado a lançamento bancário real e sem duplicar regra com conciliação.
+- expandir a execução financeira para cenários de execução parcial, reaproveitamento controlado de lançamento bancário e fechamento operacional da conciliação.
 
 ## Sincronizacao obrigatoria com o manual do usuario
 

@@ -215,8 +215,17 @@ export async function getReleaseRequests(): Promise<ReleaseRequest[]> {
       },
       documents: true,
       releaseExecutions: {
+        orderBy: { executedAt: "desc" },
         select: {
           id: true,
+          bankEntryId: true,
+          executedAmount: true,
+          executedAt: true,
+          bankEntry: {
+            select: {
+              description: true,
+            },
+          },
         },
       },
       approvals: {

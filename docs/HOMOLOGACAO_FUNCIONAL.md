@@ -80,6 +80,8 @@ Resultado:
 - [ ] O detalhe do contrato mostra a leitura de aptidão para futura etapa financeira sem indicar execução bancária concluída.
 - [ ] O detalhe do contrato mostra a situação de preparo da futura execução financeira das solicitações vinculadas.
 - [ ] O detalhe do contrato mostra o valor apto à futura execução e o movimento esperado.
+- [ ] O detalhe do contrato mostra a situação da execução financeira efetiva das solicitações vinculadas.
+- [ ] O detalhe do contrato mostra valor executado, data da execução e vínculo com lançamento bancário, quando existentes.
 - [ ] O detalhe do contrato apresenta trilha de auditoria ligada ao contrato.
 
 Observações:
@@ -134,6 +136,12 @@ Resultado:
 - [ ] Solicitação ainda sem preparo suficiente não apresenta ação de registro do preparo financeiro.
 - [ ] A ação de registro do preparo financeiro não cria execução bancária efetiva no sistema.
 - [ ] O preparo financeiro pode ser registrado por perfil autorizado no ambiente com gravação habilitada.
+- [ ] Solicitação sem preparo financeiro registrado não apresenta ação de execução efetiva.
+- [ ] Solicitação preparada mostra quando aguarda apenas lançamento bancário compatível para a execução efetiva.
+- [ ] A execução efetiva pode ser registrada por perfil autorizado no ambiente com gravação habilitada.
+- [ ] A execução efetiva exige seleção de lançamento bancário compatível.
+- [ ] A execução efetiva não permite reutilizar lançamento bancário já vinculado.
+- [ ] A fila passa a mostrar valor executado, data da execução e vínculo bancário quando a execução já existir.
 - [ ] Aprovação total, aprovação parcial e rejeição ou glosa se comportam de forma coerente com os valores informados.
 - [ ] Item já decidido não volta a apresentar ação de decisão na mesma etapa.
 
@@ -154,6 +162,7 @@ Resultado:
 - [ ] A tela apresenta diferença explicada.
 - [ ] A tela apresenta diferença não explicada.
 - [ ] A tela apresenta status resumido da diferença.
+- [ ] O aprovado pendente de execução reflete a baixa mínima de solicitações já executadas efetivamente.
 
 Observações:
 
@@ -238,6 +247,7 @@ Resultado:
 - [ ] A distinção entre aprovação administrativa e futura etapa financeira corresponde ao que o manual descreve.
 - [ ] A leitura de preparo da futura execução financeira corresponde ao que o manual descreve.
 - [ ] A distinção entre preparo da futura execução e execução financeira efetiva corresponde ao que o manual descreve.
+- [ ] A leitura de execução financeira efetiva corresponde ao que o manual descreve.
 - [ ] O módulo de conciliação corresponde ao que o manual descreve.
 - [ ] O módulo de auditoria corresponde ao que o manual descreve.
 - [ ] O módulo de administração corresponde ao que o manual descreve.
@@ -258,8 +268,9 @@ Resultado:
 - [ ] A solicitação de liberação apresenta forma de movimentação como campo funcional.
 - [ ] A leitura das solicitações permite identificar tipo de liberação e forma de movimentação.
 - [ ] As pendências documentais continuam visíveis na leitura do pedido.
+- [ ] O homologador reconhece que a execução efetiva agora depende de vínculo explícito com lançamento bancário já existente.
 - [ ] Não foi identificada funcionalidade que contradiga a adequação normativa já incorporada ao escopo atual.
-- [ ] O homologador reconhece que o sistema ainda não concluiu o ciclo completo de execução financeira, sucessão contratual, garantias e prazos operacionais mais amplos.
+- [ ] O homologador reconhece que o sistema ainda não concluiu integração bancária automática, sucessão contratual, garantias e prazos operacionais mais amplos.
 
 Observações:
 

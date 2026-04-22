@@ -197,6 +197,78 @@ test("workflow summary keeps preparation distinct from effective financial execu
   assert.equal(summary.financialPreparation.effectiveExecutionRecorded, false);
 });
 
+test("workflow summary marks prepared request as awaiting effective execution", () => {
+  const summary = summarizeReleaseRequestWorkflow({
+    status: "aprovada_parcial",
+    missingDocumentCount: 0,
+    itemDecisions: ["aprovado_parcial"],
+    movementMode: "resgate_contratada",
+    normativeRegime: "cnj_169_2013",
+    approvedAmount: 3650,
+    providedDocuments: ["rescisao", "fgts", "comprovante_pagamento", "despacho"],
+    currentBalance: 232904.12,
+    approvedPendingExecution: 3650,
+    unexplainedDifference: 0,
+    linkedAccount: {
+      isOfficialPublicBank: true,
+      cooperationTermRef: "TCT-CNJ-CEF-2024",
+    },
+    latestAdministrativeApproval: {
+      decision: "aprovar_parcial",
+      decidedBy: "Beatriz Campos",
+      decidedAt: "2026-04-21T12:00:00.000Z",
+    },
+    latestFinancialPreparationApproval: {
+      decision: "aprovar",
+      decidedBy: "Rafaela Vasques",
+      decidedAt: "2026-04-21T14:00:00.000Z",
+      notes: "Checklist financeiro interno concluído.",
+    },
+  });
+
+  assert.equal(summary.financialExecution.state, "aguardando_execucao");
+  assert.equal(summary.financialExecution.canExecute, true);
+  assert.equal(summary.financialExecution.pendingAmount, 3650);
+});
+
+test("workflow summary exposes effective execution details from persisted execution", () => {
+  const summary = buildSummary({
+    status: "aprovada_parcial",
+    itemDecisions: ["aprovado_parcial"],
+    approvedAmount: 3650,
+    providedDocuments: ["rescisao", "fgts", "comprovante_pagamento", "despacho"],
+    currentBalance: 232904.12,
+    approvedPendingExecution: 0,
+    unexplainedDifference: 0,
+    linkedAccount: {
+      isOfficialPublicBank: true,
+      cooperationTermRef: "TCT-CNJ-CEF-2024",
+    },
+    latestAdministrativeApproval: {
+      decision: "aprovar_parcial",
+      decidedBy: "Beatriz Campos",
+      decidedAt: "2026-04-21T12:00:00.000Z",
+    },
+    latestFinancialPreparationApproval: {
+      decision: "aprovar",
+      decidedBy: "Rafaela Vasques",
+      decidedAt: "2026-04-21T14:00:00.000Z",
+    },
+    latestFinancialExecution: {
+      bankEntryId: "entry-006",
+      bankEntryDescription: "Liberação preparada para RR-2026-00021",
+      executedAmount: 3650,
+      executedAt: "2026-04-22T12:00:00.000Z",
+    },
+  });
+
+  assert.equal(summary.derivedStatus, "liberada");
+  assert.equal(summary.financialExecution.state, "executada");
+  assert.equal(summary.financialExecution.canExecute, false);
+  assert.equal(summary.financialExecution.bankEntryId, "entry-006");
+  assert.equal(summary.financialExecution.executedAmount, 3650);
+});
+
 test("allowed administrative decisions follow the consolidated item result", () => {
   assert.deepEqual(getAllowedAdministrativeApprovalDecisions("aprovada"), [
     "aprovar",

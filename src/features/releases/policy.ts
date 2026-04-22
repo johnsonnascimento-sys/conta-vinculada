@@ -69,6 +69,23 @@ export function canPrepareReleaseRequestForExecution(
   return false;
 }
 
+export function canExecuteReleaseRequestEffectively(
+  user: AppUser,
+  contractCode?: string,
+) {
+  void contractCode;
+
+  if (!canAccessRoute(user.role, "/dashboard/releases")) {
+    return false;
+  }
+
+  if (user.role === "Administrador do órgão" || user.role === "Financeiro") {
+    return true;
+  }
+
+  return false;
+}
+
 export function isReviewableReleaseRequestStatus(
   status: ReleaseRequestStatus,
 ) {

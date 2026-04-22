@@ -98,6 +98,32 @@ function getLatestFinancialPreparationApproval(
   return getLatestWorkflowApproval(approvals, "execucao_financeira");
 }
 
+function getLatestFinancialExecution(
+  executions: Array<{
+    bankEntryId: string;
+    executedAmount: { toNumber(): number };
+    executedAt: Date;
+    bankEntry?: {
+      description: string;
+    } | null;
+  }>,
+) {
+  const latestExecution = executions
+    .slice()
+    .sort((left, right) => right.executedAt.getTime() - left.executedAt.getTime())[0];
+
+  if (!latestExecution) {
+    return undefined;
+  }
+
+  return {
+    bankEntryId: latestExecution.bankEntryId,
+    bankEntryDescription: latestExecution.bankEntry?.description,
+    executedAmount: latestExecution.executedAmount.toNumber(),
+    executedAt: latestExecution.executedAt.toISOString(),
+  };
+}
+
 function serializeCalculationMemory(value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return undefined;
@@ -299,6 +325,12 @@ export function serializeReleaseRequest(request: {
   }>;
   releaseExecutions?: Array<{
     id: string;
+    bankEntryId: string;
+    executedAmount: { toNumber(): number };
+    executedAt: Date;
+    bankEntry?: {
+      description: string;
+    } | null;
   }>;
 }): ReleaseRequest {
   const providedDocuments = [...new Set(request.documents.map((item) => item.kind))];
@@ -333,6 +365,9 @@ export function serializeReleaseRequest(request: {
   const latestFinancialPreparationApproval = getLatestFinancialPreparationApproval(
     request.approvals,
   );
+  const latestFinancialExecution = getLatestFinancialExecution(
+    request.releaseExecutions ?? [],
+  );
   const linkedAccount = request.contract.linkedAccounts?.[0];
   const reconciliation = request.contract.reconciliations?.find(
     (item) => item.competency.competency === request.competencyEnd,
@@ -363,6 +398,7 @@ export function serializeReleaseRequest(request: {
         }
       : undefined,
     hasEffectiveExecution: (request.releaseExecutions?.length ?? 0) > 0,
+    latestFinancialExecution,
     latestAdministrativeApproval: latestAdministrativeApproval
       ? {
           decision: latestAdministrativeApproval.decision,

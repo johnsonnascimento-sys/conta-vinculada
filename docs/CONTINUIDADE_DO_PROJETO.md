@@ -55,6 +55,14 @@ Nesta rodada, o fluxo passou a registrar de forma própria o preparo da futura e
 - criação de execução financeira efetiva;
 - simulação de extrato bancário como se a operação já tivesse ocorrido.
 
+Nesta rodada, o fluxo passou a registrar também a execução financeira efetiva da solicitação, com:
+
+- persistência própria em `ReleaseExecution`;
+- vínculo controlado a `BankEntry` já existente;
+- baixa mínima do valor pendente de execução na leitura de conciliação;
+- distinção explícita entre preparo financeiro e execução efetiva;
+- manutenção da ausência de integração bancária automática.
+
 ## 2. Estado atual implementado
 
 ### Frontend e navegação
@@ -612,8 +620,8 @@ Resultado esperado:
 - [x] Explicitar a fronteira operacional entre exigência documental, análise e decisão agregada da solicitação.
 - [x] Consolidar a aprovação administrativa posterior da solicitação, separada da decisão por item e da futura etapa financeira.
 - [x] Consolidar o preparo interno da futura execução financeira, separado da execução bancária efetiva.
+- [x] Implementar execução financeira vinculada a lançamento bancário.
 - [ ] Expandir a decisão de solicitação para múltiplos itens, revisão controlada e etapas posteriores do workflow.
-- [ ] Implementar execução financeira vinculada a lançamento bancário.
 - [x] Consolidar pendências documentais derivadas da matriz de documentos por tipo, etapa e modo de movimentação.
 
 ### Conciliação

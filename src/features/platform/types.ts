@@ -134,6 +134,11 @@ export type ReleaseRequestFinancialPreparationState =
   | "apta"
   | "preparada";
 
+export type ReleaseRequestFinancialExecutionState =
+  | "nao_apta"
+  | "aguardando_execucao"
+  | "executada";
+
 export type ReleaseRequestBalanceCheckState =
   | "nao_avaliado"
   | "suficiente"
@@ -175,6 +180,17 @@ export interface ReleaseRequestFinancialPreparationSummary {
   effectiveExecutionRecorded: boolean;
 }
 
+export interface ReleaseRequestFinancialExecutionSummary {
+  state: ReleaseRequestFinancialExecutionState;
+  canExecute: boolean;
+  pendingAmount: number;
+  reason?: string;
+  executedAmount?: number;
+  executedAt?: string;
+  bankEntryId?: string;
+  bankEntryDescription?: string;
+}
+
 export interface ReleaseRequestWorkflowSummary {
   derivedStatus: ReleaseRequestStatus;
   documentState: ReleaseRequestDocumentState;
@@ -187,6 +203,7 @@ export interface ReleaseRequestWorkflowSummary {
   canAggregateDecision: boolean;
   administrativeApproval: ReleaseRequestAdministrativeApprovalSummary;
   financialPreparation: ReleaseRequestFinancialPreparationSummary;
+  financialExecution: ReleaseRequestFinancialExecutionSummary;
 }
 
 export interface Tenant {

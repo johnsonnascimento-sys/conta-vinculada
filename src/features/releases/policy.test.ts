@@ -3,6 +3,7 @@ import test from "node:test";
 import type { AppUser } from "@/features/platform/types";
 import {
   canApproveReleaseRequestAdministratively,
+  canExecuteReleaseRequestEffectively,
   canInitiateReleaseRequest,
   canPrepareReleaseRequestForExecution,
   canReviewReleaseRequest,
@@ -83,6 +84,12 @@ test("canPrepareReleaseRequestForExecution allows financial preparation only for
   assert.equal(canPrepareReleaseRequestForExecution(adminUser), true);
   assert.equal(canPrepareReleaseRequestForExecution(financialUser), true);
   assert.equal(canPrepareReleaseRequestForExecution(analystUser), false);
+});
+
+test("canExecuteReleaseRequestEffectively allows effective execution only for admin and financeiro", () => {
+  assert.equal(canExecuteReleaseRequestEffectively(adminUser), true);
+  assert.equal(canExecuteReleaseRequestEffectively(financialUser), true);
+  assert.equal(canExecuteReleaseRequestEffectively(analystUser), false);
 });
 
 test("isReviewableReleaseRequestStatus allows only statuses open for analysis", () => {

@@ -1,12 +1,13 @@
+import Link from "next/link";
 import type { ReconciliationRecord } from "@/features/platform/types";
 import { getCurrentUser } from "@/features/auth/queries";
 import { CloseCompetencyForm } from "@/features/reconciliation/components/close-competency-form";
 import { ReopenCompetencyForm } from "@/features/reconciliation/components/reopen-competency-form";
+import { getReconciliationOverview } from "@/features/reconciliation/queries";
 import {
   canCloseCompetencyReconciliation,
   canReopenCompetencyReconciliation,
 } from "@/features/reconciliation/policy";
-import { getReconciliations } from "@/server/repositories/platform.repository";
 import { isDatabaseEnabled } from "@/server/db/prisma";
 import { Badge } from "@/shared/components/ui/badge";
 import { TableCard } from "@/shared/components/ui/table-card";
@@ -44,30 +45,43 @@ function getFormalClosureTone(item: ReconciliationRecord) {
   return "neutral" as const;
 }
 
-function getRecommendedActionTone(item: ReconciliationRecord) {
-  if (item.history.recommendedAction === "apta_para_fechamento") {
-    return "success" as const;
-  }
-
-  if (
-    item.history.recommendedAction === "verificar_divergencia_residual" ||
-    item.history.recommendedAction === "revisar_justificativa"
-  ) {
+function getPriorityTone(item: ReconciliationRecord) {
+  if (item.qualification.priority === "alta") {
     return "danger" as const;
   }
 
-  if (item.history.recommendedAction === "reavaliar_apos_reabertura") {
+  if (item.qualification.priority === "media") {
     return "warning" as const;
   }
 
-  return "neutral" as const;
+  return "success" as const;
 }
 
-export default async function ReconciliationPage() {
-  const [reconciliations, currentUser] = await Promise.all([
-    getReconciliations(),
-    getCurrentUser(),
-  ]);
+function getTrackingTone(item: ReconciliationRecord) {
+  if (item.qualification.trackingState === "exige_revisao") {
+    return "danger" as const;
+  }
+
+  if (item.qualification.trackingState === "em_acompanhamento") {
+    return "warning" as const;
+  }
+
+  return "success" as const;
+}
+
+interface ReconciliationPageProps {
+  searchParams?: Promise<{ filtro?: string }>;
+}
+
+export default async function ReconciliationPage({
+  searchParams,
+}: ReconciliationPageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const [{ reconciliations, filters, selectedFilter }, currentUser] =
+    await Promise.all([
+      getReconciliationOverview(resolvedSearchParams?.filtro),
+      getCurrentUser(),
+    ]);
   const databaseEnabled = isDatabaseEnabled();
   const canClose = currentUser ? canCloseCompetencyReconciliation(currentUser) : false;
   const canReopen = currentUser
@@ -77,7 +91,7 @@ export default async function ReconciliationPage() {
   return (
     <TableCard
       title="Conciliação"
-      description="Comparação entre extrato bancario, provisoes liquidas, valores pendentes de execucao e historico operacional da competencia. O modulo continua sem integracao bancaria automatica."
+      description="Comparação entre extrato bancario, provisoes liquidas, divergencias residuais e apontamentos operacionais minimos da competencia. O modulo continua sem integracao bancaria automatica e sem motor de tarefas."
     >
       <div className="space-y-3">
         {!databaseEnabled ? (
@@ -87,15 +101,35 @@ export default async function ReconciliationPage() {
           </div>
         ) : null}
 
+        <div className="flex flex-wrap gap-2">
+          {filters.map((filter) => (
+            <Link
+              key={filter.key}
+              href={
+                filter.key === "todas"
+                  ? "/dashboard/reconciliation"
+                  : `/dashboard/reconciliation?filtro=${filter.key}`
+              }
+              className={`rounded-full border px-3 py-2 text-sm transition ${
+                selectedFilter === filter.key
+                  ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-white"
+                  : "border-black/10 bg-white text-[var(--color-muted)] hover:border-black/20 hover:text-[var(--color-ink)]"
+              }`}
+            >
+              {filter.label} ({filter.count})
+            </Link>
+          ))}
+        </div>
+
         <div className="overflow-hidden rounded-[1.4rem] border border-black/8">
           <table className="min-w-full divide-y divide-black/8 text-left">
             <thead className="bg-[var(--color-surface)] font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
               <tr>
                 <th className="px-4 py-3">Competencia</th>
                 <th className="px-4 py-3">Saldos</th>
-                <th className="px-4 py-3">Fechamento minimo</th>
+                <th className="px-4 py-3">Classificacao e prioridade</th>
                 <th className="px-4 py-3">Situacao atual</th>
-                <th className="px-4 py-3">Historico e justificativas</th>
+                <th className="px-4 py-3">Apontamentos e historico</th>
                 <th className="px-4 py-3">Proxima acao sugerida</th>
                 <th className="px-4 py-3">Acoes</th>
               </tr>
@@ -126,21 +160,17 @@ export default async function ReconciliationPage() {
                   </td>
                   <td className="px-4 py-4 align-top">
                     <div className="space-y-2">
-                      <Badge
-                        tone={
-                          item.operationalClosure.state ===
-                          "pronta_para_fechamento_minimo"
-                            ? "success"
-                            : "warning"
-                        }
-                      >
-                        {item.operationalClosure.state ===
-                        "pronta_para_fechamento_minimo"
-                          ? "pronta"
-                          : "com pendencias"}
+                      <Badge tone={getPriorityTone(item)}>
+                        prioridade {item.qualification.priorityLabel}
                       </Badge>
+                      <Badge tone={getTrackingTone(item)}>
+                        {item.qualification.trackingStateLabel}
+                      </Badge>
+                      <p className="text-sm font-medium text-[var(--color-ink)]">
+                        {item.qualification.classificationLabel}
+                      </p>
                       <p className="text-xs leading-5 text-[var(--color-muted)]">
-                        {item.operationalClosure.reason}
+                        {item.qualification.classificationReason}
                       </p>
                     </div>
                   </td>
@@ -155,16 +185,9 @@ export default async function ReconciliationPage() {
                       <p className="text-xs leading-5 text-[var(--color-muted)]">
                         {item.history.currentSituationReason}
                       </p>
-                      {item.closedAt ? (
-                        <p className="text-xs text-[var(--color-muted)]">
-                          Fechada em {item.closedAt} por {item.closedBy}
-                        </p>
-                      ) : null}
-                      {item.reopenedAt ? (
-                        <p className="text-xs text-[var(--color-muted)]">
-                          Reaberta em {item.reopenedAt} por {item.reopenedBy}
-                        </p>
-                      ) : null}
+                      <p className="text-xs leading-5 text-[var(--color-muted)]">
+                        Fechamento minimo: {item.operationalClosure.reason}
+                      </p>
                     </div>
                   </td>
                   <td className="px-4 py-4 align-top">
@@ -177,16 +200,23 @@ export default async function ReconciliationPage() {
                         Justificativa da reabertura:{" "}
                         {item.reopeningJustification ?? "nao registrada"}
                       </p>
-                      <p>
-                        Ultima ocorrencia relevante:{" "}
-                        {item.history.lastRelevantOccurrence
-                          ? `${item.history.lastRelevantOccurrence.label} em ${item.history.lastRelevantOccurrence.happenedAt}`
-                          : "nao registrada"}
-                      </p>
-                      <p>
-                        Linha do tempo operacional: {item.history.timeline.length} evento(s)
-                      </p>
-                      {item.history.timeline.map((event) => (
+                      <div className="flex flex-wrap gap-2">
+                        {item.qualification.pointings.map((pointing) => (
+                          <Badge key={pointing.code} tone="neutral">
+                            {pointing.label}
+                          </Badge>
+                        ))}
+                      </div>
+                      {item.history.lastRelevantOccurrence ? (
+                        <p>
+                          Ultima ocorrencia relevante:{" "}
+                          {item.history.lastRelevantOccurrence.label} em{" "}
+                          {item.history.lastRelevantOccurrence.happenedAt}
+                        </p>
+                      ) : (
+                        <p>Ultima ocorrencia relevante: nao registrada</p>
+                      )}
+                      {item.history.timeline.slice(-3).map((event) => (
                         <div
                           key={event.id}
                           className="rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2 text-xs leading-5"
@@ -204,11 +234,14 @@ export default async function ReconciliationPage() {
                   </td>
                   <td className="px-4 py-4 align-top">
                     <div className="space-y-2">
-                      <Badge tone={getRecommendedActionTone(item)}>
+                      <Badge tone={getTrackingTone(item)}>
                         {item.history.recommendedActionLabel}
                       </Badge>
                       <p className="text-xs leading-5 text-[var(--color-muted)]">
                         {item.history.recommendedActionReason}
+                      </p>
+                      <p className="text-xs leading-5 text-[var(--color-muted)]">
+                        Prioridade operacional: {item.qualification.priorityReason}
                       </p>
                     </div>
                   </td>

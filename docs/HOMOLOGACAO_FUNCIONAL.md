@@ -392,3 +392,24 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] Nao aplicavel
+
+### 11.5 Classificacao minima das divergencias e filtros leves
+
+- [ ] A tela de conciliacao mostra classificacao minima da divergencia por competencia.
+- [ ] A tela de conciliacao mostra situacao de acompanhamento e prioridade operacional da competencia.
+- [ ] A tela de conciliacao mostra apontamentos simples, como divergencia residual, pendencia de execucao, competencia reaberta, justificativa pendente ou justificativa sensivel.
+- [ ] Os filtros simples permitem localizar divergencias residuais.
+- [ ] Os filtros simples permitem localizar competencias reabertas.
+- [ ] Os filtros simples permitem localizar competencias aptas a fechamento.
+- [ ] Os filtros simples permitem localizar competencias com justificativa pendente ou sensivel.
+- [ ] O detalhe do contrato reflete a mesma classificacao minima, prioridade e apontamentos exibidos na conciliacao.
+- [ ] A leitura historica anterior da competencia permanece preservada.
+- [ ] O fechamento e a reabertura controlada continuam sem regressao funcional.
+
+Observacoes:
+
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel

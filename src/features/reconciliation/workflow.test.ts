@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  matchesReconciliationFilter,
   summarizeCompetencyFormalClosure,
   summarizeCompetencyOperationalHistory,
+  summarizeReconciliationOperationalQualification,
   summarizeReconciliationOperationalClosure,
 } from "@/features/reconciliation/workflow";
 
@@ -145,4 +147,79 @@ test("operational history keeps reopened competency in re-evaluation mode", () =
 
   assert.equal(summary.recommendedAction, "reavaliar_apos_reabertura");
   assert.equal(summary.currentSituationLabel, "Competencia reaberta em acompanhamento");
+});
+
+test("reconciliation qualification prioritizes residual divergence as high priority", () => {
+  const operationalClosure = summarizeReconciliationOperationalClosure({
+    approvedPendingExecution: 120,
+    unexplainedDifference: 35,
+  });
+  const formalClosure = summarizeCompetencyFormalClosure({
+    status: "calculada",
+    operationalClosureState: operationalClosure.state,
+    occurrences: [],
+  });
+
+  const summary = summarizeReconciliationOperationalQualification({
+    approvedPendingExecution: 120,
+    unexplainedDifference: 35,
+    formalClosure,
+  });
+
+  assert.equal(summary.classification, "divergencia_residual");
+  assert.equal(summary.trackingState, "exige_revisao");
+  assert.equal(summary.priority, "alta");
+});
+
+test("reconciliation qualification identifies sensitive justification after reopening", () => {
+  const operationalClosure = summarizeReconciliationOperationalClosure({
+    approvedPendingExecution: 0,
+    unexplainedDifference: 0,
+  });
+  const formalClosure = summarizeCompetencyFormalClosure({
+    status: "reaberta",
+    operationalClosureState: operationalClosure.state,
+    reopeningJustification: "Reprocessamento retroativo necessario.",
+    occurrences: [],
+  });
+
+  const summary = summarizeReconciliationOperationalQualification({
+    approvedPendingExecution: 0,
+    unexplainedDifference: 0,
+    formalClosure,
+    reopeningJustification: "Reprocessamento retroativo necessario.",
+  });
+
+  assert.equal(summary.classification, "justificativa_sensivel");
+  assert.equal(summary.hasSensitiveJustification, true);
+});
+
+test("reconciliation filter matches apt and sensitive cases without changing closure rules", () => {
+  const aptRecord = {
+    unexplainedDifference: 0,
+    formalClosure: {
+      state: "apta_para_fechamento",
+    },
+    qualification: {
+      hasPendingJustification: false,
+      hasSensitiveJustification: false,
+    },
+  };
+
+  const sensitiveRecord = {
+    unexplainedDifference: 0,
+    formalClosure: {
+      state: "fechada",
+    },
+    qualification: {
+      hasPendingJustification: true,
+      hasSensitiveJustification: true,
+    },
+  };
+
+  assert.equal(matchesReconciliationFilter(aptRecord as never, "aptas_fechamento"), true);
+  assert.equal(
+    matchesReconciliationFilter(sensitiveRecord as never, "justificativas_sensiveis"),
+    true,
+  );
 });

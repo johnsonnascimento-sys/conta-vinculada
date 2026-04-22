@@ -127,6 +127,18 @@ function getCompetencyRecommendedActionTone(reconciliation: ReconciliationRecord
   return "neutral" as const;
 }
 
+function getCompetencyPriorityTone(reconciliation: ReconciliationRecord) {
+  if (reconciliation.qualification.priority === "alta") {
+    return "danger" as const;
+  }
+
+  if (reconciliation.qualification.priority === "media") {
+    return "warning" as const;
+  }
+
+  return "success" as const;
+}
+
 interface ContractPageProps {
   params: Promise<{ contractId: string }>;
 }
@@ -254,6 +266,14 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                             </Badge>
                             <p>{reconciliation.history.currentSituationLabel}</p>
                             <p>{reconciliation.history.currentSituationReason}</p>
+                            <div className="flex flex-wrap gap-2">
+                              <Badge tone={getCompetencyPriorityTone(reconciliation)}>
+                                prioridade {reconciliation.qualification.priorityLabel}
+                              </Badge>
+                              <Badge tone={getCompetencyRecommendedActionTone(reconciliation)}>
+                                {reconciliation.qualification.classificationLabel}
+                              </Badge>
+                            </div>
                             <p>
                               Fechamento:{" "}
                               {reconciliation.closureJustification ??
@@ -274,6 +294,13 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                               Proxima acao sugerida:{" "}
                               {reconciliation.history.recommendedActionLabel}
                             </p>
+                            <div className="flex flex-wrap gap-2">
+                              {reconciliation.qualification.pointings.map((pointing) => (
+                                <Badge key={pointing.code} tone="neutral">
+                                  {pointing.label}
+                                </Badge>
+                              ))}
+                            </div>
                           </>
                         ) : (
                           <p>Sem leitura conciliatória vinculada.</p>
@@ -421,12 +448,26 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                     Situação atual: {item.history.currentSituationLabel}
                   </p>
                   <p className="text-sm text-[var(--color-muted)]">
+                    Classificação: {item.qualification.classificationLabel}
+                  </p>
+                  <p className="text-sm text-[var(--color-muted)]">
                     Próxima ação sugerida: {item.history.recommendedActionLabel}
                   </p>
                   <div className="flex flex-wrap gap-2">
+                    <Badge tone={getCompetencyPriorityTone(item)}>
+                      prioridade {item.qualification.priorityLabel}
+                    </Badge>
+                    <Badge tone="neutral">
+                      {item.qualification.trackingStateLabel}
+                    </Badge>
                     <Badge tone={getCompetencyRecommendedActionTone(item)}>
                       {item.history.recommendedActionLabel}
                     </Badge>
+                    {item.qualification.pointings.map((pointing) => (
+                      <Badge key={pointing.code} tone="neutral">
+                        {pointing.label}
+                      </Badge>
+                    ))}
                   </div>
                   {item.history.lastRelevantOccurrence ? (
                     <p className="text-sm text-[var(--color-muted)]">

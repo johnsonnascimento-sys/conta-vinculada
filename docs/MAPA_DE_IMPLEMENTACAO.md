@@ -278,3 +278,10 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 - [x] Expor linha do tempo operacional derivada na conciliacao e no detalhe do contrato.
 - [x] Diferenciar situacao atual, historico registrado e proxima acao sugerida.
 - [x] Manter a recomendacao operacional como leitura derivada simples, sem criar workflow adicional.
+
+### Atualizacao da rodada
+
+- [x] Qualificar divergencias conciliatorias com classificacao operacional minima derivada.
+- [x] Expor apontamentos simples por competencia sem criar fila de tarefas.
+- [x] Adicionar filtros leves de acompanhamento na conciliacao.
+- [x] Diferenciar tipo de problema, situacao atual e prioridade operacional.

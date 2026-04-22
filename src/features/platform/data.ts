@@ -17,6 +17,7 @@ import type {
 import {
   summarizeCompetencyFormalClosure,
   summarizeCompetencyOperationalHistory,
+  summarizeReconciliationOperationalQualification,
   summarizeReconciliationOperationalClosure,
 } from "@/features/reconciliation/workflow";
 import { getReleaseDocumentPlan } from "@/features/releases/rules";
@@ -600,6 +601,13 @@ export const reconciliations: ReconciliationRecord[] = [
         operationalClosure,
         formalClosure,
       }),
+      qualification: summarizeReconciliationOperationalQualification({
+        approvedPendingExecution: 1560,
+        unexplainedDifference: 943.18,
+        formalClosure,
+        closureJustification: competency.closureJustification,
+        reopeningJustification: competency.reopeningJustification,
+      }),
     };
   })(),
   (() => {
@@ -651,6 +659,13 @@ export const reconciliations: ReconciliationRecord[] = [
         unexplainedDifference: 0,
         operationalClosure,
         formalClosure,
+      }),
+      qualification: summarizeReconciliationOperationalQualification({
+        approvedPendingExecution: 3650,
+        unexplainedDifference: 0,
+        formalClosure,
+        closureJustification: competency.closureJustification,
+        reopeningJustification: competency.reopeningJustification,
       }),
     };
   })(),

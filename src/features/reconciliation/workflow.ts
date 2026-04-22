@@ -2,9 +2,13 @@ import type {
   CompetencyFormalClosureSummary,
   CompetencyOccurrence,
   CompetencyOperationalHistorySummary,
+  ReconciliationFilterKey,
+  ReconciliationOperationalPointing,
+  ReconciliationOperationalQualificationSummary,
   CompetencyStatus,
   CompetencyTimelineEvent,
   CompetencyTimelineEventType,
+  ReconciliationRecord,
   ReconciliationOperationalClosureSummary,
   ReconciliationOperationalClosureState,
 } from "@/features/platform/types";
@@ -36,6 +40,14 @@ interface CompetencyHistoryInput {
   unexplainedDifference: number;
   operationalClosure: ReconciliationOperationalClosureSummary;
   formalClosure: CompetencyFormalClosureSummary;
+}
+
+interface ReconciliationQualificationInput {
+  approvedPendingExecution: number;
+  unexplainedDifference: number;
+  formalClosure: CompetencyFormalClosureSummary;
+  closureJustification?: string;
+  reopeningJustification?: string;
 }
 
 function getTimelineLabel(type: CompetencyTimelineEventType) {
@@ -166,6 +178,101 @@ function buildTimeline({
 
     return left.id.localeCompare(right.id);
   });
+}
+
+const sensitiveJustificationKeywords = [
+  "retroativ",
+  "reprocess",
+  "ajuste",
+  "diverg",
+  "residual",
+  "rescis",
+  "manual",
+  "sensivel",
+];
+
+function includesSensitiveJustificationKeyword(value?: string) {
+  if (!value?.trim()) {
+    return false;
+  }
+
+  const normalizedValue = value.trim().toLowerCase();
+  return sensitiveJustificationKeywords.some((keyword) =>
+    normalizedValue.includes(keyword),
+  );
+}
+
+function buildPointings(input: ReconciliationQualificationInput) {
+  const pointings: ReconciliationOperationalPointing[] = [];
+
+  if (input.unexplainedDifference > 0) {
+    pointings.push({
+      code: "divergencia_residual",
+      label: "Divergencia residual",
+      description:
+        "Ainda existe diferenca nao explicada na conciliacao desta competencia.",
+    });
+  }
+
+  if (input.approvedPendingExecution > 0) {
+    pointings.push({
+      code: "pendencia_execucao",
+      label: "Pendencia de execucao",
+      description:
+        "Ainda existe valor aprovado pendente de execucao financeira.",
+    });
+  }
+
+  if (input.formalClosure.state === "reaberta") {
+    pointings.push({
+      code: "competencia_reaberta",
+      label: "Competencia reaberta",
+      description:
+        "A competencia foi reaberta e exige nova leitura operacional.",
+    });
+  }
+
+  const hasPendingJustification =
+    (input.formalClosure.state === "fechada" && !input.closureJustification?.trim()) ||
+    (input.formalClosure.state === "reaberta" && !input.reopeningJustification?.trim());
+
+  if (hasPendingJustification) {
+    pointings.push({
+      code: "justificativa_pendente",
+      label: "Justificativa pendente",
+      description:
+        "Existe fechamento ou reabertura registrada sem justificativa suficiente.",
+    });
+  }
+
+  const hasSensitiveJustification =
+    input.formalClosure.state === "reaberta" ||
+    includesSensitiveJustificationKeyword(input.closureJustification) ||
+    includesSensitiveJustificationKeyword(input.reopeningJustification);
+
+  if (hasSensitiveJustification) {
+    pointings.push({
+      code: "justificativa_sensivel",
+      label: "Justificativa sensivel",
+      description:
+        "A justificativa registrada merece acompanhamento mais atento.",
+    });
+  }
+
+  if (input.formalClosure.state === "apta_para_fechamento") {
+    pointings.push({
+      code: "apta_para_fechamento",
+      label: "Apta para fechamento",
+      description:
+        "A competencia nao possui pendencias residuais e pode seguir para avaliacao de fechamento.",
+    });
+  }
+
+  return {
+    pointings,
+    hasPendingJustification,
+    hasSensitiveJustification,
+  };
 }
 
 export function summarizeReconciliationOperationalClosure({
@@ -377,4 +484,133 @@ export function summarizeCompetencyOperationalHistory({
     lastRelevantOccurrence,
     timeline,
   };
+}
+
+export function summarizeReconciliationOperationalQualification(
+  input: ReconciliationQualificationInput,
+): ReconciliationOperationalQualificationSummary {
+  const { pointings, hasPendingJustification, hasSensitiveJustification } =
+    buildPointings(input);
+
+  if (input.unexplainedDifference > 0) {
+    return {
+      classification: "divergencia_residual",
+      classificationLabel: "divergencia residual",
+      classificationReason:
+        "A competencia ainda possui diferenca nao explicada e requer revisao operacional.",
+      trackingState: "exige_revisao",
+      trackingStateLabel: "exige revisao",
+      priority: "alta",
+      priorityLabel: "alta",
+      priorityReason:
+        "A diferenca residual deve aparecer primeiro na leitura diaria.",
+      hasSensitiveJustification,
+      hasPendingJustification,
+      pointings,
+    };
+  }
+
+  if (hasPendingJustification || hasSensitiveJustification) {
+    return {
+      classification: "justificativa_sensivel",
+      classificationLabel: "justificativa sensivel",
+      classificationReason: hasPendingJustification
+        ? "Existe justificativa pendente ou insuficiente para fechamento ou reabertura."
+        : "A justificativa registrada indica situacao que merece leitura mais atenta.",
+      trackingState: "exige_revisao",
+      trackingStateLabel: "exige revisao",
+      priority: hasPendingJustification ? "alta" : "media",
+      priorityLabel: hasPendingJustification ? "alta" : "media",
+      priorityReason: hasPendingJustification
+        ? "A ausencia de justificativa suficiente compromete a rastreabilidade minima."
+        : "A justificativa sugere reavaliacao operacional, mas sem divergencia residual aberta.",
+      hasSensitiveJustification,
+      hasPendingJustification,
+      pointings,
+    };
+  }
+
+  if (input.approvedPendingExecution > 0) {
+    return {
+      classification: "pendencia_execucao",
+      classificationLabel: "pendencia de execucao",
+      classificationReason:
+        "A diferenca principal desta competencia esta ligada a valor aprovado ainda pendente de execucao.",
+      trackingState: "em_acompanhamento",
+      trackingStateLabel: "em acompanhamento",
+      priority: "media",
+      priorityLabel: "media",
+      priorityReason:
+        "A competencia exige acompanhamento da baixa, sem caracterizar divergencia residual.",
+      hasSensitiveJustification,
+      hasPendingJustification,
+      pointings,
+    };
+  }
+
+  if (input.formalClosure.state === "apta_para_fechamento") {
+    return {
+      classification: "apta_para_fechamento",
+      classificationLabel: "apta para fechamento",
+      classificationReason:
+        "A competencia ja passou pelo tratamento minimo e pode seguir para avaliacao de fechamento formal.",
+      trackingState: "tratada_minimamente",
+      trackingStateLabel: "tratada minimamente",
+      priority: "baixa",
+      priorityLabel: "baixa",
+      priorityReason:
+        "Nao ha divergencia residual aberta; a leitura serve apenas para consolidacao final.",
+      hasSensitiveJustification,
+      hasPendingJustification,
+      pointings,
+    };
+  }
+
+  return {
+    classification: "acompanhamento_regular",
+    classificationLabel: "acompanhamento regular",
+    classificationReason:
+      "A competencia segue em acompanhamento simples, sem divergencia residual aberta nem alerta justificatorio adicional.",
+    trackingState:
+      input.formalClosure.state === "fechada"
+        ? "tratada_minimamente"
+        : "em_acompanhamento",
+    trackingStateLabel:
+      input.formalClosure.state === "fechada"
+        ? "tratada minimamente"
+        : "em acompanhamento",
+    priority: "baixa",
+    priorityLabel: "baixa",
+    priorityReason:
+      "A leitura atual nao indica necessidade de intervencao prioritaria.",
+    hasSensitiveJustification,
+    hasPendingJustification,
+    pointings,
+  };
+}
+
+export function matchesReconciliationFilter(
+  record: Pick<ReconciliationRecord, "unexplainedDifference" | "formalClosure" | "qualification">,
+  filter: ReconciliationFilterKey,
+) {
+  if (filter === "todas") {
+    return true;
+  }
+
+  if (filter === "divergencias_residuais") {
+    return record.unexplainedDifference > 0;
+  }
+
+  if (filter === "reabertas") {
+    return record.formalClosure.state === "reaberta";
+  }
+
+  if (filter === "aptas_fechamento") {
+    return record.formalClosure.state === "apta_para_fechamento";
+  }
+
+  return (
+    record.qualification.hasPendingJustification ||
+    record.qualification.hasSensitiveJustification
+  );
 }

@@ -204,6 +204,55 @@ export interface ReconciliationOperationalClosureSummary {
   reason: string;
 }
 
+export type ReconciliationOperationalClassification =
+  | "pendencia_execucao"
+  | "divergencia_residual"
+  | "justificativa_sensivel"
+  | "acompanhamento_regular"
+  | "apta_para_fechamento";
+
+export type ReconciliationOperationalTrackingState =
+  | "em_acompanhamento"
+  | "exige_revisao"
+  | "tratada_minimamente";
+
+export type ReconciliationOperationalPriority = "alta" | "media" | "baixa";
+
+export type ReconciliationOperationalPointingCode =
+  | "pendencia_execucao"
+  | "divergencia_residual"
+  | "competencia_reaberta"
+  | "justificativa_pendente"
+  | "justificativa_sensivel"
+  | "apta_para_fechamento";
+
+export type ReconciliationFilterKey =
+  | "todas"
+  | "divergencias_residuais"
+  | "reabertas"
+  | "aptas_fechamento"
+  | "justificativas_sensiveis";
+
+export interface ReconciliationOperationalPointing {
+  code: ReconciliationOperationalPointingCode;
+  label: string;
+  description: string;
+}
+
+export interface ReconciliationOperationalQualificationSummary {
+  classification: ReconciliationOperationalClassification;
+  classificationLabel: string;
+  classificationReason: string;
+  trackingState: ReconciliationOperationalTrackingState;
+  trackingStateLabel: string;
+  priority: ReconciliationOperationalPriority;
+  priorityLabel: string;
+  priorityReason: string;
+  hasSensitiveJustification: boolean;
+  hasPendingJustification: boolean;
+  pointings: ReconciliationOperationalPointing[];
+}
+
 export type CompetencyOccurrenceType =
   | "apontamento"
   | "fechamento_formal"
@@ -453,6 +502,7 @@ export interface ReconciliationRecord {
   reopenedBy?: string;
   occurrences: CompetencyOccurrence[];
   history: CompetencyOperationalHistorySummary;
+  qualification: ReconciliationOperationalQualificationSummary;
 }
 
 export interface AuditEvent {

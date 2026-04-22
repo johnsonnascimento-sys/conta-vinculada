@@ -790,3 +790,9 @@ Com isso, o proximo bloco seguro passa a ser a consolidacao de uma leitura mais 
 A rodada atual estruturou a leitura historica minima das ocorrencias por competencia sem criar novo workflow contabil. A competencia passou a expor, na conciliacao e no detalhe do contrato, uma linha do tempo operacional derivada, a ultima ocorrencia relevante e uma recomendacao simples de tratamento subsequente.
 
 Com isso, o backlog deixa de tratar apenas de justificativas e fechamento/reabertura controlados e passa a ter como proximo bloco seguro a qualificacao leve das divergencias e dos apontamentos conciliatorios, ainda sem motor de tarefas ou SLA.
+
+## Atualizacao incremental mais recente
+
+A rodada atual qualificou de forma leve as divergencias conciliatorias por competencia, com classificacao operacional minima, prioridade derivada e apontamentos simples de acompanhamento. Tambem passaram a existir filtros leves na conciliacao para localizar divergencias residuais, competencias reabertas, competencias aptas a fechamento e justificativas sensiveis.
+
+Com isso, o proximo bloco seguro passa a ser a estruturacao minima dos itens conciliatorios vinculaveis a lancamentos e justificativas de diferenca explicada, ainda sem abrir workflow contabil complexo.

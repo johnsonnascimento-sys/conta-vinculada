@@ -16,6 +16,7 @@ import type {
 import {
   summarizeCompetencyFormalClosure,
   summarizeCompetencyOperationalHistory,
+  summarizeReconciliationOperationalQualification,
   summarizeReconciliationOperationalClosure,
 } from "@/features/reconciliation/workflow";
 import { getReleaseDocumentPlan } from "@/features/releases/rules";
@@ -570,6 +571,14 @@ export function serializeReconciliation(record: {
       unexplainedDifference,
       operationalClosure,
       formalClosure,
+    }),
+    qualification: summarizeReconciliationOperationalQualification({
+      approvedPendingExecution,
+      unexplainedDifference,
+      formalClosure,
+      closureJustification: record.competency.closureJustification ?? undefined,
+      reopeningJustification:
+        record.competency.reopeningJustification ?? undefined,
     }),
   };
 }

@@ -48,4 +48,5 @@ test("serializeReconciliation preserves occurrences and derives ordered history"
     ["processamento-2026-04-02T18:10:00.000Z", "occ-1", "occ-2"],
   );
   assert.equal(reconciliation.history.recommendedAction, "reavaliar_apos_reabertura");
+  assert.equal(reconciliation.qualification.classification, "justificativa_sensivel");
 });

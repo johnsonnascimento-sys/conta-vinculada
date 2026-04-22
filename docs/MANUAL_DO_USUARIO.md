@@ -662,3 +662,37 @@ As recomendacoes operacionais podem aparecer, de forma simples, como:
 - `verificar divergencia residual`.
 
 O detalhe do contrato passou a refletir a mesma leitura da conciliacao para cada competencia vinculada ao contrato. Assim, o usuario encontra a mesma interpretacao da competencia tanto no modulo de conciliacao quanto na visao detalhada do contrato.
+
+## 20. Atualizacao desta rodada
+
+O modulo de conciliacao passou a qualificar de forma minima os apontamentos de divergencia da competencia, sem criar fila de tarefas formal.
+
+A leitura operacional agora pode destacar, para cada competencia:
+
+- `classificacao minima da divergencia`;
+- `situacao de acompanhamento`;
+- `prioridade operacional`;
+- `apontamentos simples` ligados a diferenca residual, pendencia de execucao, reabertura, justificativa pendente ou justificativa sensivel.
+
+Na pratica, a classificacao minima pode aparecer como:
+
+- `divergencia residual`;
+- `pendencia de execucao`;
+- `justificativa sensivel`;
+- `acompanhamento regular`;
+- `apta para fechamento`.
+
+A tela de conciliacao tambem passou a oferecer filtros simples de acompanhamento para localizar:
+
+- divergencias residuais;
+- competencias reabertas;
+- competencias aptas a fechamento;
+- competencias com justificativa pendente ou sensivel.
+
+Leitura pratica adicional:
+
+- `classificacao minima da divergencia` ajuda a entender o tipo predominante de problema da competencia no momento;
+- `situacao de acompanhamento` indica se a competencia esta apenas em acompanhamento, se exige revisao ou se ja foi tratada minimamente;
+- `prioridade operacional` serve para ordenar a atencao diaria do usuario, sem transformar a conciliacao em gerenciador de tarefas.
+
+O detalhe do contrato passou a refletir a mesma classificacao, a mesma prioridade e os mesmos apontamentos simples exibidos no modulo de conciliacao.

@@ -814,3 +814,9 @@ Com isso, o proximo bloco seguro passa a ser a qualificacao minima das faixas de
 A rodada atual qualificou minimamente a origem operacional do saldo explicado ainda sem itemizacao, distinguindo falta de detalhamento inicial, itemizacao em andamento, justificativa insuficiente e saldo residual de baixa materialidade. A leitura da conciliacao passou a explicar melhor por que ainda existe faixa explicada remanescente e qual revisao dirigida faz mais sentido, sem abrir workflow contabil novo.
 
 Com isso, o proximo bloco seguro passa a ser a consolidacao minima de criterios de priorizacao visual e filtros leves para faixas explicadas remanescentes, ainda sem criar fila de tarefas.
+
+## Atualizacao incremental mais recente
+A rodada atual consolidou uma priorizacao visual minima para as faixas explicadas remanescentes, com destaque baixo, medio ou alto derivado da origem operacional do saldo ainda sem itemizacao. Tambem passaram a existir filtros leves para localizar remanescente relevante, justificativa insuficiente, itemizacao em andamento e baixa materialidade, sem criar fila de tarefas.
+Com isso, o proximo bloco seguro passa a ser a consolidacao minima de um quadro resumido por contrato para leitura de remanescente explicado, residual nao explicado e cobertura da conciliacao, ainda sem workflow contabil complexo.
+
+

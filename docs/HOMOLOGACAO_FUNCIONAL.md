@@ -474,3 +474,22 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] Nao aplicavel
+
+### 11.9 Priorizacao visual e filtros leves do saldo remanescente
+- [ ] A conciliacao mostra prioridade visual baixa, media ou alta para o saldo explicado remanescente sem itemizacao.
+- [ ] A prioridade visual permanece coerente com a origem operacional classificada do saldo remanescente.
+- [ ] A tela informa o motivo principal da priorizacao visual.
+- [ ] O filtro de remanescente relevante localiza competencias com saldo explicado ainda sem itemizacao que merecem maior atencao.
+- [ ] O filtro de justificativa insuficiente localiza competencias cuja faixa remanescente depende de melhor justificativa.
+- [ ] O filtro de itemizacao em andamento localiza competencias com cobertura parcial ainda relevante.
+- [ ] O filtro de baixa materialidade localiza competencias em que o remanescente existe, mas aparece apenas como faixa residual pequena.
+- [ ] O detalhe do contrato reflete a mesma prioridade visual e o mesmo motivo principal exibidos na conciliacao.
+- [ ] A priorizacao visual e os filtros leves nao alteram indevidamente a cobertura, a origem operacional, o fechamento ou a reabertura da competencia.
+Observacoes:
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel
+
+

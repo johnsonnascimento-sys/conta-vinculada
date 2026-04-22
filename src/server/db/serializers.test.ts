@@ -66,6 +66,7 @@ test("serializeReconciliation preserves occurrences and derives ordered history"
     reconciliation.differenceSummary.unitemizedBalanceOrigin,
     "sem_saldo_remanescente",
   );
+  assert.equal(reconciliation.differenceSummary.unitemizedBalancePriority, "baixa");
   assert.equal(reconciliation.differenceSummary.requiresDirectedReview, false);
   assert.deepEqual(
     reconciliation.history.timeline.map((event) => event.id),

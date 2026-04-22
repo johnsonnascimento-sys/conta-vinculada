@@ -314,6 +314,60 @@ function roundPercentage(value: number) {
   return Math.round(value * 10) / 10;
 }
 
+function buildUnitemizedBalancePriority(input: {
+  unitemizedBalanceOrigin: ReconciliationDifferenceSummary["unitemizedBalanceOrigin"];
+  explainedBalanceStillUnitemized: number;
+  requiresDirectedReview: boolean;
+}) {
+  if (input.unitemizedBalanceOrigin === "sem_saldo_remanescente") {
+    return {
+      unitemizedBalancePriority: "baixa" as const,
+      unitemizedBalancePriorityLabel: "baixa",
+      unitemizedBalancePriorityReason:
+        "Nao existe saldo explicado remanescente sem itemizacao nesta competencia.",
+    };
+  }
+
+  if (input.unitemizedBalanceOrigin === "saldo_residual_baixa_materialidade") {
+    return {
+      unitemizedBalancePriority: "baixa" as const,
+      unitemizedBalancePriorityLabel: "baixa",
+      unitemizedBalancePriorityReason:
+        "O remanescente sem itemizacao aparece apenas como faixa residual de baixa materialidade.",
+    };
+  }
+
+  if (
+    input.unitemizedBalanceOrigin === "justificativa_insuficiente" ||
+    input.unitemizedBalanceOrigin === "saldo_explicado_sem_detalhamento"
+  ) {
+    return {
+      unitemizedBalancePriority: "alta" as const,
+      unitemizedBalancePriorityLabel: "alta",
+      unitemizedBalancePriorityReason:
+        input.unitemizedBalanceOrigin === "justificativa_insuficiente"
+          ? "A prioridade sobe porque ja existem itens registrados, mas a justificativa minima ainda esta insuficiente."
+          : "A prioridade sobe porque o saldo explicado segue sem qualquer detalhamento minimo itemizado.",
+    };
+  }
+
+  if (input.requiresDirectedReview || input.explainedBalanceStillUnitemized > 0) {
+    return {
+      unitemizedBalancePriority: "media" as const,
+      unitemizedBalancePriorityLabel: "media",
+      unitemizedBalancePriorityReason:
+        "Ainda existe faixa explicada remanescente que pede revisao dirigida, mas sem alerta maximo.",
+    };
+  }
+
+  return {
+    unitemizedBalancePriority: "baixa" as const,
+    unitemizedBalancePriorityLabel: "baixa",
+    unitemizedBalancePriorityReason:
+      "A leitura atual nao indica necessidade de destaque adicional para o saldo remanescente.",
+  };
+}
+
 export function summarizeReconciliationItems({
   unexplainedDifference,
   items = [],
@@ -489,6 +543,16 @@ export function summarizeReconciliationDifferenceSummary({
       "O saldo explicado ainda sem itemizacao segue relevante para acompanhamento diario.";
   }
 
+  const {
+    unitemizedBalancePriority,
+    unitemizedBalancePriorityLabel,
+    unitemizedBalancePriorityReason,
+  } = buildUnitemizedBalancePriority({
+    unitemizedBalanceOrigin,
+    explainedBalanceStillUnitemized,
+    requiresDirectedReview,
+  });
+
   return {
     explainedAmount: explainedDifference,
     explainedItemsAmount: roundedExplainedItemsAmount,
@@ -501,6 +565,9 @@ export function summarizeReconciliationDifferenceSummary({
     unitemizedBalanceOrigin,
     unitemizedBalanceOriginLabel,
     unitemizedBalanceOriginReason,
+    unitemizedBalancePriority,
+    unitemizedBalancePriorityLabel,
+    unitemizedBalancePriorityReason,
     requiresDirectedReview,
     directedReviewRecommendation,
     directedReviewReason,
@@ -824,7 +891,10 @@ export function summarizeReconciliationOperationalQualification(
 }
 
 export function matchesReconciliationFilter(
-  record: Pick<ReconciliationRecord, "unexplainedDifference" | "formalClosure" | "qualification">,
+  record: Pick<
+    ReconciliationRecord,
+    "unexplainedDifference" | "formalClosure" | "qualification" | "differenceSummary"
+  >,
   filter: ReconciliationFilterKey,
 ) {
   if (filter === "todas") {
@@ -841,6 +911,30 @@ export function matchesReconciliationFilter(
 
   if (filter === "aptas_fechamento") {
     return record.formalClosure.state === "apta_para_fechamento";
+  }
+
+  if (filter === "remanescentes_relevantes") {
+    return (
+      record.differenceSummary.explainedBalanceStillUnitemized > 0 &&
+      record.differenceSummary.unitemizedBalancePriority !== "baixa"
+    );
+  }
+
+  if (filter === "itemizacao_andamento") {
+    return record.differenceSummary.unitemizedBalanceOrigin === "itemizacao_em_andamento";
+  }
+
+  if (filter === "justificativa_insuficiente_remanescente") {
+    return (
+      record.differenceSummary.unitemizedBalanceOrigin === "justificativa_insuficiente"
+    );
+  }
+
+  if (filter === "baixa_materialidade_remanescente") {
+    return (
+      record.differenceSummary.unitemizedBalanceOrigin ===
+      "saldo_residual_baixa_materialidade"
+    );
   }
 
   return (

@@ -231,7 +231,11 @@ export type ReconciliationFilterKey =
   | "divergencias_residuais"
   | "reabertas"
   | "aptas_fechamento"
-  | "justificativas_sensiveis";
+  | "justificativas_sensiveis"
+  | "remanescentes_relevantes"
+  | "itemizacao_andamento"
+  | "justificativa_insuficiente_remanescente"
+  | "baixa_materialidade_remanescente";
 
 export interface ReconciliationOperationalPointing {
   code: ReconciliationOperationalPointingCode;
@@ -296,6 +300,9 @@ export interface ReconciliationDifferenceSummary {
     | "saldo_residual_baixa_materialidade";
   unitemizedBalanceOriginLabel: string;
   unitemizedBalanceOriginReason: string;
+  unitemizedBalancePriority: ReconciliationOperationalPriority;
+  unitemizedBalancePriorityLabel: string;
+  unitemizedBalancePriorityReason: string;
   requiresDirectedReview: boolean;
   directedReviewRecommendation: string;
   directedReviewReason: string;

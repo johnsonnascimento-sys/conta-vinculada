@@ -19,7 +19,11 @@ function normalizeFilter(value?: string): ReconciliationFilterKey {
     value === "divergencias_residuais" ||
     value === "reabertas" ||
     value === "aptas_fechamento" ||
-    value === "justificativas_sensiveis"
+    value === "justificativas_sensiveis" ||
+    value === "remanescentes_relevantes" ||
+    value === "itemizacao_andamento" ||
+    value === "justificativa_insuficiente_remanescente" ||
+    value === "baixa_materialidade_remanescente"
   ) {
     return value;
   }
@@ -59,6 +63,37 @@ export async function getReconciliationOverview(filterValue?: string): Promise<R
       label: "Justificativas sensiveis",
       count: reconciliations.filter((item) =>
         matchesReconciliationFilter(item, "justificativas_sensiveis"),
+      ).length,
+    },
+    {
+      key: "remanescentes_relevantes",
+      label: "Remanescente relevante",
+      count: reconciliations.filter((item) =>
+        matchesReconciliationFilter(item, "remanescentes_relevantes"),
+      ).length,
+    },
+    {
+      key: "justificativa_insuficiente_remanescente",
+      label: "Justificativa insuficiente",
+      count: reconciliations.filter((item) =>
+        matchesReconciliationFilter(
+          item,
+          "justificativa_insuficiente_remanescente",
+        ),
+      ).length,
+    },
+    {
+      key: "itemizacao_andamento",
+      label: "Itemizacao em andamento",
+      count: reconciliations.filter((item) =>
+        matchesReconciliationFilter(item, "itemizacao_andamento"),
+      ).length,
+    },
+    {
+      key: "baixa_materialidade_remanescente",
+      label: "Baixa materialidade",
+      count: reconciliations.filter((item) =>
+        matchesReconciliationFilter(item, "baixa_materialidade_remanescente"),
       ).length,
     },
   ];

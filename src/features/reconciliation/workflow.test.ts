@@ -299,6 +299,7 @@ test("reconciliation difference summary marks sufficient coverage for small resi
   );
   assert.equal(summary.requiresDirectedReview, false);
   assert.equal(summary.directedReviewRecommendation, "acompanhar saldo residual");
+  assert.equal(summary.unitemizedBalancePriority, "baixa");
 });
 
 test("reconciliation difference summary classifies missing itemization origin as no-detail explained balance", () => {
@@ -313,6 +314,7 @@ test("reconciliation difference summary classifies missing itemization origin as
     summary.unitemizedBalanceOrigin,
     "saldo_explicado_sem_detalhamento",
   );
+  assert.equal(summary.unitemizedBalancePriority, "alta");
   assert.equal(summary.requiresDirectedReview, true);
   assert.equal(summary.directedReviewRecommendation, "iniciar revisao dirigida");
 });
@@ -339,10 +341,36 @@ test("reconciliation difference summary classifies insufficient justification se
 
   assert.equal(summary.explainedCoverageState, "itemizacao_parcial");
   assert.equal(summary.unitemizedBalanceOrigin, "justificativa_insuficiente");
+  assert.equal(summary.unitemizedBalancePriority, "alta");
   assert.equal(
     summary.directedReviewRecommendation,
     "complementar justificativa operacional",
   );
+});
+
+test("reconciliation difference summary derives medium priority when itemization is still in progress", () => {
+  const summary = summarizeReconciliationDifferenceSummary({
+    explainedDifference: 1200,
+    unexplainedDifference: 0,
+    items: [
+      {
+        id: "rec-item-005",
+        justification: "Parte do ajuste ja vinculada ao extrato.",
+        createdAt: "2026-04-20T09:00:00Z",
+        bankEntry: {
+          id: "entry-010",
+          description: "Ajuste conciliatorio parcial",
+          type: "ajuste",
+          amount: -400,
+          occurredOn: "2026-04-20",
+        },
+      },
+    ],
+  });
+
+  assert.equal(summary.unitemizedBalanceOrigin, "itemizacao_em_andamento");
+  assert.equal(summary.unitemizedBalancePriority, "media");
+  assert.equal(summary.requiresDirectedReview, true);
 });
 
 test("reconciliation filter matches apt and sensitive cases without changing closure rules", () => {
@@ -355,6 +383,11 @@ test("reconciliation filter matches apt and sensitive cases without changing clo
       hasPendingJustification: false,
       hasSensitiveJustification: false,
     },
+    differenceSummary: {
+      explainedBalanceStillUnitemized: 0,
+      unitemizedBalanceOrigin: "sem_saldo_remanescente",
+      unitemizedBalancePriority: "baixa",
+    },
   };
 
   const sensitiveRecord = {
@@ -366,11 +399,75 @@ test("reconciliation filter matches apt and sensitive cases without changing clo
       hasPendingJustification: true,
       hasSensitiveJustification: true,
     },
+    differenceSummary: {
+      explainedBalanceStillUnitemized: 0,
+      unitemizedBalanceOrigin: "sem_saldo_remanescente",
+      unitemizedBalancePriority: "baixa",
+    },
   };
 
   assert.equal(matchesReconciliationFilter(aptRecord as never, "aptas_fechamento"), true);
   assert.equal(
     matchesReconciliationFilter(sensitiveRecord as never, "justificativas_sensiveis"),
+    true,
+  );
+});
+
+test("reconciliation filter matches remaining explained balance filters", () => {
+  const inProgressRecord = {
+    unexplainedDifference: 0,
+    formalClosure: {
+      state: "aberta",
+    },
+    qualification: {
+      hasPendingJustification: false,
+      hasSensitiveJustification: false,
+    },
+    differenceSummary: {
+      explainedBalanceStillUnitemized: 1885.12,
+      unitemizedBalanceOrigin: "itemizacao_em_andamento",
+      unitemizedBalancePriority: "media",
+    },
+  };
+
+  const insufficientRecord = {
+    ...inProgressRecord,
+    differenceSummary: {
+      explainedBalanceStillUnitemized: 600,
+      unitemizedBalanceOrigin: "justificativa_insuficiente",
+      unitemizedBalancePriority: "alta",
+    },
+  };
+
+  const lowMaterialityRecord = {
+    ...inProgressRecord,
+    differenceSummary: {
+      explainedBalanceStillUnitemized: 120,
+      unitemizedBalanceOrigin: "saldo_residual_baixa_materialidade",
+      unitemizedBalancePriority: "baixa",
+    },
+  };
+
+  assert.equal(
+    matchesReconciliationFilter(inProgressRecord as never, "remanescentes_relevantes"),
+    true,
+  );
+  assert.equal(
+    matchesReconciliationFilter(inProgressRecord as never, "itemizacao_andamento"),
+    true,
+  );
+  assert.equal(
+    matchesReconciliationFilter(
+      insufficientRecord as never,
+      "justificativa_insuficiente_remanescente",
+    ),
+    true,
+  );
+  assert.equal(
+    matchesReconciliationFilter(
+      lowMaterialityRecord as never,
+      "baixa_materialidade_remanescente",
+    ),
     true,
   );
 });

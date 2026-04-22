@@ -41,6 +41,10 @@ test("contract detail reuses the same derived reconciliation history shown in re
     detailReconciliation?.differenceSummary.unitemizedBalanceOrigin,
     listReconciliation?.differenceSummary.unitemizedBalanceOrigin,
   );
+  assert.equal(
+    detailReconciliation?.differenceSummary.unitemizedBalancePriority,
+    listReconciliation?.differenceSummary.unitemizedBalancePriority,
+  );
   assert.deepEqual(
     detailReconciliation?.history.timeline,
     listReconciliation?.history.timeline,

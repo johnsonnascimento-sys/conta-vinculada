@@ -764,3 +764,20 @@ Essa origem pode aparecer, de forma simples, como:
 Essa classificacao serve apenas para orientar a revisao dirigida do saldo explicado remanescente. Ela nao cria tarefa formal, nao representa verdade contabil definitiva e nao substitui a leitura do historico, da cobertura e da diferenca nao explicada residual.
 
 O detalhe do contrato passou a refletir a mesma origem operacional presumida exibida na conciliacao, junto com a mesma recomendacao simples de revisao dirigida.
+
+### 11.9 Priorizacao visual e filtros leves do saldo remanescente
+Quando ainda existir saldo explicado remanescente sem itemizacao minima, a conciliacao passa a indicar uma priorizacao visual simples para ajudar a leitura diaria.
+Essa priorizacao pode aparecer como:
+- alta, quando a faixa remanescente decorre principalmente de ausencia de detalhamento minimo ou de justificativa ainda insuficiente;
+- media, quando a itemizacao ja comecou, mas o saldo remanescente ainda pede revisao dirigida;
+- baixa, quando nao ha saldo remanescente ou quando a faixa restante tem baixa materialidade dentro da cobertura ja registrada.
+Junto dessa prioridade, a tela tambem informa o motivo principal do destaque visual. Assim, o usuario consegue distinguir com mais clareza se a atencao maior decorre de falta de detalhamento, justificativa insuficiente, itemizacao em andamento ou simples baixa materialidade residual.
+Os filtros da conciliacao passaram a incluir recortes especificos para localizar rapidamente:
+- remanescente relevante;
+- justificativa insuficiente;
+- itemizacao em andamento;
+- baixa materialidade.
+Esses filtros nao criam fila de tarefas, nao geram aprovacao adicional e nao alteram o fechamento, a reabertura ou a diferenca nao explicada residual. Eles servem apenas para organizar melhor a leitura diaria da conciliacao.
+O detalhe do contrato passou a refletir a mesma prioridade visual do saldo remanescente e o mesmo motivo principal exibidos na conciliacao.
+
+

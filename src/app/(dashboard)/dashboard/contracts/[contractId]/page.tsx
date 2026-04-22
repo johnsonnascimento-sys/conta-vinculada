@@ -157,6 +157,18 @@ function getCoverageTone(reconciliation: ReconciliationRecord) {
   return "success" as const;
 }
 
+function getUnitemizedPriorityTone(reconciliation: ReconciliationRecord) {
+  if (reconciliation.differenceSummary.unitemizedBalancePriority === "alta") {
+    return "danger" as const;
+  }
+
+  if (reconciliation.differenceSummary.unitemizedBalancePriority === "media") {
+    return "warning" as const;
+  }
+
+  return "success" as const;
+}
+
 interface ContractPageProps {
   params: Promise<{ contractId: string }>;
 }
@@ -331,6 +343,10 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                               <Badge tone="neutral">
                                 cobertura {reconciliation.differenceSummary.explainedCoveragePercentage}%
                               </Badge>
+                              <Badge tone={getUnitemizedPriorityTone(reconciliation)}>
+                                atencao remanescente{" "}
+                                {reconciliation.differenceSummary.unitemizedBalancePriorityLabel}
+                              </Badge>
                             </div>
                             <p>{reconciliation.differenceSummary.explainedCoverageReason}</p>
                             <p>
@@ -339,6 +355,13 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                             </p>
                             <p>
                               {reconciliation.differenceSummary.unitemizedBalanceOriginReason}
+                            </p>
+                            <p>
+                              Priorizacao visual:{" "}
+                              {reconciliation.differenceSummary.unitemizedBalancePriorityLabel}
+                            </p>
+                            <p>
+                              {reconciliation.differenceSummary.unitemizedBalancePriorityReason}
                             </p>
                             <p>
                               Revisao dirigida:{" "}
@@ -523,6 +546,10 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                     <Badge tone="neutral">
                       cobertura {item.differenceSummary.explainedCoveragePercentage}%
                     </Badge>
+                    <Badge tone={getUnitemizedPriorityTone(item)}>
+                      atencao remanescente{" "}
+                      {item.differenceSummary.unitemizedBalancePriorityLabel}
+                    </Badge>
                   </div>
                   <p className="text-sm text-[var(--color-muted)]">
                     {item.differenceSummary.explainedCoverageReason}
@@ -532,6 +559,13 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                   </p>
                   <p className="text-sm text-[var(--color-muted)]">
                     {item.differenceSummary.unitemizedBalanceOriginReason}
+                  </p>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    Priorização visual:{" "}
+                    {item.differenceSummary.unitemizedBalancePriorityLabel}
+                  </p>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    {item.differenceSummary.unitemizedBalancePriorityReason}
                   </p>
                   <p className="text-sm text-[var(--color-muted)]">
                     Revisão dirigida: {item.differenceSummary.directedReviewRecommendation}

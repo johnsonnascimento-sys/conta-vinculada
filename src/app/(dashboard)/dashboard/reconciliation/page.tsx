@@ -88,6 +88,18 @@ function getCoverageTone(item: ReconciliationRecord) {
   return "success" as const;
 }
 
+function getUnitemizedPriorityTone(item: ReconciliationRecord) {
+  if (item.differenceSummary.unitemizedBalancePriority === "alta") {
+    return "danger" as const;
+  }
+
+  if (item.differenceSummary.unitemizedBalancePriority === "media") {
+    return "warning" as const;
+  }
+
+  return "success" as const;
+}
+
 function getAvailableBankEntries(
   item: ReconciliationRecord,
   bankEntries: BankEntry[],
@@ -247,6 +259,10 @@ export default async function ReconciliationPage({
                           <Badge tone="neutral">
                             cobertura {item.differenceSummary.explainedCoveragePercentage}%
                           </Badge>
+                          <Badge tone={getUnitemizedPriorityTone(item)}>
+                            atencao remanescente{" "}
+                            {item.differenceSummary.unitemizedBalancePriorityLabel}
+                          </Badge>
                         </div>
                         <p>
                           Diferenca explicada com itemizacao minima:{" "}
@@ -268,6 +284,11 @@ export default async function ReconciliationPage({
                           {item.differenceSummary.unitemizedBalanceOriginLabel}
                         </p>
                         <p>{item.differenceSummary.unitemizedBalanceOriginReason}</p>
+                        <p>
+                          Priorizacao visual:{" "}
+                          {item.differenceSummary.unitemizedBalancePriorityLabel}
+                        </p>
+                        <p>{item.differenceSummary.unitemizedBalancePriorityReason}</p>
                         <p>
                           Revisao dirigida:{" "}
                           {item.differenceSummary.directedReviewRecommendation}

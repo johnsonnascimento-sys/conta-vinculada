@@ -40,6 +40,7 @@ test("reconciliation overview exposes minimum reconciliation items and explained
     reconciliation?.differenceSummary.unitemizedBalanceOrigin,
     "itemizacao_em_andamento",
   );
+  assert.equal(reconciliation?.differenceSummary.unitemizedBalancePriority, "media");
   assert.equal(
     reconciliation?.differenceSummary.directedReviewRecommendation,
     "revisar saldo sem itemizacao",
@@ -56,5 +57,30 @@ test("reconciliation overview exposes minimum reconciliation items and explained
   assert.equal(
     completeCoverage?.differenceSummary.unitemizedBalanceOrigin,
     "sem_saldo_remanescente",
+  );
+  assert.equal(
+    completeCoverage?.differenceSummary.unitemizedBalancePriority,
+    "baixa",
+  );
+});
+
+test("reconciliation overview filters remaining explained balances with lightweight tracking", async () => {
+  const overview = await getReconciliationOverview("remanescentes_relevantes");
+
+  assert.equal(overview.selectedFilter, "remanescentes_relevantes");
+  assert.equal(overview.reconciliations.length, 1);
+  assert.equal(
+    overview.reconciliations[0].differenceSummary.unitemizedBalancePriority,
+    "media",
+  );
+  assert.ok(
+    overview.filters.find(
+      (item) => item.key === "itemizacao_andamento" && item.count >= 1,
+    ),
+  );
+  assert.ok(
+    overview.filters.find(
+      (item) => item.key === "baixa_materialidade_remanescente" && item.count >= 0,
+    ),
   );
 });

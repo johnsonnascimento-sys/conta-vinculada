@@ -318,3 +318,16 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 ### Proximo bloco sugerido
 
 - [ ] Consolidar criterios minimos de priorizacao visual e filtros leves para faixas explicadas remanescentes.
+
+
+
+### Atualizacao da rodada
+
+- [x] Derivar prioridade visual minima para o saldo explicado ainda sem itemizacao.
+- [x] Expor motivo principal da priorizacao com base na origem operacional remanescente.
+- [x] Adicionar filtros leves para remanescente relevante, justificativa insuficiente, itemizacao em andamento e baixa materialidade.
+- [x] Manter coerencia entre a conciliacao e o detalhe do contrato sem criar fila de tarefas.
+
+### Proximo bloco sugerido
+
+- [ ] Consolidar quadro resumido por contrato com cobertura, remanescente explicado e residual nao explicado para leitura gerencial minima.

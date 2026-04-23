@@ -840,3 +840,7 @@ Com isso, o proximo bloco seguro passa a ser a qualificacao leve da evolucao tem
 ## Atualizacao incremental mais recente
 A rodada atual qualificou a evolucao temporal da recorrencia, distinguindo quando os sinais recorrentes ainda permanecem ativos nas competencias mais recentes, quando estao em reducao e quando ficaram restritos ao historico do contrato. A leitura continua leve, derivada e sem score complexo.
 Com isso, o proximo bloco seguro passa a ser a qualificacao leve da estabilidade desses sinais recorrentes por janela recente, destacando quando o contrato alterna entre perfis ou quando passa a consolidar um mesmo padrao por mais de um ciclo recente.
+
+## Atualizacao incremental mais recente
+A rodada atual qualificou a estabilidade dos sinais recorrentes nas competencias mais recentes, distinguindo quando o contrato repete o mesmo perfil de divergencia, quando alterna entre perfis e quando ainda mostra apenas um padrao em consolidacao. A leitura continua leve, derivada e sem taxonomia pesada.
+Com isso, o proximo bloco seguro passa a ser a qualificacao leve da materialidade recente desses padroes, distinguindo quando a alternancia ou a consolidacao esta associada a saldo residual mais relevante ou a faixas operacionais menores.

@@ -128,6 +128,21 @@ function getRecurrenceTemporalTone(item: ReconciliationRecord) {
   return "neutral" as const;
 }
 
+function getRecentStabilityTone(item: ReconciliationRecord) {
+  if (item.differenceReading.recentStabilityContext === "padrao_estavel") {
+    return "danger" as const;
+  }
+
+  if (
+    item.differenceReading.recentStabilityContext === "padrao_alternante" ||
+    item.differenceReading.recentStabilityContext === "padrao_em_consolidacao"
+  ) {
+    return "warning" as const;
+  }
+
+  return "neutral" as const;
+}
+
 function getAvailableBankEntries(
   item: ReconciliationRecord,
   bankEntries: BankEntry[],
@@ -328,10 +343,14 @@ export default async function ReconciliationPage({
                           <Badge tone={getRecurrenceTemporalTone(item)}>
                             {item.differenceReading.recurrenceTemporalContextLabel}
                           </Badge>
+                          <Badge tone={getRecentStabilityTone(item)}>
+                            {item.differenceReading.recentStabilityContextLabel}
+                          </Badge>
                         </div>
                         <p>{item.differenceReading.profileReason}</p>
                         <p>{item.differenceReading.recurrenceContextReason}</p>
                         <p>{item.differenceReading.recurrenceTemporalContextReason}</p>
+                        <p>{item.differenceReading.recentStabilityContextReason}</p>
                         <p>
                           Priorizacao visual:{" "}
                           {item.differenceSummary.unitemizedBalancePriorityLabel}

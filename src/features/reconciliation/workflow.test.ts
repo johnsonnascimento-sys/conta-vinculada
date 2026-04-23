@@ -595,6 +595,13 @@ function makeRecord(overrides: Record<string, unknown>) {
       recurrenceTemporalContextReason:
         overrides.recurrenceTemporalContextReason ??
         "Ainda nao ha base temporal suficiente para indicar se o padrao recorrente segue ativo ou ficou no historico do contrato.",
+      recentStabilityContext:
+        overrides.recentStabilityContext ?? "sem_base_recente_suficiente",
+      recentStabilityContextLabel:
+        overrides.recentStabilityContextLabel ?? "sem base recente suficiente",
+      recentStabilityContextReason:
+        overrides.recentStabilityContextReason ??
+        "Ainda nao ha janela recente suficiente para indicar se o perfil esta estavel, alternante ou em consolidacao.",
     },
   };
 }
@@ -804,4 +811,52 @@ test("annotate reconciliation recurrence distinguishes active recent pattern fro
   assert.equal(annotated[1]?.differenceReading.recurrenceTemporalContext, "padrao_historico");
   assert.equal(annotated[2]?.differenceReading.recurrenceTemporalContext, "padrao_ativo");
   assert.equal(annotated[3]?.differenceReading.recurrenceTemporalContext, "padrao_ativo");
+});
+
+test("contract reconciliation summary marks recent stability as stable when same profile repeats in recent window", () => {
+  const records = [
+    makeRecord({ competency: "2026-01", profile: "pontual", explainedAmount: 500, explainedItemsAmount: 450 }),
+    makeRecord({ competency: "2026-02", profile: "pontual", explainedAmount: 550, explainedItemsAmount: 500 }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recentStabilityState, "padrao_estavel");
+  assert.equal(summary.recentProfileSignals[0]?.code, "pontual");
+});
+
+test("contract reconciliation summary marks recent stability as alternating when recent window changes profile", () => {
+  const records = [
+    makeRecord({ competency: "2026-01", profile: "estrutural", unexplainedAmount: 500, hasResidualUnexplained: true }),
+    makeRecord({ competency: "2026-02", profile: "pontual", explainedAmount: 550, explainedItemsAmount: 500 }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recentStabilityState, "padrao_alternante");
+  assert.equal(summary.recentProfileSignals.length, 2);
+});
+
+test("contract reconciliation summary marks recent stability as consolidation when only one recent profile is meaningful", () => {
+  const records = [
+    makeRecord({ competency: "2026-01", profile: "indeterminada" }),
+    makeRecord({ competency: "2026-02", profile: "mista", explainedAmount: 600, explainedBalanceStillUnitemized: 200, unitemizedBalancePriority: "media" }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recentStabilityState, "padrao_em_consolidacao");
+  assert.equal(summary.recentProfileSignals[0]?.code, "mista");
+});
+
+test("annotate reconciliation recurrence marks recent competencies with recent stability context", () => {
+  const records = [
+    makeRecord({ competency: "2026-01", profile: "estrutural", unexplainedAmount: 500, hasResidualUnexplained: true }),
+    makeRecord({ competency: "2026-02", profile: "pontual", explainedAmount: 550, explainedItemsAmount: 500 }),
+  ];
+
+  const annotated = annotateReconciliationRecurrenceWithinContract(records as never[]);
+
+  assert.equal(annotated[0]?.differenceReading.recentStabilityContext, "padrao_alternante");
+  assert.equal(annotated[1]?.differenceReading.recentStabilityContext, "padrao_alternante");
 });

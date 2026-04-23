@@ -324,6 +324,14 @@ export interface ReconciliationDifferenceReadingSummary {
     | "padrao_historico";
   recurrenceTemporalContextLabel: string;
   recurrenceTemporalContextReason: string;
+  recentStabilityContext:
+    | "sem_base_recente_suficiente"
+    | "fora_da_janela_recente"
+    | "padrao_estavel"
+    | "padrao_alternante"
+    | "padrao_em_consolidacao";
+  recentStabilityContextLabel: string;
+  recentStabilityContextReason: string;
 }
 
 export type CompetencyOccurrenceType =
@@ -640,6 +648,14 @@ export interface ContractReconciliationSummary {
   recurringSignals: ContractRecurringSignal[];
   recentRecurringSignals: ContractRecurringSignal[];
   historicalRecurringSignals: ContractRecurringSignal[];
+  recentStabilityState:
+    | "sem_base_recente_suficiente"
+    | "padrao_estavel"
+    | "padrao_alternante"
+    | "padrao_em_consolidacao";
+  recentStabilityStateLabel: string;
+  recentStabilityStateReason: string;
+  recentProfileSignals: ContractRecurringSignal[];
   hasOpenUnexplained: boolean;
   hasReopenedCompetencies: boolean;
   hasRelevantUnitemized: boolean;

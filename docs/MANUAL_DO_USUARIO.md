@@ -851,3 +851,13 @@ No detalhe do contrato, a recorrencia pode aparecer como:
 - sem base temporal suficiente, quando ainda nao ha competencias suficientes ou recorrencia relevante para comparar periodo recente e historico.
 A mesma leitura temporal passa a aparecer por competencia, indicando se aquele caso participa de um padrao ainda ativo, de um padrao mais historico, de um caso isolado ou se ainda nao ha base temporal suficiente.
 Essa leitura continua apenas orientativa. Ela nao cria fila de tarefas, nao gera decisao automatica e nao substitui a analise operacional da competencia.
+
+### 11.15 Estabilidade leve dos sinais recentes
+A leitura de recorrencia passou a indicar tambem se as competencias mais recentes do contrato repetem o mesmo perfil de divergencia ou se alternam entre perfis diferentes.
+No resumo do contrato, a janela recente pode aparecer como:
+- padrao estavel, quando as competencias mais recentes repetem de forma consistente o mesmo perfil relevante;
+- padrao alternante, quando as competencias mais recentes oscilam entre perfis diferentes;
+- padrao em consolidacao, quando a janela recente ja aponta um perfil relevante, mas ainda sem repeticao suficiente para trata-lo como estavel;
+- sem base recente suficiente, quando nao ha janela recente relevante para essa leitura.
+Na conciliacao e no detalhe do contrato, cada competencia tambem passa a indicar se participa de padrao recente estavel, alternante, em consolidacao ou se ficou fora da janela recente usada para essa leitura.
+Essa leitura continua leve e orientativa. Ela nao cria fila de tarefas, nao substitui a analise operacional e nao transforma estabilidade recente em conclusao definitiva.

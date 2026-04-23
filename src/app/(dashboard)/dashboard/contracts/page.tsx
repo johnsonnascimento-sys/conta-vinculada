@@ -74,6 +74,26 @@ function getRecurrenceTemporalTone(contract: ContractOverview) {
   return "neutral" as const;
 }
 
+function getRecentStabilityTone(contract: ContractOverview) {
+  if (
+    contract.contractReconciliationSummary.recentStabilityState ===
+    "padrao_estavel"
+  ) {
+    return "danger" as const;
+  }
+
+  if (
+    contract.contractReconciliationSummary.recentStabilityState ===
+      "padrao_alternante" ||
+    contract.contractReconciliationSummary.recentStabilityState ===
+      "padrao_em_consolidacao"
+  ) {
+    return "warning" as const;
+  }
+
+  return "neutral" as const;
+}
+
 export default async function ContractsPage() {
   const contracts = await getContractsOverview();
 
@@ -132,6 +152,12 @@ export default async function ContractsPage() {
                             .recurrenceTemporalStateLabel
                         }
                       </Badge>
+                      <Badge tone={getRecentStabilityTone(contract)}>
+                        {
+                          contract.contractReconciliationSummary
+                            .recentStabilityStateLabel
+                        }
+                      </Badge>
                     </div>
                     <p className="font-medium text-[var(--color-ink)]">
                       {contract.contractReconciliationSummary.managerialAttentionReason}
@@ -158,6 +184,12 @@ export default async function ContractsPage() {
                       {
                         contract.contractReconciliationSummary
                           .recurrenceTemporalStateReason
+                      }
+                    </p>
+                    <p>
+                      {
+                        contract.contractReconciliationSummary
+                          .recentStabilityStateReason
                       }
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -187,6 +219,13 @@ export default async function ContractsPage() {
                         (signal) => (
                           <Badge key={`recent-${signal.code}`} tone="warning">
                             recente: {signal.label}
+                          </Badge>
+                        ),
+                      )}
+                      {contract.contractReconciliationSummary.recentProfileSignals.map(
+                        (signal) => (
+                          <Badge key={`recent-profile-${signal.code}`} tone="warning">
+                            janela: {signal.label}
                           </Badge>
                         ),
                       )}

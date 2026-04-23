@@ -400,6 +400,10 @@ export function summarizeReconciliationDifferenceReading({
     recurrenceTemporalContextLabel: "sem base temporal suficiente",
     recurrenceTemporalContextReason:
       "Ainda nao ha base temporal suficiente para indicar se o padrao recorrente segue ativo ou ficou no historico do contrato.",
+    recentStabilityContext: "sem_base_recente_suficiente" as const,
+    recentStabilityContextLabel: "sem base recente suficiente",
+    recentStabilityContextReason:
+      "Ainda nao ha janela recente suficiente para indicar se o perfil esta estavel, alternante ou em consolidacao.",
   };
   const hasStructuralSignals =
     hasResidualUnexplained ||
@@ -802,11 +806,143 @@ function summarizeContractRecurrenceTemporalState(records: ReconciliationRecord[
   };
 }
 
+function buildRecentProfileSignals(records: ReconciliationRecord[]) {
+  const counts = {
+    estrutural: 0,
+    pontual: 0,
+    mista: 0,
+  };
+  type RecentProfileCode = keyof typeof counts;
+
+  for (const record of records) {
+    if (record.differenceReading.profile === "estrutural") {
+      counts.estrutural += 1;
+    }
+
+    if (record.differenceReading.profile === "pontual") {
+      counts.pontual += 1;
+    }
+
+    if (record.differenceReading.profile === "mista") {
+      counts.mista += 1;
+    }
+  }
+
+  const signalMetadata: Array<{ code: RecentProfileCode; label: string }> = [
+    { code: "estrutural", label: "perfil estrutural recente" },
+    { code: "pontual", label: "perfil pontual recente" },
+    { code: "mista", label: "perfil misto recente" },
+  ];
+
+  return signalMetadata
+    .filter((signal) => counts[signal.code] > 0)
+    .map((signal) => ({
+      code: signal.code,
+      label: signal.label,
+      count: counts[signal.code],
+    }));
+}
+
+function summarizeRecentRecurrenceStability(records: ReconciliationRecord[]) {
+  const sortedRecords = [...records].sort((left, right) =>
+    compareCompetencyCode(left.competency, right.competency),
+  );
+  const recentWindowSize = Math.min(2, sortedRecords.length);
+  const recentRecords = sortedRecords.slice(-recentWindowSize);
+  const meaningfulRecentRecords = recentRecords.filter(
+    (record) => record.differenceReading.profile !== "indeterminada",
+  );
+  const recentProfileSignals = buildRecentProfileSignals(meaningfulRecentRecords);
+  const recentProfiles = Array.from(
+    new Set(meaningfulRecentRecords.map((record) => record.differenceReading.profile)),
+  );
+
+  if (recentWindowSize < 2 || meaningfulRecentRecords.length === 0) {
+    return {
+      recentStabilityState: "sem_base_recente_suficiente" as const,
+      recentStabilityStateLabel: "sem base recente suficiente",
+      recentStabilityStateReason:
+        "Ainda nao ha competencias recentes suficientes com perfil relevante para avaliar estabilidade do padrao.",
+      recentProfileSignals,
+      recentCompetencies: new Set<string>(recentRecords.map((record) => record.competency)),
+      stableProfiles: new Set<"estrutural" | "pontual" | "mista">(),
+      alternatingProfiles: new Set<"estrutural" | "pontual" | "mista">(),
+      consolidationProfiles: new Set<"estrutural" | "pontual" | "mista">(),
+    };
+  }
+
+  if (meaningfulRecentRecords.length === 1) {
+    return {
+      recentStabilityState: "padrao_em_consolidacao" as const,
+      recentStabilityStateLabel: "padrao em consolidacao",
+      recentStabilityStateReason:
+        "A janela recente ja aponta um perfil relevante, mas ainda sem repeticao suficiente para trata-lo como padrao estavel.",
+      recentProfileSignals,
+      recentCompetencies: new Set<string>(recentRecords.map((record) => record.competency)),
+      stableProfiles: new Set<"estrutural" | "pontual" | "mista">(),
+      alternatingProfiles: new Set<"estrutural" | "pontual" | "mista">(),
+      consolidationProfiles: new Set(
+        meaningfulRecentRecords
+          .map((record) => record.differenceReading.profile)
+          .filter((profile): profile is "estrutural" | "pontual" | "mista" => profile !== "indeterminada"),
+      ),
+    };
+  }
+
+  if (recentProfiles.length === 1) {
+    const stableProfile = meaningfulRecentRecords[0]!.differenceReading.profile;
+    return {
+      recentStabilityState: "padrao_estavel" as const,
+      recentStabilityStateLabel: "padrao estavel",
+      recentStabilityStateReason: `As competencias mais recentes repetem de forma consistente o perfil ${meaningfulRecentRecords[0]!.differenceReading.profileLabel}.`,
+      recentProfileSignals,
+      recentCompetencies: new Set<string>(recentRecords.map((record) => record.competency)),
+      stableProfiles: new Set(
+        stableProfile === "indeterminada" ? [] : [stableProfile],
+      ),
+      alternatingProfiles: new Set<"estrutural" | "pontual" | "mista">(),
+      consolidationProfiles: new Set<"estrutural" | "pontual" | "mista">(),
+    };
+  }
+
+  if (recentProfiles.length >= 2) {
+    return {
+      recentStabilityState: "padrao_alternante" as const,
+      recentStabilityStateLabel: "padrao alternante",
+      recentStabilityStateReason:
+        "As competencias mais recentes oscilam entre perfis diferentes de divergencia, sem consolidar um unico padrao predominante.",
+      recentProfileSignals,
+      recentCompetencies: new Set<string>(recentRecords.map((record) => record.competency)),
+      stableProfiles: new Set<"estrutural" | "pontual" | "mista">(),
+      alternatingProfiles: new Set(
+        recentProfiles.filter(
+          (profile): profile is "estrutural" | "pontual" | "mista" =>
+            profile !== "indeterminada",
+        ),
+      ),
+      consolidationProfiles: new Set<"estrutural" | "pontual" | "mista">(),
+    };
+  }
+
+  return {
+    recentStabilityState: "sem_base_recente_suficiente" as const,
+    recentStabilityStateLabel: "sem base recente suficiente",
+    recentStabilityStateReason:
+      "Ainda nao ha sinal recente suficiente para qualificar estabilidade do padrao.",
+    recentProfileSignals,
+    recentCompetencies: new Set<string>(recentRecords.map((record) => record.competency)),
+    stableProfiles: new Set<"estrutural" | "pontual" | "mista">(),
+    alternatingProfiles: new Set<"estrutural" | "pontual" | "mista">(),
+    consolidationProfiles: new Set<"estrutural" | "pontual" | "mista">(),
+  };
+}
+
 export function annotateReconciliationRecurrenceWithinContract(
   records: ReconciliationRecord[],
 ): ReconciliationRecord[] {
   const { counts, recurringSignals } = buildContractRecurringSignalData(records);
   const temporalSummary = summarizeContractRecurrenceTemporalState(records);
+  const recentStabilitySummary = summarizeRecentRecurrenceStability(records);
 
   return records.map((record) => {
     const profileCount =
@@ -857,6 +993,9 @@ export function annotateReconciliationRecurrenceWithinContract(
     let recurrenceTemporalContext: ReconciliationDifferenceReadingSummary["recurrenceTemporalContext"];
     let recurrenceTemporalContextLabel: string;
     let recurrenceTemporalContextReason: string;
+    let recentStabilityContext: ReconciliationDifferenceReadingSummary["recentStabilityContext"];
+    let recentStabilityContextLabel: string;
+    let recentStabilityContextReason: string;
     const recordSignalCodes = Array.from(getRecordRecurringSignalCodes(record)).filter(
       (code) =>
         temporalSummary.activeSignalCodes.has(code) ||
@@ -906,6 +1045,55 @@ export function annotateReconciliationRecurrenceWithinContract(
         "A competencia ficou concentrada na parte historica do contrato, sem sustentar sinal recorrente ativo nas leituras mais recentes.";
     }
 
+    if (
+      recentStabilitySummary.recentStabilityState === "sem_base_recente_suficiente"
+    ) {
+      recentStabilityContext = "sem_base_recente_suficiente";
+      recentStabilityContextLabel = "sem base recente suficiente";
+      recentStabilityContextReason =
+        "Ainda nao ha janela recente suficiente para indicar se o contrato esta repetindo o mesmo perfil ou alternando sinais.";
+    } else if (!recentStabilitySummary.recentCompetencies.has(record.competency)) {
+      recentStabilityContext = "fora_da_janela_recente";
+      recentStabilityContextLabel = "fora da janela recente";
+      recentStabilityContextReason =
+        "Esta competencia ajuda a compor o historico do contrato, mas nao define a estabilidade da janela mais recente.";
+    } else if (
+      recentStabilitySummary.recentStabilityState === "padrao_estavel" &&
+      recentStabilitySummary.stableProfiles.has(
+        record.differenceReading.profile as "estrutural" | "pontual" | "mista",
+      )
+    ) {
+      recentStabilityContext = "padrao_estavel";
+      recentStabilityContextLabel = "padrao recente estavel";
+      recentStabilityContextReason =
+        "A competencia participa de repeticao consistente do mesmo perfil nas leituras mais recentes do contrato.";
+    } else if (
+      recentStabilitySummary.recentStabilityState === "padrao_alternante" &&
+      recentStabilitySummary.alternatingProfiles.has(
+        record.differenceReading.profile as "estrutural" | "pontual" | "mista",
+      )
+    ) {
+      recentStabilityContext = "padrao_alternante";
+      recentStabilityContextLabel = "padrao recente alternante";
+      recentStabilityContextReason =
+        "A competencia integra uma janela recente em que o contrato oscila entre perfis diferentes de divergencia.";
+    } else if (
+      recentStabilitySummary.recentStabilityState === "padrao_em_consolidacao" &&
+      recentStabilitySummary.consolidationProfiles.has(
+        record.differenceReading.profile as "estrutural" | "pontual" | "mista",
+      )
+    ) {
+      recentStabilityContext = "padrao_em_consolidacao";
+      recentStabilityContextLabel = "padrao recente em consolidacao";
+      recentStabilityContextReason =
+        "A competencia aponta um perfil recente que pode se consolidar, mas ainda sem repeticao suficiente para leitura estavel.";
+    } else {
+      recentStabilityContext = "fora_da_janela_recente";
+      recentStabilityContextLabel = "fora da leitura recente";
+      recentStabilityContextReason =
+        "A competencia nao define a leitura de estabilidade da janela recente do contrato.";
+    }
+
     return {
       ...record,
       differenceReading: {
@@ -916,6 +1104,9 @@ export function annotateReconciliationRecurrenceWithinContract(
         recurrenceTemporalContext,
         recurrenceTemporalContextLabel,
         recurrenceTemporalContextReason,
+        recentStabilityContext,
+        recentStabilityContextLabel,
+        recentStabilityContextReason,
       },
     };
   });
@@ -1523,6 +1714,11 @@ export function summarizeContractReconciliation(
         "Nao ha base temporal suficiente para comparar competencias recentes e historicas do contrato.",
       recentRecurringSignals: [],
       historicalRecurringSignals: [],
+      recentStabilityState: "sem_base_recente_suficiente",
+      recentStabilityStateLabel: "sem base recente suficiente",
+      recentStabilityStateReason:
+        "Nao ha janela recente suficiente para avaliar estabilidade do padrao.",
+      recentProfileSignals: [],
       hasOpenUnexplained: false,
       hasReopenedCompetencies: false,
       hasRelevantUnitemized: false,
@@ -1561,6 +1757,7 @@ export function summarizeContractReconciliation(
   const overallTotal = totalExplainedDifference + totalUnexplainedResidual;
   const { counts, recurringSignals } = buildContractRecurringSignalData(records);
   const temporalSummary = summarizeContractRecurrenceTemporalState(records);
+  const recentStabilitySummary = summarizeRecentRecurrenceStability(records);
   const overallCoveragePercentage =
     overallTotal > 0
       ? Math.round((totalCoveredByItems / overallTotal) * 100)
@@ -1654,6 +1851,10 @@ export function summarizeContractReconciliation(
     recurrenceTemporalStateReason: temporalSummary.recurrenceTemporalStateReason,
     recentRecurringSignals: temporalSummary.recentRecurringSignals,
     historicalRecurringSignals: temporalSummary.historicalRecurringSignals,
+    recentStabilityState: recentStabilitySummary.recentStabilityState,
+    recentStabilityStateLabel: recentStabilitySummary.recentStabilityStateLabel,
+    recentStabilityStateReason: recentStabilitySummary.recentStabilityStateReason,
+    recentProfileSignals: recentStabilitySummary.recentProfileSignals,
     hasOpenUnexplained,
     hasReopenedCompetencies,
     hasRelevantUnitemized,

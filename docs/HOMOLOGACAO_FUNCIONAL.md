@@ -578,3 +578,17 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] Nao aplicavel
+
+### 11.15 Estabilidade leve dos sinais recentes
+- [ ] O detalhe do contrato indica se a janela recente esta em padrao estavel, alternante, em consolidacao ou sem base recente suficiente.
+- [ ] O motivo operacional curto da estabilidade recente e coerente com os perfis das competencias mais recentes.
+- [ ] O resumo do contrato mostra quais perfis predominam na janela recente.
+- [ ] A conciliacao e o detalhe do contrato indicam, por competencia, se ela participa de padrao recente estavel, alternante, em consolidacao ou se ficou fora da janela recente.
+- [ ] A nova leitura preserva a recorrencia leve, a evolucao temporal, a cobertura e a prioridade visual ja existentes.
+- [ ] Listagem, detalhe e conciliacao permanecem coerentes quando houver reflexo dessa leitura.
+Observacoes:
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel

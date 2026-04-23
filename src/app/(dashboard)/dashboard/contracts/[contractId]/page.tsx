@@ -389,6 +389,24 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                 {detail.contractReconciliationSummary.recurrenceTemporalStateReason}
               </p>
             </div>
+            <div className="flex-1 rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
+              <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                Estabilidade recente
+              </span>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Badge tone={getRecurrenceTone(detail.contractReconciliationSummary.recentStabilityState)}>
+                  {detail.contractReconciliationSummary.recentStabilityStateLabel}
+                </Badge>
+                {detail.contractReconciliationSummary.recentProfileSignals.map((signal) => (
+                  <Badge key={`stability-${signal.code}`} tone="warning">
+                    {signal.label} ({signal.count})
+                  </Badge>
+                ))}
+              </div>
+              <p className="mt-2 text-sm text-[var(--color-muted)]">
+                {detail.contractReconciliationSummary.recentStabilityStateReason}
+              </p>
+            </div>
             <div className="rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
               <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
                 Competências
@@ -545,6 +563,9 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                               <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recurrenceTemporalContext)}>
                                 {reconciliation.differenceReading.recurrenceTemporalContextLabel}
                               </Badge>
+                              <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recentStabilityContext)}>
+                                {reconciliation.differenceReading.recentStabilityContextLabel}
+                              </Badge>
                             </div>
                             <p>
                               Leitura da divergencia:{" "}
@@ -552,6 +573,7 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                             </p>
                             <p>{reconciliation.differenceReading.recurrenceContextReason}</p>
                             <p>{reconciliation.differenceReading.recurrenceTemporalContextReason}</p>
+                            <p>{reconciliation.differenceReading.recentStabilityContextReason}</p>
                             <p>
                               Priorizacao visual:{" "}
                               {reconciliation.differenceSummary.unitemizedBalancePriorityLabel}
@@ -766,6 +788,9 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                     <Badge tone={getRecurrenceTone(item.differenceReading.recurrenceTemporalContext)}>
                       {item.differenceReading.recurrenceTemporalContextLabel}
                     </Badge>
+                    <Badge tone={getRecurrenceTone(item.differenceReading.recentStabilityContext)}>
+                      {item.differenceReading.recentStabilityContextLabel}
+                    </Badge>
                   </div>
                   <p className="text-sm text-[var(--color-muted)]">
                     Leitura da divergência: {item.differenceReading.profileReason}
@@ -775,6 +800,9 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                   </p>
                   <p className="text-sm text-[var(--color-muted)]">
                     {item.differenceReading.recurrenceTemporalContextReason}
+                  </p>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    {item.differenceReading.recentStabilityContextReason}
                   </p>
                   <p className="text-sm text-[var(--color-muted)]">
                     Priorização visual:{" "}

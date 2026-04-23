@@ -372,3 +372,12 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 
 ### Proximo bloco sugerido
 - [ ] Qualificar de forma leve a estabilidade dos sinais recorrentes nas janelas mais recentes do contrato, distinguindo alternancia de perfil e consolidacao de padrao.
+
+### Atualizacao da rodada
+- [x] Derivar leitura leve de estabilidade dos sinais recorrentes na janela recente do contrato.
+- [x] Distinguir padrao estavel, alternante, em consolidacao e sem base recente suficiente.
+- [x] Expor a leitura de estabilidade no detalhe do contrato e refleti-la na conciliacao e na listagem quando couber.
+- [x] Preservar a recorrencia leve, a leitura temporal, a cobertura e a prioridade visual ja existentes.
+
+### Proximo bloco sugerido
+- [ ] Qualificar de forma leve a materialidade recente desses padroes, distinguindo alternancia relevante e consolidacao de menor impacto operacional.

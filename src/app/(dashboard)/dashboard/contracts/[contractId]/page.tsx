@@ -420,6 +420,19 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                 {detail.contractReconciliationSummary.recentMaterialityStateReason}
               </p>
             </div>
+            <div className="flex-1 rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
+              <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                Persistencia recente
+              </span>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Badge tone={getRecurrenceTone(detail.contractReconciliationSummary.recentPersistenceState)}>
+                  {detail.contractReconciliationSummary.recentPersistenceStateLabel}
+                </Badge>
+              </div>
+              <p className="mt-2 text-sm text-[var(--color-muted)]">
+                {detail.contractReconciliationSummary.recentPersistenceStateReason}
+              </p>
+            </div>
             <div className="rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
               <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
                 Competências
@@ -582,6 +595,9 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                               <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recentMaterialityContext)}>
                                 {reconciliation.differenceReading.recentMaterialityContextLabel}
                               </Badge>
+                              <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recentPersistenceContext)}>
+                                {reconciliation.differenceReading.recentPersistenceContextLabel}
+                              </Badge>
                             </div>
                             <p>
                               Leitura da divergencia:{" "}
@@ -591,6 +607,7 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                             <p>{reconciliation.differenceReading.recurrenceTemporalContextReason}</p>
                             <p>{reconciliation.differenceReading.recentStabilityContextReason}</p>
                             <p>{reconciliation.differenceReading.recentMaterialityContextReason}</p>
+                            <p>{reconciliation.differenceReading.recentPersistenceContextReason}</p>
                             <p>
                               Priorizacao visual:{" "}
                               {reconciliation.differenceSummary.unitemizedBalancePriorityLabel}
@@ -811,6 +828,9 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                     <Badge tone={getRecurrenceTone(item.differenceReading.recentMaterialityContext)}>
                       {item.differenceReading.recentMaterialityContextLabel}
                     </Badge>
+                    <Badge tone={getRecurrenceTone(item.differenceReading.recentPersistenceContext)}>
+                      {item.differenceReading.recentPersistenceContextLabel}
+                    </Badge>
                   </div>
                   <p className="text-sm text-[var(--color-muted)]">
                     Leitura da divergência: {item.differenceReading.profileReason}
@@ -826,6 +846,9 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                   </p>
                   <p className="text-sm text-[var(--color-muted)]">
                     {item.differenceReading.recentMaterialityContextReason}
+                  </p>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    {item.differenceReading.recentPersistenceContextReason}
                   </p>
                   <p className="text-sm text-[var(--color-muted)]">
                     Priorização visual:{" "}

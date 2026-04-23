@@ -131,6 +131,10 @@ test("contract detail marks competencies as isolated when no recurring pattern i
     detail?.contractReconciliationSummary.recentMaterialityState,
     "materialidade_recente_neutra",
   );
+  assert.equal(
+    detail?.contractReconciliationSummary.recentPersistenceState,
+    "persistencia_neutra",
+  );
   assert.equal(detail?.contractReconciliationSummary.recurringSignals.length, 0);
   assert.equal(
     detail?.reconciliations[0]?.differenceReading.recurrenceContext,
@@ -147,5 +151,9 @@ test("contract detail marks competencies as isolated when no recurring pattern i
   assert.equal(
     detail?.reconciliations[0]?.differenceReading.recentMaterialityContext,
     "materialidade_recente_neutra",
+  );
+  assert.equal(
+    detail?.reconciliations[0]?.differenceReading.recentPersistenceContext,
+    "persistencia_neutra",
   );
 });

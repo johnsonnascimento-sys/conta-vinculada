@@ -848,3 +848,7 @@ Com isso, o proximo bloco seguro passa a ser a qualificacao leve da materialidad
 ## Atualizacao incremental mais recente
 A rodada atual qualificou a materialidade recente dos padroes conciliatorios, distinguindo quando a alternancia ou a consolidacao recente merece atencao mais imediata e quando representa apenas impacto operacional menor. A leitura continua leve, derivada e coerente com residual nao explicado, remanescente relevante e prioridade visual.
 Com isso, o proximo bloco seguro passa a ser a qualificacao leve da persistencia recente desses sinais, distinguindo padrao que segue forte por varios ciclos recentes de padrao que perdeu forca mesmo sem desaparecer totalmente.
+
+## Atualizacao incremental mais recente
+A rodada atual qualificou a persistencia recente dos sinais conciliatorios, distinguindo quando os sinais continuam fortes por varios ciclos recentes, quando permanecem de forma moderada e quando ja perderam forca sem desaparecer totalmente. A leitura continua leve, derivada e coerente com recorrencia temporal, estabilidade e materialidade recentes.
+Com isso, o proximo bloco seguro passa a ser a qualificacao leve da recuperacao recente desses sinais, distinguindo contratos em melhora perceptivel daqueles que apenas reduziram intensidade sem reverter o padrao.

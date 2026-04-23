@@ -116,6 +116,26 @@ function getRecentMaterialityTone(contract: ContractOverview) {
   return "neutral" as const;
 }
 
+function getRecentPersistenceTone(contract: ContractOverview) {
+  if (
+    contract.contractReconciliationSummary.recentPersistenceState ===
+    "persistencia_forte"
+  ) {
+    return "danger" as const;
+  }
+
+  if (
+    contract.contractReconciliationSummary.recentPersistenceState ===
+      "persistencia_moderada" ||
+    contract.contractReconciliationSummary.recentPersistenceState ===
+      "perda_de_forca"
+  ) {
+    return "warning" as const;
+  }
+
+  return "neutral" as const;
+}
+
 export default async function ContractsPage() {
   const contracts = await getContractsOverview();
 
@@ -186,6 +206,12 @@ export default async function ContractsPage() {
                             .recentMaterialityStateLabel
                         }
                       </Badge>
+                      <Badge tone={getRecentPersistenceTone(contract)}>
+                        {
+                          contract.contractReconciliationSummary
+                            .recentPersistenceStateLabel
+                        }
+                      </Badge>
                     </div>
                     <p className="font-medium text-[var(--color-ink)]">
                       {contract.contractReconciliationSummary.managerialAttentionReason}
@@ -224,6 +250,12 @@ export default async function ContractsPage() {
                       {
                         contract.contractReconciliationSummary
                           .recentMaterialityStateReason
+                      }
+                    </p>
+                    <p>
+                      {
+                        contract.contractReconciliationSummary
+                          .recentPersistenceStateReason
                       }
                     </p>
                     <div className="flex flex-wrap gap-2">

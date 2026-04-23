@@ -408,6 +408,10 @@ export function summarizeReconciliationDifferenceReading({
     recentMaterialityContextLabel: "sem base recente suficiente",
     recentMaterialityContextReason:
       "Ainda nao ha base recente suficiente para qualificar se o padrao tem maior ou menor impacto operacional.",
+    recentPersistenceContext: "persistencia_neutra" as const,
+    recentPersistenceContextLabel: "persistencia recente neutra",
+    recentPersistenceContextReason:
+      "Ainda nao ha base recente suficiente para qualificar se o padrao segue forte ou se perdeu forca.",
   };
   const hasStructuralSignals =
     hasResidualUnexplained ||
@@ -1051,6 +1055,102 @@ function summarizeRecentPatternMateriality(records: ReconciliationRecord[]) {
   };
 }
 
+function summarizeRecentSignalPersistence(records: ReconciliationRecord[]) {
+  const sortedRecords = [...records].sort((left, right) =>
+    compareCompetencyCode(left.competency, right.competency),
+  );
+  const recentWindowSize = Math.min(3, sortedRecords.length);
+  const recentRecords = sortedRecords.slice(-recentWindowSize);
+  const meaningfulRecentRecords = recentRecords.filter(
+    (record) => record.differenceReading.profile !== "indeterminada",
+  );
+  const recentCompetencies = new Set(
+    recentRecords.map((record) => record.competency),
+  );
+  const impactfulRecentRecords = meaningfulRecentRecords.filter(
+    (record) =>
+      record.differenceSummary.hasResidualUnexplained ||
+      record.differenceSummary.unitemizedBalancePriority === "alta" ||
+      (record.differenceSummary.explainedBalanceStillUnitemized > 0 &&
+        record.differenceSummary.unitemizedBalancePriority !== "baixa"),
+  );
+  const latestRecord = meaningfulRecentRecords.at(-1);
+  const latestIsImpactful = latestRecord
+    ? impactfulRecentRecords.some((record) => record.competency === latestRecord.competency)
+    : false;
+  const previousImpactfulCount = latestRecord
+    ? impactfulRecentRecords.filter((record) => record.competency !== latestRecord.competency)
+        .length
+    : 0;
+
+  if (recentWindowSize < 3 || meaningfulRecentRecords.length < 2) {
+    return {
+      recentPersistenceState: "persistencia_neutra" as const,
+      recentPersistenceStateLabel: "persistencia recente neutra",
+      recentPersistenceStateReason:
+        "Ainda nao ha ciclos recentes suficientes para indicar se o padrao segue forte ou se perdeu intensidade.",
+      recentCompetencies,
+      strongerCompetencies: new Set<string>(),
+      weakerCompetencies: new Set<string>(),
+      moderateCompetencies: new Set<string>(),
+    };
+  }
+
+  if (impactfulRecentRecords.length >= 3) {
+    return {
+      recentPersistenceState: "persistencia_forte" as const,
+      recentPersistenceStateLabel: "persistencia forte",
+      recentPersistenceStateReason:
+        "Os sinais conciliatorios recentes permanecem fortes ao longo de varios ciclos, sem perda perceptivel de intensidade operacional.",
+      recentCompetencies,
+      strongerCompetencies: new Set(
+        impactfulRecentRecords.map((record) => record.competency),
+      ),
+      weakerCompetencies: new Set<string>(),
+      moderateCompetencies: new Set<string>(),
+    };
+  }
+
+  if (!latestIsImpactful && previousImpactfulCount >= 1) {
+    return {
+      recentPersistenceState: "perda_de_forca" as const,
+      recentPersistenceStateLabel: "perda de forca",
+      recentPersistenceStateReason:
+        "Os sinais recentes nao desapareceram totalmente, mas a competencia mais recente ja mostra intensidade menor que os ciclos anteriores.",
+      recentCompetencies,
+      strongerCompetencies: new Set<string>(),
+      weakerCompetencies: new Set(recentRecords.map((record) => record.competency)),
+      moderateCompetencies: new Set<string>(),
+    };
+  }
+
+  if (impactfulRecentRecords.length >= 2) {
+    return {
+      recentPersistenceState: "persistencia_moderada" as const,
+      recentPersistenceStateLabel: "persistencia moderada",
+      recentPersistenceStateReason:
+        "Os sinais recentes continuam presentes em mais de um ciclo, mas sem sustentacao forte em toda a janela recente.",
+      recentCompetencies,
+      strongerCompetencies: new Set<string>(),
+      weakerCompetencies: new Set<string>(),
+      moderateCompetencies: new Set(
+        impactfulRecentRecords.map((record) => record.competency),
+      ),
+    };
+  }
+
+  return {
+    recentPersistenceState: "persistencia_neutra" as const,
+    recentPersistenceStateLabel: "persistencia recente neutra",
+    recentPersistenceStateReason:
+      "A leitura recente nao mostra sustentacao forte nem perda clara de intensidade dos sinais conciliatorios.",
+    recentCompetencies,
+    strongerCompetencies: new Set<string>(),
+    weakerCompetencies: new Set<string>(),
+    moderateCompetencies: new Set<string>(),
+  };
+}
+
 export function annotateReconciliationRecurrenceWithinContract(
   records: ReconciliationRecord[],
 ): ReconciliationRecord[] {
@@ -1058,6 +1158,7 @@ export function annotateReconciliationRecurrenceWithinContract(
   const temporalSummary = summarizeContractRecurrenceTemporalState(records);
   const recentStabilitySummary = summarizeRecentRecurrenceStability(records);
   const recentMaterialitySummary = summarizeRecentPatternMateriality(records);
+  const recentPersistenceSummary = summarizeRecentSignalPersistence(records);
 
   return records.map((record) => {
     const profileCount =
@@ -1114,6 +1215,9 @@ export function annotateReconciliationRecurrenceWithinContract(
     let recentMaterialityContext: ReconciliationDifferenceReadingSummary["recentMaterialityContext"];
     let recentMaterialityContextLabel: string;
     let recentMaterialityContextReason: string;
+    let recentPersistenceContext: ReconciliationDifferenceReadingSummary["recentPersistenceContext"];
+    let recentPersistenceContextLabel: string;
+    let recentPersistenceContextReason: string;
     const recordSignalCodes = Array.from(getRecordRecurringSignalCodes(record)).filter(
       (code) =>
         temporalSummary.activeSignalCodes.has(code) ||
@@ -1246,6 +1350,44 @@ export function annotateReconciliationRecurrenceWithinContract(
         "A leitura recente nao distingue impacto material suficiente para esta competencia.";
     }
 
+    if (
+      recentPersistenceSummary.recentPersistenceState === "persistencia_neutra"
+    ) {
+      recentPersistenceContext = "persistencia_neutra";
+      recentPersistenceContextLabel = "persistencia recente neutra";
+      recentPersistenceContextReason =
+        "Ainda nao ha sustentacao suficiente para indicar persistencia forte ou perda clara de intensidade na janela recente.";
+    } else if (!recentPersistenceSummary.recentCompetencies.has(record.competency)) {
+      recentPersistenceContext = "fora_da_janela_recente";
+      recentPersistenceContextLabel = "fora da janela recente";
+      recentPersistenceContextReason =
+        "Esta competencia ficou fora da janela recente usada para avaliar persistencia dos sinais.";
+    } else if (
+      recentPersistenceSummary.strongerCompetencies.has(record.competency)
+    ) {
+      recentPersistenceContext = "persistencia_forte";
+      recentPersistenceContextLabel = "sinal recente ainda forte";
+      recentPersistenceContextReason =
+        "A competencia participa de sequencia recente em que os sinais conciliatorios permanecem fortes por varios ciclos.";
+    } else if (
+      recentPersistenceSummary.moderateCompetencies.has(record.competency)
+    ) {
+      recentPersistenceContext = "persistencia_moderada";
+      recentPersistenceContextLabel = "sinal recente moderado";
+      recentPersistenceContextReason =
+        "A competencia participa de padrao recente ainda presente em mais de um ciclo, mas sem sustentacao forte em toda a janela.";
+    } else if (recentPersistenceSummary.weakerCompetencies.has(record.competency)) {
+      recentPersistenceContext = "perda_de_forca";
+      recentPersistenceContextLabel = "sinal recente enfraquecido";
+      recentPersistenceContextReason =
+        "A competencia integra uma janela em que os sinais recentes perderam intensidade, embora nao tenham desaparecido totalmente.";
+    } else {
+      recentPersistenceContext = "persistencia_neutra";
+      recentPersistenceContextLabel = "persistencia recente neutra";
+      recentPersistenceContextReason =
+        "A leitura recente nao distingue persistencia forte nem enfraquecimento claro para esta competencia.";
+    }
+
     return {
       ...record,
       differenceReading: {
@@ -1262,6 +1404,9 @@ export function annotateReconciliationRecurrenceWithinContract(
         recentMaterialityContext,
         recentMaterialityContextLabel,
         recentMaterialityContextReason,
+        recentPersistenceContext,
+        recentPersistenceContextLabel,
+        recentPersistenceContextReason,
       },
     };
   });
@@ -1878,6 +2023,10 @@ export function summarizeContractReconciliation(
       recentMaterialityStateLabel: "materialidade recente neutra",
       recentMaterialityStateReason:
         "Nao ha base recente suficiente para diferenciar materialidade maior ou menor do padrao.",
+      recentPersistenceState: "persistencia_neutra",
+      recentPersistenceStateLabel: "persistencia recente neutra",
+      recentPersistenceStateReason:
+        "Nao ha base recente suficiente para indicar se os sinais seguem fortes ou se perderam intensidade.",
       hasOpenUnexplained: false,
       hasReopenedCompetencies: false,
       hasRelevantUnitemized: false,
@@ -1918,6 +2067,7 @@ export function summarizeContractReconciliation(
   const temporalSummary = summarizeContractRecurrenceTemporalState(records);
   const recentStabilitySummary = summarizeRecentRecurrenceStability(records);
   const recentMaterialitySummary = summarizeRecentPatternMateriality(records);
+  const recentPersistenceSummary = summarizeRecentSignalPersistence(records);
   const overallCoveragePercentage =
     overallTotal > 0
       ? Math.round((totalCoveredByItems / overallTotal) * 100)
@@ -2018,6 +2168,9 @@ export function summarizeContractReconciliation(
     recentMaterialityState: recentMaterialitySummary.recentMaterialityState,
     recentMaterialityStateLabel: recentMaterialitySummary.recentMaterialityStateLabel,
     recentMaterialityStateReason: recentMaterialitySummary.recentMaterialityStateReason,
+    recentPersistenceState: recentPersistenceSummary.recentPersistenceState,
+    recentPersistenceStateLabel: recentPersistenceSummary.recentPersistenceStateLabel,
+    recentPersistenceStateReason: recentPersistenceSummary.recentPersistenceStateReason,
     hasOpenUnexplained,
     hasReopenedCompetencies,
     hasRelevantUnitemized,

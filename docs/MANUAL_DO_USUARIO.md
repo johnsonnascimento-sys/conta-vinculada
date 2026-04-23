@@ -872,3 +872,13 @@ No resumo do contrato, o padrao recente pode aparecer como:
 - materialidade recente neutra, quando ainda nao ha base suficiente ou quando a leitura recente nao indica destaque material claro.
 Na conciliacao e no detalhe do contrato, cada competencia recente tambem passa a indicar se participa de padrao recente de maior impacto, de menor impacto, de leitura neutra ou se ficou fora da janela recente usada para essa avaliacao.
 Essa leitura continua leve e orientativa. Ela nao cria fila de tarefas, nao substitui a analise operacional e nao transforma materialidade recente em conclusao definitiva.
+
+### 11.17 Persistencia recente dos sinais conciliatorios
+A leitura recente do contrato passou a indicar tambem se os sinais conciliatorios continuam fortes por varios ciclos recentes ou se estao perdendo intensidade, embora ainda nao tenham desaparecido totalmente.
+No resumo do contrato, a persistencia recente pode aparecer como:
+- persistencia forte, quando os sinais de maior impacto continuam presentes ao longo de varios ciclos recentes;
+- persistencia moderada, quando os sinais recentes continuam aparecendo em mais de um ciclo, mas sem sustentacao forte em toda a janela;
+- perda de forca, quando a competencia mais recente ja mostra intensidade menor do que os ciclos anteriores, embora os sinais ainda existam no historico recente;
+- persistencia recente neutra, quando nao ha base suficiente ou quando a janela recente nao sustenta leitura clara de persistencia.
+Na conciliacao e no detalhe do contrato, cada competencia tambem passa a indicar se participa de sinal recente ainda forte, moderado, enfraquecido, neutro ou se ficou fora da janela recente usada para essa leitura.
+Essa leitura continua leve e orientativa. Ela nao cria fila de tarefas, nao substitui a analise operacional e nao transforma persistencia recente em conclusao definitiva.

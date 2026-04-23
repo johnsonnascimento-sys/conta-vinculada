@@ -390,3 +390,12 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 
 ### Proximo bloco sugerido
 - [ ] Qualificar de forma leve a persistencia recente desses sinais, distinguindo padrao ainda forte por varios ciclos recentes e padrao que perdeu forca sem desaparecer totalmente.
+
+### Atualizacao da rodada
+- [x] Derivar leitura leve de persistencia recente a partir de recorrencia temporal, estabilidade recente e materialidade recente.
+- [x] Distinguir persistencia forte, moderada, perda de forca e persistencia neutra.
+- [x] Expor a leitura de persistencia recente no detalhe do contrato e refleti-la na conciliacao e na listagem quando couber.
+- [x] Preservar as leituras recentes ja existentes sem criar workflow novo.
+
+### Proximo bloco sugerido
+- [ ] Qualificar de forma leve a recuperacao recente desses sinais, distinguindo melhora perceptivel e simples reducao de intensidade.

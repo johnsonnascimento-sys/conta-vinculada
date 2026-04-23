@@ -609,6 +609,13 @@ function makeRecord(overrides: Record<string, unknown>) {
       recentMaterialityContextReason:
         overrides.recentMaterialityContextReason ??
         "A leitura recente do contrato nao indica impacto operacional suficiente para destacar esta competencia por materialidade.",
+      recentPersistenceContext:
+        overrides.recentPersistenceContext ?? "persistencia_neutra",
+      recentPersistenceContextLabel:
+        overrides.recentPersistenceContextLabel ?? "persistencia recente neutra",
+      recentPersistenceContextReason:
+        overrides.recentPersistenceContextReason ??
+        "Ainda nao ha sustentacao suficiente para indicar persistencia forte ou perda clara de intensidade na janela recente.",
     },
   };
 }
@@ -983,5 +990,128 @@ test("annotate reconciliation recurrence marks recent materiality context by imp
   assert.equal(
     annotated[1]?.differenceReading.recentMaterialityContext,
     "maior_impacto_recente",
+  );
+});
+
+test("contract reconciliation summary marks recent persistence as strong when impactful signals remain across several recent cycles", () => {
+  const records = [
+    makeRecord({
+      competency: "2026-01",
+      profile: "pontual",
+      explainedAmount: 600,
+      explainedBalanceStillUnitemized: 200,
+      unitemizedBalancePriority: "alta",
+    }),
+    makeRecord({
+      competency: "2026-02",
+      profile: "pontual",
+      explainedAmount: 650,
+      explainedBalanceStillUnitemized: 220,
+      unitemizedBalancePriority: "alta",
+    }),
+    makeRecord({
+      competency: "2026-03",
+      profile: "pontual",
+      explainedAmount: 700,
+      explainedBalanceStillUnitemized: 250,
+      unitemizedBalancePriority: "media",
+    }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recentPersistenceState, "persistencia_forte");
+});
+
+test("contract reconciliation summary marks recent persistence as moderate when signals remain in more than one cycle without full strength", () => {
+  const records = [
+    makeRecord({
+      competency: "2026-01",
+      profile: "pontual",
+      explainedAmount: 600,
+      explainedBalanceStillUnitemized: 200,
+      unitemizedBalancePriority: "media",
+    }),
+    makeRecord({
+      competency: "2026-02",
+      profile: "pontual",
+      explainedAmount: 650,
+      explainedItemsAmount: 650,
+    }),
+    makeRecord({
+      competency: "2026-03",
+      profile: "pontual",
+      explainedAmount: 700,
+      explainedBalanceStillUnitemized: 150,
+      unitemizedBalancePriority: "media",
+    }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recentPersistenceState, "persistencia_moderada");
+});
+
+test("contract reconciliation summary marks loss of strength when latest recent cycle softens previous impact", () => {
+  const records = [
+    makeRecord({
+      competency: "2026-01",
+      profile: "estrutural",
+      unexplainedAmount: 500,
+      hasResidualUnexplained: true,
+    }),
+    makeRecord({
+      competency: "2026-02",
+      profile: "estrutural",
+      unexplainedAmount: 300,
+      hasResidualUnexplained: true,
+    }),
+    makeRecord({
+      competency: "2026-03",
+      profile: "estrutural",
+      explainedAmount: 400,
+      explainedItemsAmount: 400,
+    }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recentPersistenceState, "perda_de_forca");
+});
+
+test("annotate reconciliation recurrence marks recent persistence context by strength", () => {
+  const records = [
+    makeRecord({
+      competency: "2026-01",
+      profile: "pontual",
+      explainedAmount: 600,
+      explainedBalanceStillUnitemized: 200,
+      unitemizedBalancePriority: "alta",
+    }),
+    makeRecord({
+      competency: "2026-02",
+      profile: "pontual",
+      explainedAmount: 650,
+      explainedBalanceStillUnitemized: 220,
+      unitemizedBalancePriority: "alta",
+    }),
+    makeRecord({
+      competency: "2026-03",
+      profile: "pontual",
+      explainedAmount: 700,
+      explainedBalanceStillUnitemized: 250,
+      unitemizedBalancePriority: "media",
+    }),
+  ];
+
+  const annotated = annotateReconciliationRecurrenceWithinContract(records as never[]);
+
+  assert.equal(
+    annotated[0]?.differenceReading.recentPersistenceContext,
+    "persistencia_forte",
+  );
+  assert.equal(
+    annotated[2]?.differenceReading.recentPersistenceContext,
+    "persistencia_forte",
   );
 });

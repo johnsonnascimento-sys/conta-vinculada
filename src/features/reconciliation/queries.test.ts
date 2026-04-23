@@ -56,6 +56,10 @@ test("reconciliation overview exposes minimum reconciliation items and explained
     "materialidade_recente_neutra",
   );
   assert.equal(
+    reconciliation?.differenceReading.recentPersistenceContext,
+    "persistencia_neutra",
+  );
+  assert.equal(
     reconciliation?.differenceSummary.directedReviewRecommendation,
     "revisar saldo sem itemizacao",
   );
@@ -89,6 +93,10 @@ test("reconciliation overview exposes minimum reconciliation items and explained
   assert.equal(
     completeCoverage?.differenceReading.recentMaterialityContext,
     "materialidade_recente_neutra",
+  );
+  assert.equal(
+    completeCoverage?.differenceReading.recentPersistenceContext,
+    "persistencia_neutra",
   );
 });
 

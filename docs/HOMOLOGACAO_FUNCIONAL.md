@@ -605,3 +605,16 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] Nao aplicavel
+
+### 11.17 Persistencia recente dos sinais conciliatorios
+- [ ] O detalhe do contrato indica se a persistencia recente esta forte, moderada, em perda de forca ou neutra.
+- [ ] O motivo operacional curto da persistencia recente e coerente com recorrencia temporal, estabilidade recente, materialidade recente, residual nao explicado e remanescente relevante.
+- [ ] A conciliacao e o detalhe do contrato indicam, por competencia, se ela participa de sinal recente forte, moderado, enfraquecido, neutro ou se ficou fora da janela recente.
+- [ ] A nova leitura preserva recorrencia temporal, estabilidade recente e materialidade recente ja existentes.
+- [ ] A listagem, o detalhe e a conciliacao permanecem coerentes quando houver reflexo dessa leitura.
+Observacoes:
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel

@@ -592,3 +592,16 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] Nao aplicavel
+
+### 11.16 Materialidade recente dos padroes conciliatorios
+- [ ] O detalhe do contrato indica se o padrao recente esta em alternancia relevante, alternancia leve, consolidacao relevante, consolidacao de menor impacto ou materialidade recente neutra.
+- [ ] O motivo operacional curto da materialidade recente e coerente com residual nao explicado recente, remanescente relevante e prioridade visual.
+- [ ] A conciliacao e o detalhe do contrato indicam, por competencia, se ela participa de padrao recente de maior impacto, menor impacto, leitura neutra ou se ficou fora da janela recente.
+- [ ] A nova leitura preserva a recorrencia leve, a evolucao temporal e a estabilidade recente ja existentes.
+- [ ] A listagem, o detalhe e a conciliacao permanecem coerentes quando houver reflexo dessa leitura.
+Observacoes:
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel

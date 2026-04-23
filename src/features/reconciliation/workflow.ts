@@ -404,6 +404,10 @@ export function summarizeReconciliationDifferenceReading({
     recentStabilityContextLabel: "sem base recente suficiente",
     recentStabilityContextReason:
       "Ainda nao ha janela recente suficiente para indicar se o perfil esta estavel, alternante ou em consolidacao.",
+    recentMaterialityContext: "sem_base_recente_suficiente" as const,
+    recentMaterialityContextLabel: "sem base recente suficiente",
+    recentMaterialityContextReason:
+      "Ainda nao ha base recente suficiente para qualificar se o padrao tem maior ou menor impacto operacional.",
   };
   const hasStructuralSignals =
     hasResidualUnexplained ||
@@ -937,12 +941,123 @@ function summarizeRecentRecurrenceStability(records: ReconciliationRecord[]) {
   };
 }
 
+function summarizeRecentPatternMateriality(records: ReconciliationRecord[]) {
+  const sortedRecords = [...records].sort((left, right) =>
+    compareCompetencyCode(left.competency, right.competency),
+  );
+  const recentWindowSize = Math.min(2, sortedRecords.length);
+  const recentRecords = sortedRecords.slice(-recentWindowSize);
+  const meaningfulRecentRecords = recentRecords.filter(
+    (record) => record.differenceReading.profile !== "indeterminada",
+  );
+  const recentStabilitySummary = summarizeRecentRecurrenceStability(records);
+  const recentCompetencies = new Set(
+    recentRecords.map((record) => record.competency),
+  );
+  const hasRecentResidual = meaningfulRecentRecords.some(
+    (record) => record.differenceSummary.hasResidualUnexplained,
+  );
+  const hasRecentHighPriority = meaningfulRecentRecords.some(
+    (record) => record.differenceSummary.unitemizedBalancePriority === "alta",
+  );
+  const hasRecentRelevantUnitemized = meaningfulRecentRecords.some(
+    (record) =>
+      record.differenceSummary.explainedBalanceStillUnitemized > 0 &&
+      record.differenceSummary.unitemizedBalancePriority !== "baixa",
+  );
+
+  if (
+    recentWindowSize < 2 ||
+    recentStabilitySummary.recentStabilityState === "sem_base_recente_suficiente"
+  ) {
+    return {
+      recentMaterialityState: "materialidade_recente_neutra" as const,
+      recentMaterialityStateLabel: "materialidade recente neutra",
+      recentMaterialityStateReason:
+        "Ainda nao ha base recente suficiente para qualificar materialidade maior ou menor do padrao.",
+      recentCompetencies,
+      higherImpactCompetencies: new Set<string>(),
+      lowerImpactCompetencies: new Set<string>(),
+    };
+  }
+
+  if (recentStabilitySummary.recentStabilityState === "padrao_alternante") {
+    if (hasRecentResidual || hasRecentHighPriority) {
+      return {
+        recentMaterialityState: "alternancia_relevante" as const,
+        recentMaterialityStateLabel: "alternancia relevante",
+        recentMaterialityStateReason:
+          "A janela recente alterna perfis diferentes e ainda carrega residual nao explicado ou saldo de alta prioridade, o que justifica atencao imediata.",
+        recentCompetencies,
+        higherImpactCompetencies: new Set(
+          meaningfulRecentRecords.map((record) => record.competency),
+        ),
+        lowerImpactCompetencies: new Set<string>(),
+      };
+    }
+
+    return {
+      recentMaterialityState: "alternancia_leve" as const,
+      recentMaterialityStateLabel: "alternancia leve",
+      recentMaterialityStateReason:
+        "A janela recente alterna perfis, mas sem residual aberto ou sinal forte de impacto operacional imediato.",
+      recentCompetencies,
+      higherImpactCompetencies: new Set<string>(),
+      lowerImpactCompetencies: new Set(
+        meaningfulRecentRecords.map((record) => record.competency),
+      ),
+    };
+  }
+
+  if (
+    recentStabilitySummary.recentStabilityState === "padrao_estavel" ||
+    recentStabilitySummary.recentStabilityState === "padrao_em_consolidacao"
+  ) {
+    if (hasRecentResidual || hasRecentHighPriority || hasRecentRelevantUnitemized) {
+      return {
+        recentMaterialityState: "consolidacao_relevante" as const,
+        recentMaterialityStateLabel: "consolidacao relevante",
+        recentMaterialityStateReason:
+          "O padrao recente aponta consolidacao do mesmo tipo de sinal com residual aberto ou remanescente relevante, o que merece atencao prioritaria.",
+        recentCompetencies,
+        higherImpactCompetencies: new Set(
+          meaningfulRecentRecords.map((record) => record.competency),
+        ),
+        lowerImpactCompetencies: new Set<string>(),
+      };
+    }
+
+    return {
+      recentMaterialityState: "consolidacao_menor_impacto" as const,
+      recentMaterialityStateLabel: "consolidacao de menor impacto",
+      recentMaterialityStateReason:
+        "O padrao recente tende a se consolidar, mas sem residual aberto ou remanescente recente de impacto operacional relevante.",
+      recentCompetencies,
+      higherImpactCompetencies: new Set<string>(),
+      lowerImpactCompetencies: new Set(
+        meaningfulRecentRecords.map((record) => record.competency),
+      ),
+    };
+  }
+
+  return {
+    recentMaterialityState: "materialidade_recente_neutra" as const,
+    recentMaterialityStateLabel: "materialidade recente neutra",
+    recentMaterialityStateReason:
+      "A leitura recente nao indica materialidade suficiente para diferenciar maior ou menor impacto operacional.",
+    recentCompetencies,
+    higherImpactCompetencies: new Set<string>(),
+    lowerImpactCompetencies: new Set<string>(),
+  };
+}
+
 export function annotateReconciliationRecurrenceWithinContract(
   records: ReconciliationRecord[],
 ): ReconciliationRecord[] {
   const { counts, recurringSignals } = buildContractRecurringSignalData(records);
   const temporalSummary = summarizeContractRecurrenceTemporalState(records);
   const recentStabilitySummary = summarizeRecentRecurrenceStability(records);
+  const recentMaterialitySummary = summarizeRecentPatternMateriality(records);
 
   return records.map((record) => {
     const profileCount =
@@ -996,6 +1111,9 @@ export function annotateReconciliationRecurrenceWithinContract(
     let recentStabilityContext: ReconciliationDifferenceReadingSummary["recentStabilityContext"];
     let recentStabilityContextLabel: string;
     let recentStabilityContextReason: string;
+    let recentMaterialityContext: ReconciliationDifferenceReadingSummary["recentMaterialityContext"];
+    let recentMaterialityContextLabel: string;
+    let recentMaterialityContextReason: string;
     const recordSignalCodes = Array.from(getRecordRecurringSignalCodes(record)).filter(
       (code) =>
         temporalSummary.activeSignalCodes.has(code) ||
@@ -1094,6 +1212,40 @@ export function annotateReconciliationRecurrenceWithinContract(
         "A competencia nao define a leitura de estabilidade da janela recente do contrato.";
     }
 
+    if (
+      recentMaterialitySummary.recentMaterialityState ===
+      "materialidade_recente_neutra"
+    ) {
+      recentMaterialityContext = "materialidade_recente_neutra";
+      recentMaterialityContextLabel = "materialidade recente neutra";
+      recentMaterialityContextReason =
+        "A leitura recente do contrato nao indica impacto operacional suficiente para destacar esta competencia por materialidade.";
+    } else if (!recentMaterialitySummary.recentCompetencies.has(record.competency)) {
+      recentMaterialityContext = "fora_da_janela_recente";
+      recentMaterialityContextLabel = "fora da janela recente";
+      recentMaterialityContextReason =
+        "Esta competencia ficou fora da janela recente usada para qualificar a materialidade atual do padrao.";
+    } else if (
+      recentMaterialitySummary.higherImpactCompetencies.has(record.competency)
+    ) {
+      recentMaterialityContext = "maior_impacto_recente";
+      recentMaterialityContextLabel = "padrao recente de maior impacto";
+      recentMaterialityContextReason =
+        "A competencia participa de padrao recente com residual aberto ou remanescente relevante, exigindo atencao mais imediata.";
+    } else if (
+      recentMaterialitySummary.lowerImpactCompetencies.has(record.competency)
+    ) {
+      recentMaterialityContext = "menor_impacto_recente";
+      recentMaterialityContextLabel = "padrao recente de menor impacto";
+      recentMaterialityContextReason =
+        "A competencia participa de padrao recente com impacto operacional mais leve, adequado a acompanhamento simples.";
+    } else {
+      recentMaterialityContext = "materialidade_recente_neutra";
+      recentMaterialityContextLabel = "materialidade recente neutra";
+      recentMaterialityContextReason =
+        "A leitura recente nao distingue impacto material suficiente para esta competencia.";
+    }
+
     return {
       ...record,
       differenceReading: {
@@ -1107,6 +1259,9 @@ export function annotateReconciliationRecurrenceWithinContract(
         recentStabilityContext,
         recentStabilityContextLabel,
         recentStabilityContextReason,
+        recentMaterialityContext,
+        recentMaterialityContextLabel,
+        recentMaterialityContextReason,
       },
     };
   });
@@ -1719,6 +1874,10 @@ export function summarizeContractReconciliation(
       recentStabilityStateReason:
         "Nao ha janela recente suficiente para avaliar estabilidade do padrao.",
       recentProfileSignals: [],
+      recentMaterialityState: "materialidade_recente_neutra",
+      recentMaterialityStateLabel: "materialidade recente neutra",
+      recentMaterialityStateReason:
+        "Nao ha base recente suficiente para diferenciar materialidade maior ou menor do padrao.",
       hasOpenUnexplained: false,
       hasReopenedCompetencies: false,
       hasRelevantUnitemized: false,
@@ -1758,6 +1917,7 @@ export function summarizeContractReconciliation(
   const { counts, recurringSignals } = buildContractRecurringSignalData(records);
   const temporalSummary = summarizeContractRecurrenceTemporalState(records);
   const recentStabilitySummary = summarizeRecentRecurrenceStability(records);
+  const recentMaterialitySummary = summarizeRecentPatternMateriality(records);
   const overallCoveragePercentage =
     overallTotal > 0
       ? Math.round((totalCoveredByItems / overallTotal) * 100)
@@ -1855,6 +2015,9 @@ export function summarizeContractReconciliation(
     recentStabilityStateLabel: recentStabilitySummary.recentStabilityStateLabel,
     recentStabilityStateReason: recentStabilitySummary.recentStabilityStateReason,
     recentProfileSignals: recentStabilitySummary.recentProfileSignals,
+    recentMaterialityState: recentMaterialitySummary.recentMaterialityState,
+    recentMaterialityStateLabel: recentMaterialitySummary.recentMaterialityStateLabel,
+    recentMaterialityStateReason: recentMaterialitySummary.recentMaterialityStateReason,
     hasOpenUnexplained,
     hasReopenedCompetencies,
     hasRelevantUnitemized,

@@ -332,6 +332,14 @@ export interface ReconciliationDifferenceReadingSummary {
     | "padrao_em_consolidacao";
   recentStabilityContextLabel: string;
   recentStabilityContextReason: string;
+  recentMaterialityContext:
+    | "sem_base_recente_suficiente"
+    | "fora_da_janela_recente"
+    | "maior_impacto_recente"
+    | "menor_impacto_recente"
+    | "materialidade_recente_neutra";
+  recentMaterialityContextLabel: string;
+  recentMaterialityContextReason: string;
 }
 
 export type CompetencyOccurrenceType =
@@ -656,6 +664,14 @@ export interface ContractReconciliationSummary {
   recentStabilityStateLabel: string;
   recentStabilityStateReason: string;
   recentProfileSignals: ContractRecurringSignal[];
+  recentMaterialityState:
+    | "alternancia_relevante"
+    | "alternancia_leve"
+    | "consolidacao_relevante"
+    | "consolidacao_menor_impacto"
+    | "materialidade_recente_neutra";
+  recentMaterialityStateLabel: string;
+  recentMaterialityStateReason: string;
   hasOpenUnexplained: boolean;
   hasReopenedCompetencies: boolean;
   hasRelevantUnitemized: boolean;

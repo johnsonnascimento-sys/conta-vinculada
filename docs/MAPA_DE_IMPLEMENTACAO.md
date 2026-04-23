@@ -381,3 +381,12 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 
 ### Proximo bloco sugerido
 - [ ] Qualificar de forma leve a materialidade recente desses padroes, distinguindo alternancia relevante e consolidacao de menor impacto operacional.
+
+### Atualizacao da rodada
+- [x] Derivar leitura leve de materialidade recente a partir de estabilidade recente, residual nao explicado e remanescente relevante.
+- [x] Distinguir alternancia relevante e leve, assim como consolidacao relevante e de menor impacto.
+- [x] Expor a leitura de materialidade recente no detalhe do contrato e refleti-la na conciliacao e na listagem quando couber.
+- [x] Preservar a recorrencia leve, a leitura temporal e a estabilidade recente ja existentes.
+
+### Proximo bloco sugerido
+- [ ] Qualificar de forma leve a persistencia recente desses sinais, distinguindo padrao ainda forte por varios ciclos recentes e padrao que perdeu forca sem desaparecer totalmente.

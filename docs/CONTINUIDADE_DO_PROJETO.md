@@ -844,3 +844,7 @@ Com isso, o proximo bloco seguro passa a ser a qualificacao leve da estabilidade
 ## Atualizacao incremental mais recente
 A rodada atual qualificou a estabilidade dos sinais recorrentes nas competencias mais recentes, distinguindo quando o contrato repete o mesmo perfil de divergencia, quando alterna entre perfis e quando ainda mostra apenas um padrao em consolidacao. A leitura continua leve, derivada e sem taxonomia pesada.
 Com isso, o proximo bloco seguro passa a ser a qualificacao leve da materialidade recente desses padroes, distinguindo quando a alternancia ou a consolidacao esta associada a saldo residual mais relevante ou a faixas operacionais menores.
+
+## Atualizacao incremental mais recente
+A rodada atual qualificou a materialidade recente dos padroes conciliatorios, distinguindo quando a alternancia ou a consolidacao recente merece atencao mais imediata e quando representa apenas impacto operacional menor. A leitura continua leve, derivada e coerente com residual nao explicado, remanescente relevante e prioridade visual.
+Com isso, o proximo bloco seguro passa a ser a qualificacao leve da persistencia recente desses sinais, distinguindo padrao que segue forte por varios ciclos recentes de padrao que perdeu forca mesmo sem desaparecer totalmente.

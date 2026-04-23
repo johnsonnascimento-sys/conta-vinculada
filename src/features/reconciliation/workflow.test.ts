@@ -602,6 +602,13 @@ function makeRecord(overrides: Record<string, unknown>) {
       recentStabilityContextReason:
         overrides.recentStabilityContextReason ??
         "Ainda nao ha janela recente suficiente para indicar se o perfil esta estavel, alternante ou em consolidacao.",
+      recentMaterialityContext:
+        overrides.recentMaterialityContext ?? "materialidade_recente_neutra",
+      recentMaterialityContextLabel:
+        overrides.recentMaterialityContextLabel ?? "materialidade recente neutra",
+      recentMaterialityContextReason:
+        overrides.recentMaterialityContextReason ??
+        "A leitura recente do contrato nao indica impacto operacional suficiente para destacar esta competencia por materialidade.",
     },
   };
 }
@@ -859,4 +866,122 @@ test("annotate reconciliation recurrence marks recent competencies with recent s
 
   assert.equal(annotated[0]?.differenceReading.recentStabilityContext, "padrao_alternante");
   assert.equal(annotated[1]?.differenceReading.recentStabilityContext, "padrao_alternante");
+});
+
+test("contract reconciliation summary marks recent materiality as relevant alternating when recent alternation carries residual or high priority", () => {
+  const records = [
+    makeRecord({
+      competency: "2026-01",
+      profile: "estrutural",
+      unexplainedAmount: 500,
+      hasResidualUnexplained: true,
+    }),
+    makeRecord({
+      competency: "2026-02",
+      profile: "pontual",
+      explainedAmount: 650,
+      explainedItemsAmount: 400,
+      explainedBalanceStillUnitemized: 250,
+      unitemizedBalancePriority: "alta",
+    }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recentMaterialityState, "alternancia_relevante");
+});
+
+test("contract reconciliation summary marks recent materiality as light alternating when recent alternation has no strong impact", () => {
+  const records = [
+    makeRecord({
+      competency: "2026-01",
+      profile: "estrutural",
+      explainedAmount: 400,
+      explainedItemsAmount: 400,
+    }),
+    makeRecord({
+      competency: "2026-02",
+      profile: "pontual",
+      explainedAmount: 500,
+      explainedItemsAmount: 500,
+    }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recentMaterialityState, "alternancia_leve");
+});
+
+test("contract reconciliation summary marks recent materiality as relevant consolidation when repeated pattern keeps recent impact", () => {
+  const records = [
+    makeRecord({
+      competency: "2026-01",
+      profile: "pontual",
+      explainedAmount: 700,
+      explainedBalanceStillUnitemized: 300,
+      unitemizedBalancePriority: "media",
+    }),
+    makeRecord({
+      competency: "2026-02",
+      profile: "pontual",
+      explainedAmount: 650,
+      explainedBalanceStillUnitemized: 250,
+      unitemizedBalancePriority: "alta",
+    }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recentMaterialityState, "consolidacao_relevante");
+});
+
+test("contract reconciliation summary marks recent materiality as lower impact consolidation when repeated pattern has no strong impact", () => {
+  const records = [
+    makeRecord({
+      competency: "2026-01",
+      profile: "pontual",
+      explainedAmount: 500,
+      explainedItemsAmount: 500,
+    }),
+    makeRecord({
+      competency: "2026-02",
+      profile: "pontual",
+      explainedAmount: 550,
+      explainedItemsAmount: 550,
+    }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recentMaterialityState, "consolidacao_menor_impacto");
+});
+
+test("annotate reconciliation recurrence marks recent materiality context by impact level", () => {
+  const records = [
+    makeRecord({
+      competency: "2026-01",
+      profile: "estrutural",
+      unexplainedAmount: 500,
+      hasResidualUnexplained: true,
+    }),
+    makeRecord({
+      competency: "2026-02",
+      profile: "pontual",
+      explainedAmount: 650,
+      explainedItemsAmount: 400,
+      explainedBalanceStillUnitemized: 250,
+      unitemizedBalancePriority: "alta",
+    }),
+  ];
+
+  const annotated = annotateReconciliationRecurrenceWithinContract(records as never[]);
+
+  assert.equal(
+    annotated[0]?.differenceReading.recentMaterialityContext,
+    "maior_impacto_recente",
+  );
+  assert.equal(
+    annotated[1]?.differenceReading.recentMaterialityContext,
+    "maior_impacto_recente",
+  );
 });

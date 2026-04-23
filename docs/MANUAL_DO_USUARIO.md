@@ -861,3 +861,14 @@ No resumo do contrato, a janela recente pode aparecer como:
 - sem base recente suficiente, quando nao ha janela recente relevante para essa leitura.
 Na conciliacao e no detalhe do contrato, cada competencia tambem passa a indicar se participa de padrao recente estavel, alternante, em consolidacao ou se ficou fora da janela recente usada para essa leitura.
 Essa leitura continua leve e orientativa. Ela nao cria fila de tarefas, nao substitui a analise operacional e nao transforma estabilidade recente em conclusao definitiva.
+
+### 11.16 Materialidade recente dos padroes conciliatorios
+A leitura recente do contrato passou a indicar tambem se a alternancia ou a consolidacao observada nas competencias mais recentes tem maior ou menor impacto operacional.
+No resumo do contrato, o padrao recente pode aparecer como:
+- alternancia relevante, quando a janela recente alterna perfis diferentes e ainda carrega residual nao explicado ou remanescente relevante de maior prioridade;
+- alternancia leve, quando a alternancia recente existe, mas sem sinal forte de impacto imediato;
+- consolidacao relevante, quando o padrao recente tende a se repetir com residual aberto ou remanescente relevante;
+- consolidacao de menor impacto, quando o padrao recente se repete, mas sem sinal forte de impacto operacional;
+- materialidade recente neutra, quando ainda nao ha base suficiente ou quando a leitura recente nao indica destaque material claro.
+Na conciliacao e no detalhe do contrato, cada competencia recente tambem passa a indicar se participa de padrao recente de maior impacto, de menor impacto, de leitura neutra ou se ficou fora da janela recente usada para essa avaliacao.
+Essa leitura continua leve e orientativa. Ela nao cria fila de tarefas, nao substitui a analise operacional e nao transforma materialidade recente em conclusao definitiva.

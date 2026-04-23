@@ -314,6 +314,9 @@ export interface ReconciliationDifferenceReadingSummary {
   profile: "estrutural" | "pontual" | "mista" | "indeterminada";
   profileLabel: string;
   profileReason: string;
+  recurrenceContext: "isolado" | "padrao_recorrente";
+  recurrenceContextLabel: string;
+  recurrenceContextReason: string;
 }
 
 export type CompetencyOccurrenceType =
@@ -586,6 +589,17 @@ export type ContractManagerialAttention =
   | "requer_acompanhamento"
   | "requer_revisao";
 
+export interface ContractRecurringSignal {
+  code:
+    | "estrutural"
+    | "pontual"
+    | "mista"
+    | "residual_nao_explicado"
+    | "remanescente_explicado_relevante";
+  label: string;
+  count: number;
+}
+
 export interface ContractReconciliationSummary {
   competencyCount: number;
   totalExplainedDifference: number;
@@ -603,6 +617,13 @@ export interface ContractReconciliationSummary {
   managerialAttention: ContractManagerialAttention;
   managerialAttentionLabel: string;
   managerialAttentionReason: string;
+  recurrenceState:
+    | "sem_recorrencia_relevante"
+    | "recorrencia_leve"
+    | "recorrencia_relevante";
+  recurrenceStateLabel: string;
+  recurrenceStateReason: string;
+  recurringSignals: ContractRecurringSignal[];
   hasOpenUnexplained: boolean;
   hasReopenedCompetencies: boolean;
   hasRelevantUnitemized: boolean;

@@ -1,5 +1,8 @@
 import { getBankAccounts, getBankEntries, getReleaseRequests, getReconciliations, getAllocations, getAuditEvents, getCompanies, getCompetencies, getContracts, getEmployees, getProvisionBalances } from "@/server/repositories/platform.repository";
-import { summarizeContractReconciliation } from "@/features/reconciliation/workflow";
+import {
+  annotateReconciliationRecurrenceWithinContract,
+  summarizeContractReconciliation,
+} from "@/features/reconciliation/workflow";
 import type {
   AuditEvent,
   BankAccount,
@@ -31,8 +34,11 @@ export async function getContractsOverview(): Promise<ContractOverview[]> {
     const contractReconciliations = reconciliations.filter(
       (item: ReconciliationRecord) => item.contractId === contract.id,
     );
-    const contractReconciliationSummary = summarizeContractReconciliation(
+    const reconciliationsWithRecurrence = annotateReconciliationRecurrenceWithinContract(
       contractReconciliations,
+    );
+    const contractReconciliationSummary = summarizeContractReconciliation(
+      reconciliationsWithRecurrence,
     );
     const pendingRequests = releaseRequests.filter(
       (item: ReleaseRequest) =>
@@ -97,8 +103,15 @@ export async function getContractDetail(contractId: string) {
     return null;
   }
 
+  const contractReconciliations = annotateReconciliationRecurrenceWithinContract(
+    reconciliations.filter(
+      (item: ReconciliationRecord) => item.contractId === contractId,
+    ),
+  );
+
   return {
     contract,
+    reconciliations: contractReconciliations,
     company: companies.find((item: Company) => item.id === contract.companyId),
     account: bankAccounts.find((item: BankAccount) => item.id === contract.bankAccountId),
     employees: allocations
@@ -118,16 +131,9 @@ export async function getContractDetail(contractId: string) {
     releaseRequests: releaseRequests.filter(
       (item: ReleaseRequest) => item.contractId === contractId,
     ),
-    reconciliations: reconciliations.filter(
-      (item: ReconciliationRecord) => item.contractId === contractId,
-    ),
-    reconciliation: reconciliations.find(
-      (item: ReconciliationRecord) => item.contractId === contractId,
-    ),
+    reconciliation: contractReconciliations[0],
     contractReconciliationSummary: summarizeContractReconciliation(
-      reconciliations.filter(
-        (item: ReconciliationRecord) => item.contractId === contractId,
-      ),
+      contractReconciliations,
     ),
     auditEvents: auditEvents.filter((item: AuditEvent) => item.contractId === contractId),
   };

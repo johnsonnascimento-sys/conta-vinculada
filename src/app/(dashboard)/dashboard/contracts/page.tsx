@@ -39,6 +39,23 @@ function getCoverageTone(contract: ContractOverview) {
   return "success" as const;
 }
 
+function getRecurrenceTone(contract: ContractOverview) {
+  if (
+    contract.contractReconciliationSummary.recurrenceState ===
+    "recorrencia_relevante"
+  ) {
+    return "danger" as const;
+  }
+
+  if (
+    contract.contractReconciliationSummary.recurrenceState === "recorrencia_leve"
+  ) {
+    return "warning" as const;
+  }
+
+  return "success" as const;
+}
+
 export default async function ContractsPage() {
   const contracts = await getContractsOverview();
 
@@ -88,6 +105,9 @@ export default async function ContractsPage() {
                       <Badge tone={getCoverageTone(contract)}>
                         {contract.contractReconciliationSummary.overallCoverageStateLabel}
                       </Badge>
+                      <Badge tone={getRecurrenceTone(contract)}>
+                        {contract.contractReconciliationSummary.recurrenceStateLabel}
+                      </Badge>
                     </div>
                     <p className="font-medium text-[var(--color-ink)]">
                       {contract.contractReconciliationSummary.managerialAttentionReason}
@@ -109,6 +129,7 @@ export default async function ContractsPage() {
                       Cobertura agregada:{" "}
                       {contract.contractReconciliationSummary.overallCoveragePercentage}%
                     </p>
+                    <p>{contract.contractReconciliationSummary.recurrenceStateReason}</p>
                     <div className="flex flex-wrap gap-2">
                       {contract.contractReconciliationSummary.hasOpenUnexplained ? (
                         <Badge tone="danger">residual aberto</Badge>
@@ -125,6 +146,13 @@ export default async function ContractsPage() {
                       !contract.contractReconciliationSummary.hasRelevantUnitemized ? (
                         <Badge tone="success">situacao normal</Badge>
                       ) : null}
+                      {contract.contractReconciliationSummary.recurringSignals.map(
+                        (signal) => (
+                          <Badge key={signal.code} tone="neutral">
+                            {signal.label} ({signal.count})
+                          </Badge>
+                        ),
+                      )}
                     </div>
                   </div>
                 </td>

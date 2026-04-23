@@ -310,8 +310,12 @@ export default async function ReconciliationPage({
                           <Badge tone={getDifferenceReadingTone(item)}>
                             {item.differenceReading.profileLabel}
                           </Badge>
+                          <Badge tone="neutral">
+                            {item.differenceReading.recurrenceContextLabel}
+                          </Badge>
                         </div>
                         <p>{item.differenceReading.profileReason}</p>
+                        <p>{item.differenceReading.recurrenceContextReason}</p>
                         <p>
                           Priorizacao visual:{" "}
                           {item.differenceSummary.unitemizedBalancePriorityLabel}

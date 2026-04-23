@@ -42,6 +42,7 @@ test("reconciliation overview exposes minimum reconciliation items and explained
   );
   assert.equal(reconciliation?.differenceSummary.unitemizedBalancePriority, "media");
   assert.equal(reconciliation?.differenceReading.profile, "mista");
+  assert.equal(reconciliation?.differenceReading.recurrenceContext, "isolado");
   assert.equal(
     reconciliation?.differenceSummary.directedReviewRecommendation,
     "revisar saldo sem itemizacao",
@@ -64,6 +65,7 @@ test("reconciliation overview exposes minimum reconciliation items and explained
     "baixa",
   );
   assert.equal(completeCoverage?.differenceReading.profile, "mista");
+  assert.equal(completeCoverage?.differenceReading.recurrenceContext, "isolado");
 });
 
 test("reconciliation overview filters remaining explained balances with lightweight tracking", async () => {

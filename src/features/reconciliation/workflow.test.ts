@@ -1,6 +1,7 @@
 ﻿import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  annotateReconciliationRecurrenceWithinContract,
   matchesReconciliationFilter,
   summarizeCompetencyFormalClosure,
   summarizeCompetencyOperationalHistory,
@@ -577,6 +578,16 @@ function makeRecord(overrides: Record<string, unknown>) {
     formalClosure: {
       state: overrides.formalClosureState ?? "aberta",
     },
+    differenceReading: {
+      profile: overrides.profile ?? "indeterminada",
+      profileLabel: overrides.profileLabel ?? "indeterminada",
+      profileReason: overrides.profileReason ?? "Sem predominancia relevante.",
+      recurrenceContext: overrides.recurrenceContext ?? "isolado",
+      recurrenceContextLabel: overrides.recurrenceContextLabel ?? "caso isolado",
+      recurrenceContextReason:
+        overrides.recurrenceContextReason ??
+        "Nao ha recorrencia relevante identificada entre as competencias conciliadas deste contrato.",
+    },
   };
 }
 
@@ -650,4 +661,76 @@ test("contract reconciliation summary ignores low priority unitemized for manage
   const summary = summarizeContractReconciliation(records as never[]);
   assert.equal(summary.hasRelevantUnitemized, false);
   assert.equal(summary.managerialAttention, "normal");
+});
+
+test("contract reconciliation summary marks sem recorrencia relevante when no signal repeats", () => {
+  const records = [
+    makeRecord({ profile: "estrutural", unexplainedAmount: 500, hasResidualUnexplained: true }),
+    makeRecord({ profile: "pontual", explainedAmount: 1000, explainedItemsAmount: 950 }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recurrenceState, "sem_recorrencia_relevante");
+  assert.equal(summary.recurringSignals.length, 0);
+});
+
+test("contract reconciliation summary marks recorrencia leve when one relevant signal repeats", () => {
+  const records = [
+    makeRecord({ profile: "pontual", explainedAmount: 1200, explainedItemsAmount: 900 }),
+    makeRecord({ profile: "pontual", explainedAmount: 800, explainedItemsAmount: 700 }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recurrenceState, "recorrencia_leve");
+  assert.equal(summary.recurringSignals[0]?.code, "pontual");
+});
+
+test("contract reconciliation summary marks recorrencia relevante when multiple signals repeat", () => {
+  const records = [
+    makeRecord({
+      profile: "estrutural",
+      unexplainedAmount: 500,
+      hasResidualUnexplained: true,
+    }),
+    makeRecord({
+      profile: "estrutural",
+      unexplainedAmount: 300,
+      hasResidualUnexplained: true,
+    }),
+    makeRecord({
+      profile: "mista",
+      explainedAmount: 1000,
+      explainedBalanceStillUnitemized: 400,
+      unitemizedBalancePriority: "media",
+    }),
+    makeRecord({
+      profile: "mista",
+      explainedAmount: 900,
+      explainedBalanceStillUnitemized: 300,
+      unitemizedBalancePriority: "alta",
+    }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recurrenceState, "recorrencia_relevante");
+  assert.equal(summary.recurringSignals.length >= 2, true);
+});
+
+test("annotate reconciliation recurrence distinguishes isolated case from recurring pattern", () => {
+  const records = [
+    makeRecord({ profile: "estrutural", unexplainedAmount: 500, hasResidualUnexplained: true }),
+    makeRecord({ profile: "estrutural", unexplainedAmount: 250, hasResidualUnexplained: true }),
+    makeRecord({ profile: "pontual", explainedAmount: 800, explainedItemsAmount: 760 }),
+  ];
+
+  const annotated = annotateReconciliationRecurrenceWithinContract(
+    records as never[],
+  );
+
+  assert.equal(annotated[0]?.differenceReading.recurrenceContext, "padrao_recorrente");
+  assert.equal(annotated[1]?.differenceReading.recurrenceContext, "padrao_recorrente");
+  assert.equal(annotated[2]?.differenceReading.recurrenceContext, "isolado");
 });

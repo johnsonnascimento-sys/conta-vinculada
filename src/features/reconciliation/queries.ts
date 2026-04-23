@@ -1,5 +1,8 @@
 import type { ReconciliationFilterKey, ReconciliationRecord } from "@/features/platform/types";
-import { matchesReconciliationFilter } from "@/features/reconciliation/workflow";
+import {
+  annotateReconciliationRecurrenceWithinContract,
+  matchesReconciliationFilter,
+} from "@/features/reconciliation/workflow";
 import { getReconciliations } from "@/server/repositories/platform.repository";
 
 export interface ReconciliationFilterOption {
@@ -32,7 +35,17 @@ function normalizeFilter(value?: string): ReconciliationFilterKey {
 }
 
 export async function getReconciliationOverview(filterValue?: string): Promise<ReconciliationOverview> {
-  const reconciliations = await getReconciliations();
+  const rawReconciliations = await getReconciliations();
+  const reconciliations = Array.from(
+    rawReconciliations.reduce((groups, record) => {
+      const current = groups.get(record.contractId) ?? [];
+      current.push(record);
+      groups.set(record.contractId, current);
+      return groups;
+    }, new Map<string, ReconciliationRecord[]>()),
+  ).flatMap(([, contractRecords]) =>
+    annotateReconciliationRecurrenceWithinContract(contractRecords),
+  );
   const selectedFilter = normalizeFilter(filterValue);
 
   const filters: ReconciliationFilterOption[] = [

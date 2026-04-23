@@ -354,3 +354,12 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 
 - [ ] Refinar de forma leve a separacao entre diferenca estrutural e diferenca pontual dentro de uma competencia.
 
+
+### Atualizacao da rodada
+- [x] Derivar recorrencia leve dos perfis de divergencia no nivel do contrato a partir das competencias ja conciliadas.
+- [x] Distinguir, por competencia, caso isolado de padrao recorrente do contrato.
+- [x] Expor recorrencia leve no detalhe do contrato e manter coerencia com a conciliacao.
+- [x] Preservar a leitura de cobertura, origem remanescente, prioridade visual e atencao gerencial ja existentes.
+
+### Proximo bloco sugerido
+- [ ] Qualificar de forma leve a evolucao temporal desses sinais recorrentes, distinguindo recorrencia ainda ativa de historico ja superado.

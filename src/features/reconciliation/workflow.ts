@@ -2,6 +2,7 @@ import type {
   CompetencyFormalClosureSummary,
   CompetencyOccurrence,
   CompetencyOperationalHistorySummary,
+  ContractRecurringSignal,
   ContractReconciliationSummary,
   ReconciliationFilterKey,
   ReconciliationItem,
@@ -411,6 +412,10 @@ export function summarizeReconciliationDifferenceReading({
       profileLabel: "indeterminada",
       profileReason:
         "A competencia nao apresenta divergencia conciliatoria relevante nesta leitura.",
+      recurrenceContext: "isolado",
+      recurrenceContextLabel: "caso isolado",
+      recurrenceContextReason:
+        "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
     };
   }
 
@@ -423,6 +428,10 @@ export function summarizeReconciliationDifferenceReading({
       profileLabel: "mista",
       profileReason:
         "A competencia combina sinal mais amplo de divergencia residual com tratamento localizado por itens conciliatorios ou saldo explicado ainda remanescente.",
+      recurrenceContext: "isolado",
+      recurrenceContextLabel: "caso isolado",
+      recurrenceContextReason:
+        "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
     };
   }
 
@@ -433,6 +442,10 @@ export function summarizeReconciliationDifferenceReading({
         profileLabel: "estrutural",
         profileReason:
           "A reabertura da competencia indica necessidade de revisao mais ampla do tratamento conciliatorio.",
+        recurrenceContext: "isolado",
+        recurrenceContextLabel: "caso isolado",
+        recurrenceContextReason:
+          "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
       };
     }
 
@@ -442,6 +455,10 @@ export function summarizeReconciliationDifferenceReading({
         profileLabel: "estrutural",
         profileReason:
           "Existe diferenca nao explicada aberta, sugerindo divergencia mais ampla que ainda nao foi absorvida pela itemizacao minima.",
+        recurrenceContext: "isolado",
+        recurrenceContextLabel: "caso isolado",
+        recurrenceContextReason:
+          "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
       };
     }
 
@@ -454,6 +471,10 @@ export function summarizeReconciliationDifferenceReading({
         profileLabel: "estrutural",
         profileReason:
           "A diferenca explicada ainda esta sem detalhamento minimo, o que sugere problema mais amplo de rastreabilidade da competencia.",
+        recurrenceContext: "isolado",
+        recurrenceContextLabel: "caso isolado",
+        recurrenceContextReason:
+          "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
       };
     }
 
@@ -462,6 +483,10 @@ export function summarizeReconciliationDifferenceReading({
       profileLabel: "estrutural",
       profileReason:
         "A leitura atual indica justificativa ou sustentacao ainda insuficiente para tratar a divergencia como pontual.",
+      recurrenceContext: "isolado",
+      recurrenceContextLabel: "caso isolado",
+      recurrenceContextReason:
+        "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
     };
   }
 
@@ -471,6 +496,10 @@ export function summarizeReconciliationDifferenceReading({
       profileLabel: "mista",
       profileReason:
         "A competencia reune sinais de revisao mais ampla e tambem faixas localizadas ja parcialmente tratadas na conciliacao.",
+      recurrenceContext: "isolado",
+      recurrenceContextLabel: "caso isolado",
+      recurrenceContextReason:
+        "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
     };
   }
 
@@ -483,6 +512,10 @@ export function summarizeReconciliationDifferenceReading({
         profileLabel: "pontual",
         profileReason:
           "A divergencia parece concentrada em complemento localizado de itemizacao, sem residual nao explicado aberto.",
+        recurrenceContext: "isolado",
+        recurrenceContextLabel: "caso isolado",
+        recurrenceContextReason:
+          "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
       };
     }
 
@@ -491,6 +524,10 @@ export function summarizeReconciliationDifferenceReading({
       profileLabel: "pontual",
       profileReason:
         "A leitura atual indica ajuste localizado ou faixa residual pequena, sem sinal predominante de divergencia estrutural.",
+      recurrenceContext: "isolado",
+      recurrenceContextLabel: "caso isolado",
+      recurrenceContextReason:
+        "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
     };
   }
 
@@ -499,7 +536,153 @@ export function summarizeReconciliationDifferenceReading({
     profileLabel: "indeterminada",
     profileReason:
       "Os sinais atuais nao permitem apontar predominio claro entre divergencia estrutural e pontual.",
+    recurrenceContext: "isolado",
+    recurrenceContextLabel: "caso isolado",
+    recurrenceContextReason:
+      "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
   };
+}
+
+function buildContractRecurringSignalData(records: ReconciliationRecord[]) {
+  const counts = {
+    estrutural: 0,
+    pontual: 0,
+    mista: 0,
+    residualNaoExplicado: 0,
+    remanescenteExplicadoRelevante: 0,
+  };
+
+  for (const record of records) {
+    if (record.differenceReading.profile === "estrutural") {
+      counts.estrutural += 1;
+    }
+
+    if (record.differenceReading.profile === "pontual") {
+      counts.pontual += 1;
+    }
+
+    if (record.differenceReading.profile === "mista") {
+      counts.mista += 1;
+    }
+
+    if (record.differenceSummary.hasResidualUnexplained) {
+      counts.residualNaoExplicado += 1;
+    }
+
+    if (
+      record.differenceSummary.explainedBalanceStillUnitemized > 0 &&
+      record.differenceSummary.unitemizedBalancePriority !== "baixa"
+    ) {
+      counts.remanescenteExplicadoRelevante += 1;
+    }
+  }
+
+  const recurringSignals: ContractRecurringSignal[] = [];
+
+  if (counts.estrutural >= 2) {
+    recurringSignals.push({
+      code: "estrutural",
+      label: "perfil estrutural recorrente",
+      count: counts.estrutural,
+    });
+  }
+
+  if (counts.pontual >= 2) {
+    recurringSignals.push({
+      code: "pontual",
+      label: "perfil pontual recorrente",
+      count: counts.pontual,
+    });
+  }
+
+  if (counts.mista >= 2) {
+    recurringSignals.push({
+      code: "mista",
+      label: "perfil misto recorrente",
+      count: counts.mista,
+    });
+  }
+
+  if (counts.residualNaoExplicado >= 2) {
+    recurringSignals.push({
+      code: "residual_nao_explicado",
+      label: "residual nao explicado recorrente",
+      count: counts.residualNaoExplicado,
+    });
+  }
+
+  if (counts.remanescenteExplicadoRelevante >= 2) {
+    recurringSignals.push({
+      code: "remanescente_explicado_relevante",
+      label: "remanescente explicado recorrente",
+      count: counts.remanescenteExplicadoRelevante,
+    });
+  }
+
+  return { counts, recurringSignals };
+}
+
+export function annotateReconciliationRecurrenceWithinContract(
+  records: ReconciliationRecord[],
+): ReconciliationRecord[] {
+  const { counts, recurringSignals } = buildContractRecurringSignalData(records);
+
+  return records.map((record) => {
+    const profileCount =
+      record.differenceReading.profile === "estrutural"
+        ? counts.estrutural
+        : record.differenceReading.profile === "pontual"
+          ? counts.pontual
+          : record.differenceReading.profile === "mista"
+            ? counts.mista
+            : 0;
+
+    const hasRecurringResidual =
+      record.differenceSummary.hasResidualUnexplained &&
+      counts.residualNaoExplicado >= 2;
+    const hasRecurringRelevantUnitemized =
+      record.differenceSummary.explainedBalanceStillUnitemized > 0 &&
+      record.differenceSummary.unitemizedBalancePriority !== "baixa" &&
+      counts.remanescenteExplicadoRelevante >= 2;
+    const recurrenceContext =
+      profileCount >= 2 || hasRecurringResidual || hasRecurringRelevantUnitemized
+        ? "padrao_recorrente"
+        : "isolado";
+    const recurrenceContextLabel =
+      recurrenceContext === "padrao_recorrente"
+        ? "padrao recorrente"
+        : "caso isolado";
+
+    let recurrenceContextReason: string;
+
+    if (recurrenceContext === "padrao_recorrente") {
+      if (profileCount >= 2 && record.differenceReading.profile !== "indeterminada") {
+        recurrenceContextReason = `O perfil ${record.differenceReading.profileLabel} se repete de forma relevante em outras competencias do contrato.`;
+      } else if (hasRecurringResidual) {
+        recurrenceContextReason =
+          "A competencia faz parte de um padrao recorrente de residual nao explicado no contrato.";
+      } else {
+        recurrenceContextReason =
+          "A competencia faz parte de um padrao recorrente de remanescente explicado relevante no contrato.";
+      }
+    } else if (recurringSignals.length === 0) {
+      recurrenceContextReason =
+        "Nao ha recorrencia relevante identificada entre as competencias conciliadas deste contrato.";
+    } else {
+      recurrenceContextReason =
+        "Os sinais recorrentes do contrato estao concentrados em outros perfis ou outras competencias, sem repeticao relevante deste caso.";
+    }
+
+    return {
+      ...record,
+      differenceReading: {
+        ...record.differenceReading,
+        recurrenceContext,
+        recurrenceContextLabel,
+        recurrenceContextReason,
+      },
+    };
+  });
 }
 
 export function summarizeReconciliationItems({
@@ -1093,6 +1276,11 @@ export function summarizeContractReconciliation(
       managerialAttention: "normal",
       managerialAttentionLabel: "normal",
       managerialAttentionReason: "Nenhuma competencia conciliada disponivel para leitura.",
+      recurrenceState: "sem_recorrencia_relevante",
+      recurrenceStateLabel: "sem recorrencia relevante",
+      recurrenceStateReason:
+        "Nao ha competencias suficientes para indicar repeticao relevante de perfis de divergencia.",
+      recurringSignals: [],
       hasOpenUnexplained: false,
       hasReopenedCompetencies: false,
       hasRelevantUnitemized: false,
@@ -1129,6 +1317,7 @@ export function summarizeContractReconciliation(
   );
 
   const overallTotal = totalExplainedDifference + totalUnexplainedResidual;
+  const { counts, recurringSignals } = buildContractRecurringSignalData(records);
   const overallCoveragePercentage =
     overallTotal > 0
       ? Math.round((totalCoveredByItems / overallTotal) * 100)
@@ -1176,6 +1365,31 @@ export function summarizeContractReconciliation(
       "A situacao conciliatoria do contrato esta dentro do esperado operacionalmente.";
   }
 
+  let recurrenceState: ContractReconciliationSummary["recurrenceState"];
+  let recurrenceStateLabel: string;
+  let recurrenceStateReason: string;
+
+  if (recurringSignals.length === 0) {
+    recurrenceState = "sem_recorrencia_relevante";
+    recurrenceStateLabel = "sem recorrencia relevante";
+    recurrenceStateReason =
+      "As competencias conciliadas nao mostram repeticao suficiente de perfis ou sinais de divergencia.";
+  } else if (
+    recurringSignals.length >= 2 ||
+    counts.estrutural >= 3 ||
+    counts.residualNaoExplicado >= 3 ||
+    counts.remanescenteExplicadoRelevante >= 3
+  ) {
+    recurrenceState = "recorrencia_relevante";
+    recurrenceStateLabel = "recorrencia relevante";
+    recurrenceStateReason =
+      "Ha repeticao relevante de perfis ou sinais conciliatorios ao longo das competencias do contrato.";
+  } else {
+    recurrenceState = "recorrencia_leve";
+    recurrenceStateLabel = "recorrencia leve";
+    recurrenceStateReason = `O contrato ja apresenta repeticao perceptivel de ${recurringSignals[0].label}, mas ainda sem espalhamento amplo entre varios sinais.`;
+  }
+
   return {
     competencyCount: records.length,
     totalExplainedDifference,
@@ -1188,6 +1402,10 @@ export function summarizeContractReconciliation(
     managerialAttention,
     managerialAttentionLabel,
     managerialAttentionReason,
+    recurrenceState,
+    recurrenceStateLabel,
+    recurrenceStateReason,
+    recurringSignals,
     hasOpenUnexplained,
     hasReopenedCompetencies,
     hasRelevantUnitemized,

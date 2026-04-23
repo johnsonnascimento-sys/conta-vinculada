@@ -550,3 +550,16 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] Nao aplicavel
+### 11.13 Recorrencia leve dos perfis ao longo do contrato
+- [ ] O detalhe do contrato indica se ha sem recorrencia relevante, recorrencia leve ou recorrencia relevante.
+- [ ] Quando houver repeticao relevante, o contrato exibe os sinais recorrentes de forma legivel e coerente com as competencias.
+- [ ] A competencia conciliada passa a indicar se o caso parece isolado ou parte de padrao recorrente do contrato.
+- [ ] O motivo operacional da recorrencia e curto, compreensivel e coerente com os sinais ja existentes.
+- [ ] A conciliacao e o detalhe do contrato exibem a mesma leitura de recorrencia para a mesma competencia.
+- [ ] A nova leitura nao altera indevidamente cobertura, origem do saldo remanescente, prioridade visual, fechamento ou reabertura.
+Observacoes:
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel

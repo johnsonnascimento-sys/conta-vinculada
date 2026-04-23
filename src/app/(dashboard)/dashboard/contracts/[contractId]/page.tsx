@@ -185,6 +185,18 @@ function getDifferenceReadingTone(reconciliation: ReconciliationRecord) {
   return "neutral" as const;
 }
 
+function getRecurrenceTone(recurrence: string) {
+  if (recurrence === "padrao_recorrente" || recurrence === "recorrencia_relevante") {
+    return "danger" as const;
+  }
+
+  if (recurrence === "recorrencia_leve") {
+    return "warning" as const;
+  }
+
+  return "neutral" as const;
+}
+
 interface ContractPageProps {
   params: Promise<{ contractId: string }>;
 }
@@ -318,6 +330,24 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
               </div>
               <p className="mt-2 text-sm text-[var(--color-muted)]">
                 {detail.contractReconciliationSummary.managerialAttentionReason}
+              </p>
+            </div>
+            <div className="flex-1 rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
+              <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                Recorrencia leve
+              </span>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Badge tone={getRecurrenceTone(detail.contractReconciliationSummary.recurrenceState)}>
+                  {detail.contractReconciliationSummary.recurrenceStateLabel}
+                </Badge>
+                {detail.contractReconciliationSummary.recurringSignals.map((signal) => (
+                  <Badge key={signal.code} tone="neutral">
+                    {signal.label} ({signal.count})
+                  </Badge>
+                ))}
+              </div>
+              <p className="mt-2 text-sm text-[var(--color-muted)]">
+                {detail.contractReconciliationSummary.recurrenceStateReason}
               </p>
             </div>
             <div className="rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
@@ -470,11 +500,15 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                               <Badge tone={getDifferenceReadingTone(reconciliation)}>
                                 {reconciliation.differenceReading.profileLabel}
                               </Badge>
+                              <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recurrenceContext)}>
+                                {reconciliation.differenceReading.recurrenceContextLabel}
+                              </Badge>
                             </div>
                             <p>
                               Leitura da divergencia:{" "}
                               {reconciliation.differenceReading.profileReason}
                             </p>
+                            <p>{reconciliation.differenceReading.recurrenceContextReason}</p>
                             <p>
                               Priorizacao visual:{" "}
                               {reconciliation.differenceSummary.unitemizedBalancePriorityLabel}
@@ -683,9 +717,15 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                     <Badge tone={getDifferenceReadingTone(item)}>
                       {item.differenceReading.profileLabel}
                     </Badge>
+                    <Badge tone={getRecurrenceTone(item.differenceReading.recurrenceContext)}>
+                      {item.differenceReading.recurrenceContextLabel}
+                    </Badge>
                   </div>
                   <p className="text-sm text-[var(--color-muted)]">
                     Leitura da divergência: {item.differenceReading.profileReason}
+                  </p>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    {item.differenceReading.recurrenceContextReason}
                   </p>
                   <p className="text-sm text-[var(--color-muted)]">
                     Priorização visual:{" "}

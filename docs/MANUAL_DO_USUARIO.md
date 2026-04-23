@@ -832,3 +832,12 @@ Essa leitura pode aparecer como:
 Junto da classificacao, a tela informa o motivo operacional principal dessa leitura.
 Essa leitura nao substitui a cobertura, a origem do saldo remanescente, a prioridade visual nem a diferenca nao explicada residual. Ela funciona como uma camada adicional de interpretacao operacional para ajudar o usuario a entender se o problema parece mais recorrente e amplo ou mais localizado dentro da competencia.
 A mesma leitura passou a aparecer tanto no modulo de conciliacao quanto no detalhe do contrato, sempre de forma coerente com os sinais ja existentes da competencia.
+### 11.13 Recorrencia leve dos perfis de divergencia
+A conciliacao passou a indicar, de forma leve, quando um perfil de divergencia parece se repetir ao longo das competencias do mesmo contrato.
+No detalhe do contrato, o quadro conciliatorio passou a mostrar:
+- sem recorrencia relevante, quando nao ha repeticao suficiente dos perfis ou sinais conciliatorios;
+- recorrencia leve, quando ja existe repeticao perceptivel de um perfil predominante ou de um sinal relevante;
+- recorrencia relevante, quando a repeticao ja aparece de forma mais clara em mais de uma competencia ou em mais de um sinal conciliatorio.
+Quando houver repeticao perceptivel, o contrato tambem pode exibir marcadores simples com os sinais recorrentes, como perfil estrutural, perfil pontual, perfil misto, residual nao explicado recorrente ou remanescente explicado recorrente.
+Na leitura por competencia, a conciliacao passou a indicar se aquela competencia parece caso isolado ou parte de um padrao recorrente do contrato, sempre acompanhada de um motivo operacional curto.
+Essa leitura e apenas orientativa. Ela nao cria workflow novo, nao substitui a analise operacional da competencia e nao transforma recorrencia em conclusao contabil definitiva.

@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { getContractDetail, getContractsOverview } from "@/features/contracts/queries";
-import { getReconciliations } from "@/server/repositories/platform.repository";
+import { getReconciliationOverview } from "@/features/reconciliation/queries";
 
 test("contract detail reuses the same derived reconciliation history shown in reconciliation list", async () => {
-  const [detail, reconciliations] = await Promise.all([
+  const [detail, overview] = await Promise.all([
     getContractDetail("c-2cjm-002"),
-    getReconciliations(),
+    getReconciliationOverview(),
   ]);
 
   assert.ok(detail);
@@ -14,7 +14,7 @@ test("contract detail reuses the same derived reconciliation history shown in re
   const detailReconciliation = detail?.reconciliations.find(
     (item) => item.competency === "2026-03",
   );
-  const listReconciliation = reconciliations.find(
+  const listReconciliation = overview.reconciliations.find(
     (item) => item.contractId === "c-2cjm-002" && item.competency === "2026-03",
   );
 
@@ -104,5 +104,24 @@ test("contracts overview keeps transversal managerial attention consistent with 
   assert.equal(
     secondContract?.contractReconciliationSummary.totalExplainedStillUnitemized,
     detail?.contractReconciliationSummary.totalExplainedStillUnitemized,
+  );
+  assert.equal(
+    secondContract?.contractReconciliationSummary.recurrenceState,
+    detail?.contractReconciliationSummary.recurrenceState,
+  );
+});
+
+test("contract detail marks competencies as isolated when no recurring pattern is present", async () => {
+  const detail = await getContractDetail("c-2cjm-001");
+
+  assert.ok(detail);
+  assert.equal(
+    detail?.contractReconciliationSummary.recurrenceState,
+    "sem_recorrencia_relevante",
+  );
+  assert.equal(detail?.contractReconciliationSummary.recurringSignals.length, 0);
+  assert.equal(
+    detail?.reconciliations[0]?.differenceReading.recurrenceContext,
+    "isolado",
   );
 });

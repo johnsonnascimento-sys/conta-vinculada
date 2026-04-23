@@ -822,4 +822,13 @@ A atencao gerencial na listagem segue a mesma logica ja usada no detalhe do cont
 - requer acompanhamento, quando ainda existe saldo explicado remanescente relevante sem itemizacao suficiente;
 - requer revisao, quando existe residual nao explicado aberto ou competencia reaberta.
 A listagem tambem mostra marcadores simples para ajudar a priorizar rapidamente quais contratos abrir primeiro, indicando residual aberto, competencia reaberta, remanescente relevante ou situacao normal.
-Essa leitura continua leve. Ela nao cria dashboard executivo pesado, nao substitui o detalhe do contrato e nao transforma a atencao gerencial em decisao formal do sistema.
+Essa leitura continua leve. Ela nao cria dashboard executivo pesado, nao substitui o detalhe do contrato e nao transforma a atencao gerencial em decisao formal do sistema.### 11.12 Leitura leve de divergencia estrutural e pontual
+A conciliacao passou a indicar, por competencia, uma leitura simples do tipo predominante de divergencia.
+Essa leitura pode aparecer como:
+- estrutural, quando a competencia mostra sinal mais amplo de divergencia, como residual nao explicado aberto, reabertura ou falta de detalhamento minimo suficiente;
+- pontual, quando a diferenca parece mais localizada, ja coberta ou restrita a complemento operacional limitado;
+- mista, quando coexistem sinais mais amplos e tambem tratamento localizado por itens ou cobertura parcial;
+- indeterminada, quando nao ha divergencia relevante ou quando os sinais atuais nao permitem apontar predominio claro.
+Junto da classificacao, a tela informa o motivo operacional principal dessa leitura.
+Essa leitura nao substitui a cobertura, a origem do saldo remanescente, a prioridade visual nem a diferenca nao explicada residual. Ela funciona como uma camada adicional de interpretacao operacional para ajudar o usuario a entender se o problema parece mais recorrente e amplo ou mais localizado dentro da competencia.
+A mesma leitura passou a aparecer tanto no modulo de conciliacao quanto no detalhe do contrato, sempre de forma coerente com os sinais ja existentes da competencia.

@@ -5,6 +5,7 @@ import {
   summarizeCompetencyFormalClosure,
   summarizeCompetencyOperationalHistory,
   summarizeContractReconciliation,
+  summarizeReconciliationDifferenceReading,
   summarizeReconciliationDifferenceSummary,
   summarizeReconciliationItems,
   summarizeReconciliationOperationalQualification,
@@ -372,6 +373,96 @@ test("reconciliation difference summary derives medium priority when itemization
   assert.equal(summary.unitemizedBalanceOrigin, "itemizacao_em_andamento");
   assert.equal(summary.unitemizedBalancePriority, "media");
   assert.equal(summary.requiresDirectedReview, true);
+});
+
+test("reconciliation difference reading marks structural when residual remains open without local treatment", () => {
+  const differenceSummary = summarizeReconciliationDifferenceSummary({
+    explainedDifference: 0,
+    unexplainedDifference: 800,
+    items: [],
+  });
+
+  const reading = summarizeReconciliationDifferenceReading({
+    differenceSummary,
+    formalClosure: { state: "aberta" },
+    qualification: { priority: "alta" },
+  });
+
+  assert.equal(reading.profile, "estrutural");
+});
+
+test("reconciliation difference reading marks pontual when coverage is sufficient and residual is localized", () => {
+  const differenceSummary = summarizeReconciliationDifferenceSummary({
+    explainedDifference: 1000,
+    unexplainedDifference: 0,
+    items: [
+      {
+        id: "rec-item-006",
+        justification: "Ajuste residual localizado.",
+        createdAt: "2026-04-21T09:00:00Z",
+        bankEntry: {
+          id: "entry-011",
+          description: "Ajuste localizado",
+          type: "ajuste",
+          amount: -850,
+          occurredOn: "2026-04-21",
+        },
+      },
+    ],
+  });
+
+  const reading = summarizeReconciliationDifferenceReading({
+    differenceSummary,
+    formalClosure: { state: "aberta" },
+    qualification: { priority: "baixa" },
+  });
+
+  assert.equal(reading.profile, "pontual");
+});
+
+test("reconciliation difference reading marks mixed when residual open coexists with explained remainder", () => {
+  const differenceSummary = summarizeReconciliationDifferenceSummary({
+    explainedDifference: 2827.3,
+    unexplainedDifference: 943.18,
+    items: [
+      {
+        id: "rec-item-007",
+        justification: "Rendimento identificado no extrato.",
+        createdAt: "2026-04-12T10:40:00Z",
+        bankEntry: {
+          id: "entry-012",
+          description: "Rendimento bancario de marco",
+          type: "rendimento",
+          amount: 942.18,
+          occurredOn: "2026-04-01",
+        },
+      },
+    ],
+  });
+
+  const reading = summarizeReconciliationDifferenceReading({
+    differenceSummary,
+    formalClosure: { state: "aberta" },
+    qualification: { priority: "alta" },
+  });
+
+  assert.equal(reading.profile, "mista");
+});
+
+test("reconciliation difference reading stays indeterminate when no relevant divergence exists", () => {
+  const differenceSummary = summarizeReconciliationDifferenceSummary({
+    explainedDifference: 0,
+    unexplainedDifference: 0,
+    items: [],
+  });
+
+  const reading = summarizeReconciliationDifferenceReading({
+    differenceSummary,
+    formalClosure: { state: "apta_para_fechamento" },
+    qualification: { priority: "baixa" },
+  });
+
+  assert.equal(reading.profile, "indeterminada");
 });
 
 test("reconciliation filter matches apt and sensitive cases without changing closure rules", () => {

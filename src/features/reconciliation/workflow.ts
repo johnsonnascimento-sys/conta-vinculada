@@ -6,6 +6,7 @@ import type {
   ReconciliationFilterKey,
   ReconciliationItem,
   ReconciliationDifferenceSummary,
+  ReconciliationDifferenceReadingSummary,
   ReconciliationOperationalPointing,
   ReconciliationOperationalQualificationSummary,
   CompetencyStatus,
@@ -366,6 +367,138 @@ function buildUnitemizedBalancePriority(input: {
     unitemizedBalancePriorityLabel: "baixa",
     unitemizedBalancePriorityReason:
       "A leitura atual nao indica necessidade de destaque adicional para o saldo remanescente.",
+  };
+}
+
+export function summarizeReconciliationDifferenceReading({
+  differenceSummary,
+  formalClosure,
+  qualification,
+}: {
+  differenceSummary: ReconciliationDifferenceSummary;
+  formalClosure: Pick<CompetencyFormalClosureSummary, "state">;
+  qualification: Pick<
+    ReconciliationOperationalQualificationSummary,
+    "priority"
+  >;
+}): ReconciliationDifferenceReadingSummary {
+  const hasResidualUnexplained = differenceSummary.hasResidualUnexplained;
+  const hasExplainedComponent = differenceSummary.explainedAmount > 0;
+  const hasRelevantUnitemized =
+    differenceSummary.explainedBalanceStillUnitemized > 0 &&
+    differenceSummary.unitemizedBalancePriority !== "baixa";
+  const hasPontualSignals =
+    differenceSummary.unitemizedBalanceOrigin === "itemizacao_em_andamento" ||
+    differenceSummary.unitemizedBalanceOrigin ===
+      "saldo_residual_baixa_materialidade" ||
+    (hasExplainedComponent &&
+      (differenceSummary.explainedCoverageState === "itemizacao_suficiente" ||
+        differenceSummary.explainedCoverageState === "itemizacao_completa"));
+  const hasStructuralSignals =
+    hasResidualUnexplained ||
+    formalClosure.state === "reaberta" ||
+    differenceSummary.unitemizedBalanceOrigin ===
+      "saldo_explicado_sem_detalhamento" ||
+    differenceSummary.unitemizedBalanceOrigin === "justificativa_insuficiente" ||
+    qualification.priority === "alta";
+
+  if (
+    differenceSummary.explainedAmount <= 0 &&
+    differenceSummary.unexplainedAmount <= 0
+  ) {
+    return {
+      profile: "indeterminada",
+      profileLabel: "indeterminada",
+      profileReason:
+        "A competencia nao apresenta divergencia conciliatoria relevante nesta leitura.",
+    };
+  }
+
+  if (
+    hasResidualUnexplained &&
+    (differenceSummary.explainedItemsCount > 0 || hasRelevantUnitemized)
+  ) {
+    return {
+      profile: "mista",
+      profileLabel: "mista",
+      profileReason:
+        "A competencia combina sinal mais amplo de divergencia residual com tratamento localizado por itens conciliatorios ou saldo explicado ainda remanescente.",
+    };
+  }
+
+  if (hasStructuralSignals && !hasPontualSignals) {
+    if (formalClosure.state === "reaberta") {
+      return {
+        profile: "estrutural",
+        profileLabel: "estrutural",
+        profileReason:
+          "A reabertura da competencia indica necessidade de revisao mais ampla do tratamento conciliatorio.",
+      };
+    }
+
+    if (hasResidualUnexplained) {
+      return {
+        profile: "estrutural",
+        profileLabel: "estrutural",
+        profileReason:
+          "Existe diferenca nao explicada aberta, sugerindo divergencia mais ampla que ainda nao foi absorvida pela itemizacao minima.",
+      };
+    }
+
+    if (
+      differenceSummary.unitemizedBalanceOrigin ===
+      "saldo_explicado_sem_detalhamento"
+    ) {
+      return {
+        profile: "estrutural",
+        profileLabel: "estrutural",
+        profileReason:
+          "A diferenca explicada ainda esta sem detalhamento minimo, o que sugere problema mais amplo de rastreabilidade da competencia.",
+      };
+    }
+
+    return {
+      profile: "estrutural",
+      profileLabel: "estrutural",
+      profileReason:
+        "A leitura atual indica justificativa ou sustentacao ainda insuficiente para tratar a divergencia como pontual.",
+    };
+  }
+
+  if (hasStructuralSignals && hasPontualSignals) {
+    return {
+      profile: "mista",
+      profileLabel: "mista",
+      profileReason:
+        "A competencia reune sinais de revisao mais ampla e tambem faixas localizadas ja parcialmente tratadas na conciliacao.",
+    };
+  }
+
+  if (hasPontualSignals) {
+    if (
+      differenceSummary.unitemizedBalanceOrigin === "itemizacao_em_andamento"
+    ) {
+      return {
+        profile: "pontual",
+        profileLabel: "pontual",
+        profileReason:
+          "A divergencia parece concentrada em complemento localizado de itemizacao, sem residual nao explicado aberto.",
+      };
+    }
+
+    return {
+      profile: "pontual",
+      profileLabel: "pontual",
+      profileReason:
+        "A leitura atual indica ajuste localizado ou faixa residual pequena, sem sinal predominante de divergencia estrutural.",
+    };
+  }
+
+  return {
+    profile: "indeterminada",
+    profileLabel: "indeterminada",
+    profileReason:
+      "Os sinais atuais nao permitem apontar predominio claro entre divergencia estrutural e pontual.",
   };
 }
 

@@ -16,6 +16,7 @@ import type {
 import {
   summarizeCompetencyFormalClosure,
   summarizeCompetencyOperationalHistory,
+  summarizeReconciliationDifferenceReading,
   summarizeReconciliationDifferenceSummary,
   summarizeReconciliationItems,
   summarizeReconciliationOperationalQualification,
@@ -564,6 +565,19 @@ export function serializeReconciliation(record: {
     reopeningJustification: record.competency.reopeningJustification ?? undefined,
     occurrences,
   });
+  const differenceSummary = summarizeReconciliationDifferenceSummary({
+    explainedDifference,
+    unexplainedDifference,
+    items: persistedItems,
+  });
+  const qualification = summarizeReconciliationOperationalQualification({
+    approvedPendingExecution,
+    unexplainedDifference,
+    formalClosure,
+    closureJustification: record.competency.closureJustification ?? undefined,
+    reopeningJustification:
+      record.competency.reopeningJustification ?? undefined,
+  });
 
   return {
     id: record.id,
@@ -590,10 +604,11 @@ export function serializeReconciliation(record: {
       unexplainedDifference,
       items: persistedItems,
     }),
-    differenceSummary: summarizeReconciliationDifferenceSummary({
-      explainedDifference,
-      unexplainedDifference,
-      items: persistedItems,
+    differenceSummary,
+    differenceReading: summarizeReconciliationDifferenceReading({
+      differenceSummary,
+      formalClosure,
+      qualification,
     }),
     history: summarizeCompetencyOperationalHistory({
       status: record.competency.status,
@@ -610,14 +625,7 @@ export function serializeReconciliation(record: {
       operationalClosure,
       formalClosure,
     }),
-    qualification: summarizeReconciliationOperationalQualification({
-      approvedPendingExecution,
-      unexplainedDifference,
-      formalClosure,
-      closureJustification: record.competency.closureJustification ?? undefined,
-      reopeningJustification:
-        record.competency.reopeningJustification ?? undefined,
-    }),
+    qualification,
   };
 }
 

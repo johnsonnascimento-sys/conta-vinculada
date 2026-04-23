@@ -310,6 +310,12 @@ export interface ReconciliationDifferenceSummary {
   hasResidualUnexplained: boolean;
 }
 
+export interface ReconciliationDifferenceReadingSummary {
+  profile: "estrutural" | "pontual" | "mista" | "indeterminada";
+  profileLabel: string;
+  profileReason: string;
+}
+
 export type CompetencyOccurrenceType =
   | "apontamento"
   | "fechamento_formal"
@@ -560,6 +566,7 @@ export interface ReconciliationRecord {
   occurrences: CompetencyOccurrence[];
   items: ReconciliationItem[];
   differenceSummary: ReconciliationDifferenceSummary;
+  differenceReading: ReconciliationDifferenceReadingSummary;
   history: CompetencyOperationalHistorySummary;
   qualification: ReconciliationOperationalQualificationSummary;
 }

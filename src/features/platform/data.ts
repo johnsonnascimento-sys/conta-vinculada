@@ -17,6 +17,7 @@ import type {
 import {
   summarizeCompetencyFormalClosure,
   summarizeCompetencyOperationalHistory,
+  summarizeReconciliationDifferenceReading,
   summarizeReconciliationDifferenceSummary,
   summarizeReconciliationItems,
   summarizeReconciliationOperationalQualification,
@@ -593,6 +594,18 @@ export const reconciliations: ReconciliationRecord[] = [
       reopeningJustification: competency.reopeningJustification,
       occurrences: competency.occurrences,
     });
+    const differenceSummary = summarizeReconciliationDifferenceSummary({
+      explainedDifference,
+      unexplainedDifference,
+      items: persistedItems,
+    });
+    const qualification = summarizeReconciliationOperationalQualification({
+      approvedPendingExecution: 1560,
+      unexplainedDifference,
+      formalClosure,
+      closureJustification: competency.closureJustification,
+      reopeningJustification: competency.reopeningJustification,
+    });
 
     return {
       id: "rec-001",
@@ -619,10 +632,11 @@ export const reconciliations: ReconciliationRecord[] = [
         unexplainedDifference,
         items: persistedItems,
       }),
-      differenceSummary: summarizeReconciliationDifferenceSummary({
-        explainedDifference,
-        unexplainedDifference,
-        items: persistedItems,
+      differenceSummary,
+      differenceReading: summarizeReconciliationDifferenceReading({
+        differenceSummary,
+        formalClosure,
+        qualification,
       }),
       history: summarizeCompetencyOperationalHistory({
         status: competency.status,
@@ -639,13 +653,7 @@ export const reconciliations: ReconciliationRecord[] = [
         operationalClosure,
         formalClosure,
       }),
-      qualification: summarizeReconciliationOperationalQualification({
-        approvedPendingExecution: 1560,
-        unexplainedDifference,
-        formalClosure,
-        closureJustification: competency.closureJustification,
-        reopeningJustification: competency.reopeningJustification,
-      }),
+      qualification,
     };
   })(),
   (() => {
@@ -679,6 +687,18 @@ export const reconciliations: ReconciliationRecord[] = [
       reopeningJustification: competency.reopeningJustification,
       occurrences: competency.occurrences,
     });
+    const differenceSummary = summarizeReconciliationDifferenceSummary({
+      explainedDifference,
+      unexplainedDifference,
+      items: persistedItems,
+    });
+    const qualification = summarizeReconciliationOperationalQualification({
+      approvedPendingExecution: 3650,
+      unexplainedDifference,
+      formalClosure,
+      closureJustification: competency.closureJustification,
+      reopeningJustification: competency.reopeningJustification,
+    });
 
     return {
       id: "rec-002",
@@ -705,10 +725,11 @@ export const reconciliations: ReconciliationRecord[] = [
         unexplainedDifference,
         items: persistedItems,
       }),
-      differenceSummary: summarizeReconciliationDifferenceSummary({
-        explainedDifference,
-        unexplainedDifference,
-        items: persistedItems,
+      differenceSummary,
+      differenceReading: summarizeReconciliationDifferenceReading({
+        differenceSummary,
+        formalClosure,
+        qualification,
       }),
       history: summarizeCompetencyOperationalHistory({
         status: competency.status,
@@ -725,13 +746,7 @@ export const reconciliations: ReconciliationRecord[] = [
         operationalClosure,
         formalClosure,
       }),
-      qualification: summarizeReconciliationOperationalQualification({
-        approvedPendingExecution: 3650,
-        unexplainedDifference,
-        formalClosure,
-        closureJustification: competency.closureJustification,
-        reopeningJustification: competency.reopeningJustification,
-      }),
+      qualification,
     };
   })(),
 ];

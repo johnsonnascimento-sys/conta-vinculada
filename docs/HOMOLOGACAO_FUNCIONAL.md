@@ -535,4 +535,18 @@ Resultado:
 - [ ] Aprovado
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
+- [ ] Nao aplicavel### 11.12 Leitura leve de divergencia estrutural e pontual
+- [ ] A conciliacao classifica a divergencia da competencia como estrutural, pontual, mista ou indeterminada.
+- [ ] A classificacao vem acompanhada de motivo operacional simples e legivel.
+- [ ] A classificacao estrutural permanece coerente com residual nao explicado aberto, reabertura ou falta de detalhamento minimo suficiente.
+- [ ] A classificacao pontual permanece coerente com cobertura suficiente, ajuste localizado ou faixa residual pequena.
+- [ ] A classificacao mista permanece coerente quando coexistem residual aberto e tratamento localizado parcial.
+- [ ] A classificacao indeterminada nao gera alarme indevido quando nao existe divergencia relevante.
+- [ ] O detalhe do contrato reflete a mesma classificacao exibida na conciliacao.
+- [ ] A nova leitura nao altera indevidamente cobertura, origem remanescente, prioridade visual, fechamento ou reabertura da competencia.
+Observacoes:
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
 - [ ] Nao aplicavel

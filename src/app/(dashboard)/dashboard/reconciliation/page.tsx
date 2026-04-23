@@ -100,6 +100,22 @@ function getUnitemizedPriorityTone(item: ReconciliationRecord) {
   return "success" as const;
 }
 
+function getDifferenceReadingTone(item: ReconciliationRecord) {
+  if (item.differenceReading.profile === "estrutural") {
+    return "danger" as const;
+  }
+
+  if (item.differenceReading.profile === "mista") {
+    return "warning" as const;
+  }
+
+  if (item.differenceReading.profile === "pontual") {
+    return "success" as const;
+  }
+
+  return "neutral" as const;
+}
+
 function getAvailableBankEntries(
   item: ReconciliationRecord,
   bankEntries: BankEntry[],
@@ -284,6 +300,18 @@ export default async function ReconciliationPage({
                           {item.differenceSummary.unitemizedBalanceOriginLabel}
                         </p>
                         <p>{item.differenceSummary.unitemizedBalanceOriginReason}</p>
+                        <p>
+                          Leitura da divergencia:{" "}
+                          <span className="font-medium text-[var(--color-ink)]">
+                            {item.differenceReading.profileLabel}
+                          </span>
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge tone={getDifferenceReadingTone(item)}>
+                            {item.differenceReading.profileLabel}
+                          </Badge>
+                        </div>
+                        <p>{item.differenceReading.profileReason}</p>
                         <p>
                           Priorizacao visual:{" "}
                           {item.differenceSummary.unitemizedBalancePriorityLabel}

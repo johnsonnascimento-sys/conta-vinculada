@@ -169,6 +169,22 @@ function getUnitemizedPriorityTone(reconciliation: ReconciliationRecord) {
   return "success" as const;
 }
 
+function getDifferenceReadingTone(reconciliation: ReconciliationRecord) {
+  if (reconciliation.differenceReading.profile === "estrutural") {
+    return "danger" as const;
+  }
+
+  if (reconciliation.differenceReading.profile === "mista") {
+    return "warning" as const;
+  }
+
+  if (reconciliation.differenceReading.profile === "pontual") {
+    return "success" as const;
+  }
+
+  return "neutral" as const;
+}
+
 interface ContractPageProps {
   params: Promise<{ contractId: string }>;
 }
@@ -450,6 +466,15 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                             <p>
                               {reconciliation.differenceSummary.unitemizedBalanceOriginReason}
                             </p>
+                            <div className="flex flex-wrap gap-2">
+                              <Badge tone={getDifferenceReadingTone(reconciliation)}>
+                                {reconciliation.differenceReading.profileLabel}
+                              </Badge>
+                            </div>
+                            <p>
+                              Leitura da divergencia:{" "}
+                              {reconciliation.differenceReading.profileReason}
+                            </p>
                             <p>
                               Priorizacao visual:{" "}
                               {reconciliation.differenceSummary.unitemizedBalancePriorityLabel}
@@ -653,6 +678,14 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                   </p>
                   <p className="text-sm text-[var(--color-muted)]">
                     {item.differenceSummary.unitemizedBalanceOriginReason}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge tone={getDifferenceReadingTone(item)}>
+                      {item.differenceReading.profileLabel}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    Leitura da divergência: {item.differenceReading.profileReason}
                   </p>
                   <p className="text-sm text-[var(--color-muted)]">
                     Priorização visual:{" "}

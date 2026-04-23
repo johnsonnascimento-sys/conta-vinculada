@@ -68,6 +68,7 @@ test("serializeReconciliation preserves occurrences and derives ordered history"
   );
   assert.equal(reconciliation.differenceSummary.unitemizedBalancePriority, "baixa");
   assert.equal(reconciliation.differenceSummary.requiresDirectedReview, false);
+  assert.equal(reconciliation.differenceReading.profile, "mista");
   assert.deepEqual(
     reconciliation.history.timeline.map((event) => event.id),
     ["processamento-2026-04-02T18:10:00.000Z", "occ-1", "occ-2"],

@@ -841,3 +841,13 @@ No detalhe do contrato, o quadro conciliatorio passou a mostrar:
 Quando houver repeticao perceptivel, o contrato tambem pode exibir marcadores simples com os sinais recorrentes, como perfil estrutural, perfil pontual, perfil misto, residual nao explicado recorrente ou remanescente explicado recorrente.
 Na leitura por competencia, a conciliacao passou a indicar se aquela competencia parece caso isolado ou parte de um padrao recorrente do contrato, sempre acompanhada de um motivo operacional curto.
 Essa leitura e apenas orientativa. Ela nao cria workflow novo, nao substitui a analise operacional da competencia e nao transforma recorrencia em conclusao contabil definitiva.
+
+### 11.14 Evolucao temporal leve da recorrencia
+A leitura de recorrencia do contrato passou a indicar tambem se o padrao parece continuar ativo nas competencias mais recentes ou se ficou mais concentrado no historico.
+No detalhe do contrato, a recorrencia pode aparecer como:
+- recorrencia ativa, quando os sinais recorrentes continuam aparecendo nas competencias mais recentes;
+- recorrencia em reducao, quando parte dos sinais ainda aparece recentemente, mas outra parte ja ficou concentrada no historico;
+- historico superado, quando os sinais recorrentes deixaram de aparecer nas competencias mais recentes;
+- sem base temporal suficiente, quando ainda nao ha competencias suficientes ou recorrencia relevante para comparar periodo recente e historico.
+A mesma leitura temporal passa a aparecer por competencia, indicando se aquele caso participa de um padrao ainda ativo, de um padrao mais historico, de um caso isolado ou se ainda nao ha base temporal suficiente.
+Essa leitura continua apenas orientativa. Ela nao cria fila de tarefas, nao gera decisao automatica e nao substitui a analise operacional da competencia.

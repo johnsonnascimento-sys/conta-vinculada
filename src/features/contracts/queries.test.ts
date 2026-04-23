@@ -119,9 +119,17 @@ test("contract detail marks competencies as isolated when no recurring pattern i
     detail?.contractReconciliationSummary.recurrenceState,
     "sem_recorrencia_relevante",
   );
+  assert.equal(
+    detail?.contractReconciliationSummary.recurrenceTemporalState,
+    "sem_base_temporal_suficiente",
+  );
   assert.equal(detail?.contractReconciliationSummary.recurringSignals.length, 0);
   assert.equal(
     detail?.reconciliations[0]?.differenceReading.recurrenceContext,
     "isolado",
+  );
+  assert.equal(
+    detail?.reconciliations[0]?.differenceReading.recurrenceTemporalContext,
+    "sem_base_suficiente",
   );
 });

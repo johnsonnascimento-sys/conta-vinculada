@@ -56,6 +56,24 @@ function getRecurrenceTone(contract: ContractOverview) {
   return "success" as const;
 }
 
+function getRecurrenceTemporalTone(contract: ContractOverview) {
+  if (
+    contract.contractReconciliationSummary.recurrenceTemporalState ===
+    "recorrencia_ativa"
+  ) {
+    return "danger" as const;
+  }
+
+  if (
+    contract.contractReconciliationSummary.recurrenceTemporalState ===
+    "recorrencia_em_reducao"
+  ) {
+    return "warning" as const;
+  }
+
+  return "neutral" as const;
+}
+
 export default async function ContractsPage() {
   const contracts = await getContractsOverview();
 
@@ -108,6 +126,12 @@ export default async function ContractsPage() {
                       <Badge tone={getRecurrenceTone(contract)}>
                         {contract.contractReconciliationSummary.recurrenceStateLabel}
                       </Badge>
+                      <Badge tone={getRecurrenceTemporalTone(contract)}>
+                        {
+                          contract.contractReconciliationSummary
+                            .recurrenceTemporalStateLabel
+                        }
+                      </Badge>
                     </div>
                     <p className="font-medium text-[var(--color-ink)]">
                       {contract.contractReconciliationSummary.managerialAttentionReason}
@@ -130,6 +154,12 @@ export default async function ContractsPage() {
                       {contract.contractReconciliationSummary.overallCoveragePercentage}%
                     </p>
                     <p>{contract.contractReconciliationSummary.recurrenceStateReason}</p>
+                    <p>
+                      {
+                        contract.contractReconciliationSummary
+                          .recurrenceTemporalStateReason
+                      }
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {contract.contractReconciliationSummary.hasOpenUnexplained ? (
                         <Badge tone="danger">residual aberto</Badge>
@@ -153,6 +183,25 @@ export default async function ContractsPage() {
                           </Badge>
                         ),
                       )}
+                      {contract.contractReconciliationSummary.recentRecurringSignals.map(
+                        (signal) => (
+                          <Badge key={`recent-${signal.code}`} tone="warning">
+                            recente: {signal.label}
+                          </Badge>
+                        ),
+                      )}
+                      {contract.contractReconciliationSummary.historicalRecurringSignals
+                        .filter(
+                          (signal) =>
+                            !contract.contractReconciliationSummary.recentRecurringSignals.some(
+                              (recentSignal) => recentSignal.code === signal.code,
+                            ),
+                        )
+                        .map((signal) => (
+                          <Badge key={`history-${signal.code}`} tone="neutral">
+                            historico: {signal.label}
+                          </Badge>
+                        ))}
                     </div>
                   </div>
                 </td>

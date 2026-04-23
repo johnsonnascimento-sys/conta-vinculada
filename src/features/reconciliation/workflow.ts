@@ -395,6 +395,12 @@ export function summarizeReconciliationDifferenceReading({
     (hasExplainedComponent &&
       (differenceSummary.explainedCoverageState === "itemizacao_suficiente" ||
         differenceSummary.explainedCoverageState === "itemizacao_completa"));
+  const defaultTemporalReading = {
+    recurrenceTemporalContext: "sem_base_suficiente" as const,
+    recurrenceTemporalContextLabel: "sem base temporal suficiente",
+    recurrenceTemporalContextReason:
+      "Ainda nao ha base temporal suficiente para indicar se o padrao recorrente segue ativo ou ficou no historico do contrato.",
+  };
   const hasStructuralSignals =
     hasResidualUnexplained ||
     formalClosure.state === "reaberta" ||
@@ -416,6 +422,7 @@ export function summarizeReconciliationDifferenceReading({
       recurrenceContextLabel: "caso isolado",
       recurrenceContextReason:
         "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
+      ...defaultTemporalReading,
     };
   }
 
@@ -432,6 +439,7 @@ export function summarizeReconciliationDifferenceReading({
       recurrenceContextLabel: "caso isolado",
       recurrenceContextReason:
         "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
+      ...defaultTemporalReading,
     };
   }
 
@@ -446,6 +454,7 @@ export function summarizeReconciliationDifferenceReading({
         recurrenceContextLabel: "caso isolado",
         recurrenceContextReason:
           "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
+        ...defaultTemporalReading,
       };
     }
 
@@ -459,6 +468,7 @@ export function summarizeReconciliationDifferenceReading({
         recurrenceContextLabel: "caso isolado",
         recurrenceContextReason:
           "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
+        ...defaultTemporalReading,
       };
     }
 
@@ -475,6 +485,7 @@ export function summarizeReconciliationDifferenceReading({
         recurrenceContextLabel: "caso isolado",
         recurrenceContextReason:
           "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
+        ...defaultTemporalReading,
       };
     }
 
@@ -487,6 +498,7 @@ export function summarizeReconciliationDifferenceReading({
       recurrenceContextLabel: "caso isolado",
       recurrenceContextReason:
         "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
+      ...defaultTemporalReading,
     };
   }
 
@@ -500,6 +512,7 @@ export function summarizeReconciliationDifferenceReading({
       recurrenceContextLabel: "caso isolado",
       recurrenceContextReason:
         "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
+      ...defaultTemporalReading,
     };
   }
 
@@ -516,6 +529,7 @@ export function summarizeReconciliationDifferenceReading({
         recurrenceContextLabel: "caso isolado",
         recurrenceContextReason:
           "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
+        ...defaultTemporalReading,
       };
     }
 
@@ -528,6 +542,7 @@ export function summarizeReconciliationDifferenceReading({
       recurrenceContextLabel: "caso isolado",
       recurrenceContextReason:
         "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
+      ...defaultTemporalReading,
     };
   }
 
@@ -540,6 +555,7 @@ export function summarizeReconciliationDifferenceReading({
     recurrenceContextLabel: "caso isolado",
     recurrenceContextReason:
       "Ainda nao ha repeticao suficiente deste perfil no contrato para trata-lo como padrao recorrente.",
+    ...defaultTemporalReading,
   };
 }
 
@@ -622,10 +638,175 @@ function buildContractRecurringSignalData(records: ReconciliationRecord[]) {
   return { counts, recurringSignals };
 }
 
+function getRecordRecurringSignalCodes(record: ReconciliationRecord) {
+  const signalCodes = new Set<ContractRecurringSignal["code"]>();
+
+  if (record.differenceReading.profile === "estrutural") {
+    signalCodes.add("estrutural");
+  }
+
+  if (record.differenceReading.profile === "pontual") {
+    signalCodes.add("pontual");
+  }
+
+  if (record.differenceReading.profile === "mista") {
+    signalCodes.add("mista");
+  }
+
+  if (record.differenceSummary.hasResidualUnexplained) {
+    signalCodes.add("residual_nao_explicado");
+  }
+
+  if (
+    record.differenceSummary.explainedBalanceStillUnitemized > 0 &&
+    record.differenceSummary.unitemizedBalancePriority !== "baixa"
+  ) {
+    signalCodes.add("remanescente_explicado_relevante");
+  }
+
+  return signalCodes;
+}
+
+function compareCompetencyCode(left: string, right: string) {
+  return left.localeCompare(right);
+}
+
+function buildContractRecurringSignalPresence(records: ReconciliationRecord[]) {
+  const counts = {
+    estrutural: 0,
+    pontual: 0,
+    mista: 0,
+    residual_nao_explicado: 0,
+    remanescente_explicado_relevante: 0,
+  };
+
+  for (const record of records) {
+    const signalCodes = getRecordRecurringSignalCodes(record);
+
+    for (const code of signalCodes) {
+      counts[code] += 1;
+    }
+  }
+
+  const signalMetadata: Array<{ code: ContractRecurringSignal["code"]; label: string }> = [
+    { code: "estrutural", label: "perfil estrutural recente" },
+    { code: "pontual", label: "perfil pontual recente" },
+    { code: "mista", label: "perfil misto recente" },
+    { code: "residual_nao_explicado", label: "residual nao explicado recente" },
+    {
+      code: "remanescente_explicado_relevante",
+      label: "remanescente explicado recente",
+    },
+  ];
+
+  return signalMetadata
+    .filter((signal) => counts[signal.code] > 0)
+    .map((signal) => ({
+      code: signal.code,
+      label: signal.label,
+      count: counts[signal.code],
+    }));
+}
+
+function summarizeContractRecurrenceTemporalState(records: ReconciliationRecord[]) {
+  const sortedRecords = [...records].sort((left, right) =>
+    compareCompetencyCode(left.competency, right.competency),
+  );
+  const recentWindowSize = Math.min(2, sortedRecords.length);
+  const recentRecords = sortedRecords.slice(-recentWindowSize);
+  const historicalRecords = sortedRecords.slice(0, -recentWindowSize);
+  const { recurringSignals } = buildContractRecurringSignalData(sortedRecords);
+
+  if (
+    sortedRecords.length < 3 ||
+    recurringSignals.length === 0 ||
+    historicalRecords.length === 0
+  ) {
+    return {
+      recurrenceTemporalState: "sem_base_temporal_suficiente" as const,
+      recurrenceTemporalStateLabel: "sem base temporal suficiente",
+      recurrenceTemporalStateReason:
+        recurringSignals.length === 0
+          ? "Ainda nao ha repeticao relevante suficiente para avaliar se o padrao segue ativo nas competencias mais recentes."
+          : "Ainda nao ha quantidade suficiente de competencias conciliadas para comparar o periodo recente com o historico do contrato.",
+      recentRecurringSignals: [] as ContractRecurringSignal[],
+      historicalRecurringSignals: [] as ContractRecurringSignal[],
+      recentCompetencies: new Set<string>(
+        recentRecords.map((record) => record.competency),
+      ),
+      activeSignalCodes: new Set<ContractRecurringSignal["code"]>(),
+      historicalOnlySignalCodes: new Set<ContractRecurringSignal["code"]>(),
+    };
+  }
+
+  const recurringSignalCodes = new Set(recurringSignals.map((signal) => signal.code));
+  const recentRecurringSignals = buildContractRecurringSignalPresence(recentRecords).filter(
+    (signal) => recurringSignalCodes.has(signal.code),
+  );
+  const historicalRecurringSignals = buildContractRecurringSignalPresence(
+    historicalRecords,
+  ).filter((signal) => recurringSignalCodes.has(signal.code));
+  const activeSignalCodes = new Set(
+    recentRecurringSignals.map((signal) => signal.code),
+  );
+  const historicalOnlySignalCodes = new Set(
+    historicalRecurringSignals
+      .map((signal) => signal.code)
+      .filter((code) => !activeSignalCodes.has(code)),
+  );
+
+  if (activeSignalCodes.size === 0 && historicalOnlySignalCodes.size > 0) {
+    return {
+      recurrenceTemporalState: "historico_superado" as const,
+      recurrenceTemporalStateLabel: "historico superado",
+      recurrenceTemporalStateReason:
+        "Os sinais recorrentes ficaram concentrados no historico do contrato e nao reaparecem nas competencias mais recentes.",
+      recentRecurringSignals,
+      historicalRecurringSignals,
+      recentCompetencies: new Set<string>(
+        recentRecords.map((record) => record.competency),
+      ),
+      activeSignalCodes,
+      historicalOnlySignalCodes,
+    };
+  }
+
+  if (activeSignalCodes.size > 0 && historicalOnlySignalCodes.size > 0) {
+    return {
+      recurrenceTemporalState: "recorrencia_em_reducao" as const,
+      recurrenceTemporalStateLabel: "recorrencia em reducao",
+      recurrenceTemporalStateReason:
+        "Parte dos sinais recorrentes ainda aparece nas competencias mais recentes, mas outros ja ficaram restritos ao historico do contrato.",
+      recentRecurringSignals,
+      historicalRecurringSignals,
+      recentCompetencies: new Set<string>(
+        recentRecords.map((record) => record.competency),
+      ),
+      activeSignalCodes,
+      historicalOnlySignalCodes,
+    };
+  }
+
+  return {
+    recurrenceTemporalState: "recorrencia_ativa" as const,
+    recurrenceTemporalStateLabel: "recorrencia ativa",
+    recurrenceTemporalStateReason:
+      "Os sinais recorrentes continuam presentes nas competencias mais recentes do contrato.",
+    recentRecurringSignals,
+    historicalRecurringSignals,
+    recentCompetencies: new Set<string>(
+      recentRecords.map((record) => record.competency),
+    ),
+    activeSignalCodes,
+    historicalOnlySignalCodes,
+  };
+}
+
 export function annotateReconciliationRecurrenceWithinContract(
   records: ReconciliationRecord[],
 ): ReconciliationRecord[] {
   const { counts, recurringSignals } = buildContractRecurringSignalData(records);
+  const temporalSummary = summarizeContractRecurrenceTemporalState(records);
 
   return records.map((record) => {
     const profileCount =
@@ -673,6 +854,58 @@ export function annotateReconciliationRecurrenceWithinContract(
         "Os sinais recorrentes do contrato estao concentrados em outros perfis ou outras competencias, sem repeticao relevante deste caso.";
     }
 
+    let recurrenceTemporalContext: ReconciliationDifferenceReadingSummary["recurrenceTemporalContext"];
+    let recurrenceTemporalContextLabel: string;
+    let recurrenceTemporalContextReason: string;
+    const recordSignalCodes = Array.from(getRecordRecurringSignalCodes(record)).filter(
+      (code) =>
+        temporalSummary.activeSignalCodes.has(code) ||
+        temporalSummary.historicalOnlySignalCodes.has(code),
+    );
+    const hasActiveRecurringSignal = recordSignalCodes.some((code) =>
+      temporalSummary.activeSignalCodes.has(code),
+    );
+    const hasHistoricalRecurringSignal = recordSignalCodes.some((code) =>
+      temporalSummary.historicalOnlySignalCodes.has(code),
+    );
+
+    if (temporalSummary.recurrenceTemporalState === "sem_base_temporal_suficiente") {
+      recurrenceTemporalContext = "sem_base_suficiente";
+      recurrenceTemporalContextLabel = "sem base temporal suficiente";
+      recurrenceTemporalContextReason =
+        "Ainda nao ha base temporal suficiente para indicar se o padrao recorrente segue ativo ou ficou concentrado no historico do contrato.";
+    } else if (recurrenceContext === "isolado") {
+      recurrenceTemporalContext = "caso_isolado";
+      recurrenceTemporalContextLabel = "fora do padrao recorrente";
+      recurrenceTemporalContextReason =
+        "Esta competencia nao sustenta o padrao recorrente observado no contrato e segue como caso mais isolado.";
+    } else if (hasActiveRecurringSignal) {
+      recurrenceTemporalContext = "padrao_ativo";
+      recurrenceTemporalContextLabel =
+        temporalSummary.recurrenceTemporalState === "recorrencia_em_reducao"
+          ? "padrao ainda ativo, em reducao"
+          : "padrao recorrente ainda ativo";
+      recurrenceTemporalContextReason =
+        temporalSummary.recurrenceTemporalState === "recorrencia_em_reducao"
+          ? "A competencia ainda carrega sinal recorrente nas competencias mais recentes, embora o contrato ja mostre reducao de parte desse padrao."
+          : "A competencia participa de sinal recorrente que continua aparecendo nas competencias mais recentes do contrato.";
+    } else if (hasHistoricalRecurringSignal) {
+      recurrenceTemporalContext = "padrao_historico";
+      recurrenceTemporalContextLabel = "padrao mais historico";
+      recurrenceTemporalContextReason =
+        "A competencia reflete sinal recorrente que ficou concentrado no historico do contrato e nao reaparece nas competencias mais recentes.";
+    } else if (temporalSummary.recentCompetencies.has(record.competency)) {
+      recurrenceTemporalContext = "padrao_ativo";
+      recurrenceTemporalContextLabel = "janela recente do contrato";
+      recurrenceTemporalContextReason =
+        "A competencia esta entre as mais recentes do contrato, mas sem carregar sinal recorrente suficiente para mudar a leitura temporal agregada.";
+    } else {
+      recurrenceTemporalContext = "padrao_historico";
+      recurrenceTemporalContextLabel = "janela historica do contrato";
+      recurrenceTemporalContextReason =
+        "A competencia ficou concentrada na parte historica do contrato, sem sustentar sinal recorrente ativo nas leituras mais recentes.";
+    }
+
     return {
       ...record,
       differenceReading: {
@@ -680,6 +913,9 @@ export function annotateReconciliationRecurrenceWithinContract(
         recurrenceContext,
         recurrenceContextLabel,
         recurrenceContextReason,
+        recurrenceTemporalContext,
+        recurrenceTemporalContextLabel,
+        recurrenceTemporalContextReason,
       },
     };
   });
@@ -1281,6 +1517,12 @@ export function summarizeContractReconciliation(
       recurrenceStateReason:
         "Nao ha competencias suficientes para indicar repeticao relevante de perfis de divergencia.",
       recurringSignals: [],
+      recurrenceTemporalState: "sem_base_temporal_suficiente",
+      recurrenceTemporalStateLabel: "sem base temporal suficiente",
+      recurrenceTemporalStateReason:
+        "Nao ha base temporal suficiente para comparar competencias recentes e historicas do contrato.",
+      recentRecurringSignals: [],
+      historicalRecurringSignals: [],
       hasOpenUnexplained: false,
       hasReopenedCompetencies: false,
       hasRelevantUnitemized: false,
@@ -1318,6 +1560,7 @@ export function summarizeContractReconciliation(
 
   const overallTotal = totalExplainedDifference + totalUnexplainedResidual;
   const { counts, recurringSignals } = buildContractRecurringSignalData(records);
+  const temporalSummary = summarizeContractRecurrenceTemporalState(records);
   const overallCoveragePercentage =
     overallTotal > 0
       ? Math.round((totalCoveredByItems / overallTotal) * 100)
@@ -1406,8 +1649,14 @@ export function summarizeContractReconciliation(
     recurrenceStateLabel,
     recurrenceStateReason,
     recurringSignals,
+    recurrenceTemporalState: temporalSummary.recurrenceTemporalState,
+    recurrenceTemporalStateLabel: temporalSummary.recurrenceTemporalStateLabel,
+    recurrenceTemporalStateReason: temporalSummary.recurrenceTemporalStateReason,
+    recentRecurringSignals: temporalSummary.recentRecurringSignals,
+    historicalRecurringSignals: temporalSummary.historicalRecurringSignals,
     hasOpenUnexplained,
     hasReopenedCompetencies,
     hasRelevantUnitemized,
   };
 }
+

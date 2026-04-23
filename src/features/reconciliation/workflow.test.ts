@@ -567,6 +567,7 @@ test("reconciliation filter matches remaining explained balance filters", () => 
 
 function makeRecord(overrides: Record<string, unknown>) {
   return {
+    competency: overrides.competency ?? "2026-01",
     differenceSummary: {
       explainedAmount: overrides.explainedAmount ?? 0,
       explainedItemsAmount: overrides.explainedItemsAmount ?? 0,
@@ -587,6 +588,13 @@ function makeRecord(overrides: Record<string, unknown>) {
       recurrenceContextReason:
         overrides.recurrenceContextReason ??
         "Nao ha recorrencia relevante identificada entre as competencias conciliadas deste contrato.",
+      recurrenceTemporalContext:
+        overrides.recurrenceTemporalContext ?? "sem_base_suficiente",
+      recurrenceTemporalContextLabel:
+        overrides.recurrenceTemporalContextLabel ?? "sem base temporal suficiente",
+      recurrenceTemporalContextReason:
+        overrides.recurrenceTemporalContextReason ??
+        "Ainda nao ha base temporal suficiente para indicar se o padrao recorrente segue ativo ou ficou no historico do contrato.",
     },
   };
 }
@@ -690,22 +698,26 @@ test("contract reconciliation summary marks recorrencia leve when one relevant s
 test("contract reconciliation summary marks recorrencia relevante when multiple signals repeat", () => {
   const records = [
     makeRecord({
+      competency: "2026-01",
       profile: "estrutural",
       unexplainedAmount: 500,
       hasResidualUnexplained: true,
     }),
     makeRecord({
+      competency: "2026-02",
       profile: "estrutural",
       unexplainedAmount: 300,
       hasResidualUnexplained: true,
     }),
     makeRecord({
+      competency: "2026-03",
       profile: "mista",
       explainedAmount: 1000,
       explainedBalanceStillUnitemized: 400,
       unitemizedBalancePriority: "media",
     }),
     makeRecord({
+      competency: "2026-04",
       profile: "mista",
       explainedAmount: 900,
       explainedBalanceStillUnitemized: 300,
@@ -721,9 +733,9 @@ test("contract reconciliation summary marks recorrencia relevante when multiple 
 
 test("annotate reconciliation recurrence distinguishes isolated case from recurring pattern", () => {
   const records = [
-    makeRecord({ profile: "estrutural", unexplainedAmount: 500, hasResidualUnexplained: true }),
-    makeRecord({ profile: "estrutural", unexplainedAmount: 250, hasResidualUnexplained: true }),
-    makeRecord({ profile: "pontual", explainedAmount: 800, explainedItemsAmount: 760 }),
+    makeRecord({ competency: "2026-01", profile: "estrutural", unexplainedAmount: 500, hasResidualUnexplained: true }),
+    makeRecord({ competency: "2026-02", profile: "estrutural", unexplainedAmount: 250, hasResidualUnexplained: true }),
+    makeRecord({ competency: "2026-03", profile: "pontual", explainedAmount: 800, explainedItemsAmount: 760 }),
   ];
 
   const annotated = annotateReconciliationRecurrenceWithinContract(
@@ -733,4 +745,63 @@ test("annotate reconciliation recurrence distinguishes isolated case from recurr
   assert.equal(annotated[0]?.differenceReading.recurrenceContext, "padrao_recorrente");
   assert.equal(annotated[1]?.differenceReading.recurrenceContext, "padrao_recorrente");
   assert.equal(annotated[2]?.differenceReading.recurrenceContext, "isolado");
+});
+
+test("contract reconciliation summary marks temporal recurrence as active when recurring signal remains in recent competencies", () => {
+  const records = [
+    makeRecord({ competency: "2026-01", profile: "estrutural", unexplainedAmount: 500, hasResidualUnexplained: true }),
+    makeRecord({ competency: "2026-02", profile: "pontual", explainedAmount: 700, explainedItemsAmount: 650 }),
+    makeRecord({ competency: "2026-03", profile: "estrutural", unexplainedAmount: 300, hasResidualUnexplained: true }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recurrenceTemporalState, "recorrencia_ativa");
+  assert.equal(summary.recentRecurringSignals[0]?.code, "estrutural");
+});
+
+test("contract reconciliation summary marks temporal recurrence as reduction when signal stays recent but part becomes historical", () => {
+  const records = [
+    makeRecord({ competency: "2026-01", profile: "estrutural", unexplainedAmount: 500, hasResidualUnexplained: true }),
+    makeRecord({ competency: "2026-02", profile: "estrutural", unexplainedAmount: 250, hasResidualUnexplained: true }),
+    makeRecord({ competency: "2026-03", profile: "pontual", explainedAmount: 700, explainedItemsAmount: 620 }),
+    makeRecord({ competency: "2026-04", profile: "pontual", explainedAmount: 680, explainedItemsAmount: 600 }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recurrenceTemporalState, "recorrencia_em_reducao");
+  assert.equal(summary.recentRecurringSignals[0]?.code, "pontual");
+  assert.equal(summary.historicalRecurringSignals.some((signal) => signal.code === "estrutural"), true);
+});
+
+test("contract reconciliation summary marks temporal recurrence as historical when recurring signal disappears from recent competencies", () => {
+  const records = [
+    makeRecord({ competency: "2026-01", profile: "estrutural", unexplainedAmount: 500, hasResidualUnexplained: true }),
+    makeRecord({ competency: "2026-02", profile: "estrutural", unexplainedAmount: 250, hasResidualUnexplained: true }),
+    makeRecord({ competency: "2026-03", profile: "pontual", explainedAmount: 700, explainedItemsAmount: 690 }),
+    makeRecord({ competency: "2026-04", profile: "indeterminada", explainedAmount: 0, explainedItemsAmount: 0 }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recurrenceTemporalState, "historico_superado");
+  assert.equal(summary.historicalRecurringSignals[0]?.code, "estrutural");
+  assert.equal(summary.recentRecurringSignals.length, 0);
+});
+
+test("annotate reconciliation recurrence distinguishes active recent pattern from historical pattern", () => {
+  const records = [
+    makeRecord({ competency: "2026-01", profile: "estrutural", unexplainedAmount: 500, hasResidualUnexplained: true }),
+    makeRecord({ competency: "2026-02", profile: "estrutural", unexplainedAmount: 250, hasResidualUnexplained: true }),
+    makeRecord({ competency: "2026-03", profile: "pontual", explainedAmount: 700, explainedItemsAmount: 620 }),
+    makeRecord({ competency: "2026-04", profile: "pontual", explainedAmount: 680, explainedItemsAmount: 600 }),
+  ];
+
+  const annotated = annotateReconciliationRecurrenceWithinContract(records as never[]);
+
+  assert.equal(annotated[0]?.differenceReading.recurrenceTemporalContext, "padrao_historico");
+  assert.equal(annotated[1]?.differenceReading.recurrenceTemporalContext, "padrao_historico");
+  assert.equal(annotated[2]?.differenceReading.recurrenceTemporalContext, "padrao_ativo");
+  assert.equal(annotated[3]?.differenceReading.recurrenceTemporalContext, "padrao_ativo");
 });

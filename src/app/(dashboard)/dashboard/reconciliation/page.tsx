@@ -116,6 +116,18 @@ function getDifferenceReadingTone(item: ReconciliationRecord) {
   return "neutral" as const;
 }
 
+function getRecurrenceTemporalTone(item: ReconciliationRecord) {
+  if (item.differenceReading.recurrenceTemporalContext === "padrao_ativo") {
+    return "danger" as const;
+  }
+
+  if (item.differenceReading.recurrenceTemporalContext === "padrao_historico") {
+    return "warning" as const;
+  }
+
+  return "neutral" as const;
+}
+
 function getAvailableBankEntries(
   item: ReconciliationRecord,
   bankEntries: BankEntry[],
@@ -313,9 +325,13 @@ export default async function ReconciliationPage({
                           <Badge tone="neutral">
                             {item.differenceReading.recurrenceContextLabel}
                           </Badge>
+                          <Badge tone={getRecurrenceTemporalTone(item)}>
+                            {item.differenceReading.recurrenceTemporalContextLabel}
+                          </Badge>
                         </div>
                         <p>{item.differenceReading.profileReason}</p>
                         <p>{item.differenceReading.recurrenceContextReason}</p>
+                        <p>{item.differenceReading.recurrenceTemporalContextReason}</p>
                         <p>
                           Priorizacao visual:{" "}
                           {item.differenceSummary.unitemizedBalancePriorityLabel}

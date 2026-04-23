@@ -836,3 +836,7 @@ Com isso, o proximo bloco seguro passa a ser a qualificacao leve de recorrencia 
 ## Atualizacao incremental mais recente
 A rodada atual consolidou uma leitura leve de recorrencia dos perfis de divergencia ao longo das competencias do contrato. O sistema passou a distinguir, sem score complexo, quando os sinais conciliatorios parecem isolados e quando passam a formar repeticao perceptivel do perfil estrutural, pontual, misto, do residual nao explicado ou do remanescente explicado relevante.
 Com isso, o proximo bloco seguro passa a ser a qualificacao leve da evolucao temporal desses sinais recorrentes, distinguindo recorrencia ainda ativa de historico ja superado, sem criar workflow contabil complexo.
+
+## Atualizacao incremental mais recente
+A rodada atual qualificou a evolucao temporal da recorrencia, distinguindo quando os sinais recorrentes ainda permanecem ativos nas competencias mais recentes, quando estao em reducao e quando ficaram restritos ao historico do contrato. A leitura continua leve, derivada e sem score complexo.
+Com isso, o proximo bloco seguro passa a ser a qualificacao leve da estabilidade desses sinais recorrentes por janela recente, destacando quando o contrato alterna entre perfis ou quando passa a consolidar um mesmo padrao por mais de um ciclo recente.

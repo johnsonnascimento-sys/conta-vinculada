@@ -363,3 +363,12 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 
 ### Proximo bloco sugerido
 - [ ] Qualificar de forma leve a evolucao temporal desses sinais recorrentes, distinguindo recorrencia ainda ativa de historico ja superado.
+
+### Atualizacao da rodada
+- [x] Derivar situacao temporal leve da recorrencia por contrato, distinguindo ativo, em reducao, historico superado e sem base temporal suficiente.
+- [x] Anotar por competencia se o caso participa de padrao ainda ativo, padrao mais historico, caso isolado ou leitura sem base temporal suficiente.
+- [x] Expor sinais recorrentes recentes e historicos no detalhe do contrato e refletir a leitura minima na listagem e na conciliacao.
+- [x] Preservar a recorrencia leve, a cobertura, a prioridade visual e a leitura operacional ja existentes.
+
+### Proximo bloco sugerido
+- [ ] Qualificar de forma leve a estabilidade dos sinais recorrentes nas janelas mais recentes do contrato, distinguindo alternancia de perfil e consolidacao de padrao.

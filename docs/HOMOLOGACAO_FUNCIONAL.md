@@ -563,3 +563,18 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] Nao aplicavel
+
+### 11.14 Evolucao temporal leve da recorrencia
+- [ ] O detalhe do contrato indica se a recorrencia parece ativa, em reducao, historico superado ou sem base temporal suficiente.
+- [ ] A justificativa curta da evolucao temporal e coerente com as competencias mais recentes e com o historico do contrato.
+- [ ] Quando houver sinais recentes, eles aparecem destacados como recentes no resumo do contrato.
+- [ ] Quando houver sinais restritos ao historico, eles aparecem como historicos no resumo do contrato.
+- [ ] A competencia conciliada indica se pertence a padrao ainda ativo, padrao mais historico, caso isolado ou sem base temporal suficiente.
+- [ ] A conciliacao, o detalhe do contrato e a listagem permanecem coerentes entre si quando houver reflexo dessa leitura.
+- [ ] A nova leitura temporal nao altera indevidamente recorrencia, cobertura, prioridade visual, fechamento ou reabertura.
+Observacoes:
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel

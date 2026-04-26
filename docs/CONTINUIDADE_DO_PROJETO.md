@@ -859,3 +859,11 @@ A rodada atual qualificou de forma leve a recuperacao recente dos sinais concili
 A leitura foi derivada da janela recente de competencias ja conciliadas, considerando queda do residual nao explicado, reducao do remanescente explicado relevante e persistencia dos sinais, sem criar score, SLA, tarefa ou workflow contabil novo.
 
 Com isso, o proximo bloco seguro passa a ser a consolidacao de uma revisao visual leve de consistencia entre filtros, badges e textos explicativos das leituras conciliatorias recentes, para reduzir ruido de tela sem alterar a regra de negocio.
+
+## Atualizacao de governanca de subagentes
+
+A governanca operacional do projeto foi reforcada em `AGENTS.md` para tornar obrigatorio o uso de subagentes em tarefas complexas, normativamente sensiveis ou que envolvam regras de negocio, workflows, policies, commands, serializers, schema Prisma, conciliacao, liberacoes, aderencia normativa ou mais de uma area funcional.
+
+A partir desta rodada, futuras alteracoes em `rules.ts`, `workflow.ts` e `policy.ts` devem seguir rotina com agente mestre/orquestrador, subagente de regras de negocio/normativo, subagente backend ou frontend conforme o caso, subagente de testes/homologacao, subagente de documentacao quando houver impacto operacional e revisao final quando a mudanca for transversal ou sensivel.
+
+Essa mudanca nao altera funcionalidade do sistema. Ela apenas ajusta a forma como proximas rodadas devem ser planejadas, divididas, revisadas e validadas.

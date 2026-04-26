@@ -408,3 +408,14 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 
 ### Proximo bloco sugerido
 - [ ] Consolidar revisao visual leve de consistencia entre filtros, badges e textos explicativos das leituras conciliatorias recentes.
+
+### Atualizacao de governanca de subagentes
+
+- [x] Reforcar `AGENTS.md` com governanca obrigatoria de subagentes para tarefas complexas ou normativamente sensiveis.
+- [x] Tornar obrigatorio o uso de subagente de regras de negocio/normativo em alteracoes de `rules.ts`, `workflow.ts`, `policy.ts`, conciliacao, liberacoes, documentos exigidos, status derivados e aderencia normativa.
+- [x] Registrar papeis de agente mestre/orquestrador, backend/dados/commands, frontend/UX operacional, testes/homologacao, documentacao funcional e revisao final.
+- [x] Definir criterios de uso de `GPT-5.5`, `GPT-5.4` e `GPT-5.4-mini` para futuras rodadas.
+
+### Regra permanente para proximas rodadas
+
+- [ ] Antes de alterar regras de negocio, workflows, policies, commands, serializers, schema Prisma ou fluxos transversais, aplicar a rotina obrigatoria de subagentes descrita em `AGENTS.md`.

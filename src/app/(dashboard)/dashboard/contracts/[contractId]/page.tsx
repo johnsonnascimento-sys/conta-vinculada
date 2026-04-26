@@ -196,10 +196,16 @@ function getRecurrenceTone(recurrence: string) {
   }
 
   if (
+    recurrence === "recuperacao_perceptivel" ||
+    recurrence === "recuperacao_incipiente" ||
     recurrence === "recorrencia_leve" ||
     recurrence === "recorrencia_em_reducao" ||
     recurrence === "padrao_historico"
   ) {
+    return recurrence.startsWith("recuperacao") ? "success" as const : "warning" as const;
+  }
+
+  if (recurrence === "reducao_sem_recuperacao_clara") {
     return "warning" as const;
   }
 
@@ -433,6 +439,19 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                 {detail.contractReconciliationSummary.recentPersistenceStateReason}
               </p>
             </div>
+            <div className="flex-1 rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
+              <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                Recuperacao recente
+              </span>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Badge tone={getRecurrenceTone(detail.contractReconciliationSummary.recentRecoveryState)}>
+                  {detail.contractReconciliationSummary.recentRecoveryStateLabel}
+                </Badge>
+              </div>
+              <p className="mt-2 text-sm text-[var(--color-muted)]">
+                {detail.contractReconciliationSummary.recentRecoveryStateReason}
+              </p>
+            </div>
             <div className="rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
               <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
                 Competências
@@ -598,6 +617,9 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                               <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recentPersistenceContext)}>
                                 {reconciliation.differenceReading.recentPersistenceContextLabel}
                               </Badge>
+                              <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recentRecoveryContext)}>
+                                {reconciliation.differenceReading.recentRecoveryContextLabel}
+                              </Badge>
                             </div>
                             <p>
                               Leitura da divergencia:{" "}
@@ -608,6 +630,7 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                             <p>{reconciliation.differenceReading.recentStabilityContextReason}</p>
                             <p>{reconciliation.differenceReading.recentMaterialityContextReason}</p>
                             <p>{reconciliation.differenceReading.recentPersistenceContextReason}</p>
+                            <p>{reconciliation.differenceReading.recentRecoveryContextReason}</p>
                             <p>
                               Priorizacao visual:{" "}
                               {reconciliation.differenceSummary.unitemizedBalancePriorityLabel}

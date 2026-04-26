@@ -616,6 +616,13 @@ function makeRecord(overrides: Record<string, unknown>) {
       recentPersistenceContextReason:
         overrides.recentPersistenceContextReason ??
         "Ainda nao ha sustentacao suficiente para indicar persistencia forte ou perda clara de intensidade na janela recente.",
+      recentRecoveryContext:
+        overrides.recentRecoveryContext ?? "sem_sinal_recente_de_recuperacao",
+      recentRecoveryContextLabel:
+        overrides.recentRecoveryContextLabel ?? "sem sinal recente de recuperacao",
+      recentRecoveryContextReason:
+        overrides.recentRecoveryContextReason ??
+        "A janela recente nao sustenta leitura de recuperacao para esta competencia.",
     },
   };
 }
@@ -1114,4 +1121,102 @@ test("annotate reconciliation recurrence marks recent persistence context by str
     annotated[2]?.differenceReading.recentPersistenceContext,
     "persistencia_forte",
   );
+});
+
+test("contract reconciliation summary marks perceptible recovery when latest cycle clears material signals", () => {
+  const records = [
+    makeRecord({
+      competency: "2026-01",
+      profile: "estrutural",
+      unexplainedAmount: 600,
+      hasResidualUnexplained: true,
+    }),
+    makeRecord({
+      competency: "2026-02",
+      profile: "estrutural",
+      explainedAmount: 500,
+      explainedBalanceStillUnitemized: 260,
+      unitemizedBalancePriority: "alta",
+    }),
+    makeRecord({
+      competency: "2026-03",
+      profile: "pontual",
+      explainedAmount: 400,
+      explainedItemsAmount: 400,
+    }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+  const annotated = annotateReconciliationRecurrenceWithinContract(records as never[]);
+
+  assert.equal(summary.recentRecoveryState, "recuperacao_perceptivel");
+  assert.equal(
+    annotated[2]?.differenceReading.recentRecoveryContext,
+    "recuperacao_perceptivel",
+  );
+  assert.equal(summary.recentPersistenceState, "perda_de_forca");
+});
+
+test("contract reconciliation summary marks incipient recovery when latest cycle only leaves low intensity signal", () => {
+  const records = [
+    makeRecord({
+      competency: "2026-01",
+      profile: "estrutural",
+      unexplainedAmount: 450,
+      hasResidualUnexplained: true,
+    }),
+    makeRecord({
+      competency: "2026-02",
+      profile: "mista",
+      explainedAmount: 500,
+      explainedBalanceStillUnitemized: 220,
+      unitemizedBalancePriority: "media",
+    }),
+    makeRecord({
+      competency: "2026-03",
+      profile: "pontual",
+      explainedAmount: 500,
+      explainedItemsAmount: 460,
+      explainedBalanceStillUnitemized: 40,
+      unitemizedBalancePriority: "baixa",
+    }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+
+  assert.equal(summary.recentRecoveryState, "recuperacao_incipiente");
+  assert.equal(summary.recentPersistenceState, "perda_de_forca");
+});
+
+test("contract reconciliation summary separates intensity reduction from clear recovery when latest cycle keeps material signal", () => {
+  const records = [
+    makeRecord({
+      competency: "2026-01",
+      profile: "estrutural",
+      unexplainedAmount: 700,
+      hasResidualUnexplained: true,
+    }),
+    makeRecord({
+      competency: "2026-02",
+      profile: "estrutural",
+      unexplainedAmount: 500,
+      hasResidualUnexplained: true,
+    }),
+    makeRecord({
+      competency: "2026-03",
+      profile: "estrutural",
+      unexplainedAmount: 180,
+      hasResidualUnexplained: true,
+    }),
+  ];
+
+  const summary = summarizeContractReconciliation(records as never[]);
+  const annotated = annotateReconciliationRecurrenceWithinContract(records as never[]);
+
+  assert.equal(summary.recentRecoveryState, "reducao_sem_recuperacao_clara");
+  assert.equal(
+    annotated[2]?.differenceReading.recentRecoveryContext,
+    "reducao_sem_recuperacao_clara",
+  );
+  assert.equal(summary.recentPersistenceState, "persistencia_forte");
 });

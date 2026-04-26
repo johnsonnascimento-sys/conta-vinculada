@@ -412,6 +412,10 @@ export function summarizeReconciliationDifferenceReading({
     recentPersistenceContextLabel: "persistencia recente neutra",
     recentPersistenceContextReason:
       "Ainda nao ha base recente suficiente para qualificar se o padrao segue forte ou se perdeu forca.",
+    recentRecoveryContext: "sem_sinal_recente_de_recuperacao" as const,
+    recentRecoveryContextLabel: "sem sinal recente de recuperacao",
+    recentRecoveryContextReason:
+      "Ainda nao ha sinal recente suficiente para distinguir recuperacao de simples oscilacao.",
   };
   const hasStructuralSignals =
     hasResidualUnexplained ||
@@ -1151,6 +1155,139 @@ function summarizeRecentSignalPersistence(records: ReconciliationRecord[]) {
   };
 }
 
+function getRecentSignalIntensity(record: ReconciliationRecord) {
+  const hasResidual = record.differenceSummary.hasResidualUnexplained;
+  const hasHighPriority =
+    record.differenceSummary.unitemizedBalancePriority === "alta";
+  const hasRelevantUnitemized =
+    record.differenceSummary.explainedBalanceStillUnitemized > 0 &&
+    record.differenceSummary.unitemizedBalancePriority !== "baixa";
+
+  if (hasResidual || hasHighPriority) {
+    return 3;
+  }
+
+  if (hasRelevantUnitemized) {
+    return 2;
+  }
+
+  if (record.differenceReading.profile !== "indeterminada") {
+    return 1;
+  }
+
+  return 0;
+}
+
+function summarizeRecentSignalRecovery(records: ReconciliationRecord[]) {
+  const sortedRecords = [...records].sort((left, right) =>
+    compareCompetencyCode(left.competency, right.competency),
+  );
+  const recentWindowSize = Math.min(3, sortedRecords.length);
+  const recentRecords = sortedRecords.slice(-recentWindowSize);
+  const recentCompetencies = new Set(
+    recentRecords.map((record) => record.competency),
+  );
+  const latestRecord = recentRecords.at(-1);
+  const previousRecords = recentRecords.slice(0, -1);
+
+  const emptySets = {
+    recentCompetencies,
+    perceptibleCompetencies: new Set<string>(),
+    incipientCompetencies: new Set<string>(),
+    reductionOnlyCompetencies: new Set<string>(),
+  };
+
+  if (!latestRecord || recentWindowSize < 3 || previousRecords.length === 0) {
+    return {
+      recentRecoveryState: "sem_sinal_recente_de_recuperacao" as const,
+      recentRecoveryStateLabel: "sem sinal recente de recuperacao",
+      recentRecoveryStateReason:
+        "Ainda nao ha janela recente suficiente para diferenciar recuperacao de oscilacao de intensidade.",
+      ...emptySets,
+    };
+  }
+
+  const previousMaxIntensity = Math.max(
+    ...previousRecords.map((record) => getRecentSignalIntensity(record)),
+  );
+  const latestIntensity = getRecentSignalIntensity(latestRecord);
+  const previousMaxResidual = Math.max(
+    ...previousRecords.map((record) => record.differenceSummary.unexplainedAmount),
+  );
+  const previousMaxUnitemized = Math.max(
+    ...previousRecords.map(
+      (record) => record.differenceSummary.explainedBalanceStillUnitemized,
+    ),
+  );
+  const latestResidual = latestRecord.differenceSummary.unexplainedAmount;
+  const latestUnitemized =
+    latestRecord.differenceSummary.explainedBalanceStillUnitemized;
+  const latestHasResidual =
+    latestRecord.differenceSummary.hasResidualUnexplained ||
+    latestResidual > 0;
+  const latestHasRelevantUnitemized =
+    latestUnitemized > 0 &&
+    latestRecord.differenceSummary.unitemizedBalancePriority !== "baixa";
+  const hadPriorImpact = previousRecords.some(
+    (record) => getRecentSignalIntensity(record) >= 2,
+  );
+  const hasConcreteDecrease =
+    latestIntensity < previousMaxIntensity ||
+    latestResidual < previousMaxResidual ||
+    latestUnitemized < previousMaxUnitemized;
+
+  if (!hadPriorImpact || !hasConcreteDecrease) {
+    return {
+      recentRecoveryState: "sem_sinal_recente_de_recuperacao" as const,
+      recentRecoveryStateLabel: "sem sinal recente de recuperacao",
+      recentRecoveryStateReason:
+        "A janela recente nao mostra queda concreta dos saldos ou dos sinais materiais que permita indicar recuperacao.",
+      ...emptySets,
+    };
+  }
+
+  if (
+    !latestHasResidual &&
+    latestUnitemized === 0 &&
+    latestIntensity <= 1
+  ) {
+    return {
+      recentRecoveryState: "recuperacao_perceptivel" as const,
+      recentRecoveryStateLabel: "recuperacao perceptivel",
+      recentRecoveryStateReason:
+        "A competencia mais recente deixou de carregar residual nao explicado e remanescente explicado relevante, indicando melhora operacional perceptivel frente aos ciclos anteriores.",
+      recentCompetencies,
+      perceptibleCompetencies: new Set([latestRecord.competency]),
+      incipientCompetencies: new Set<string>(),
+      reductionOnlyCompetencies: new Set<string>(),
+    };
+  }
+
+  if (!latestHasResidual && !latestHasRelevantUnitemized) {
+    return {
+      recentRecoveryState: "recuperacao_incipiente" as const,
+      recentRecoveryStateLabel: "recuperacao incipiente",
+      recentRecoveryStateReason:
+        "A competencia mais recente reduziu os sinais materiais e nao mantem residual aberto nem remanescente relevante, mas ainda ha sinal menor que pede acompanhamento.",
+      recentCompetencies,
+      perceptibleCompetencies: new Set<string>(),
+      incipientCompetencies: new Set([latestRecord.competency]),
+      reductionOnlyCompetencies: new Set<string>(),
+    };
+  }
+
+  return {
+    recentRecoveryState: "reducao_sem_recuperacao_clara" as const,
+    recentRecoveryStateLabel: "reducao sem recuperacao clara",
+    recentRecoveryStateReason:
+      "Houve reducao de intensidade na janela recente, mas a competencia mais recente ainda mantem residual aberto ou remanescente relevante, sem melhora operacional clara.",
+    recentCompetencies,
+    perceptibleCompetencies: new Set<string>(),
+    incipientCompetencies: new Set<string>(),
+    reductionOnlyCompetencies: new Set([latestRecord.competency]),
+  };
+}
+
 export function annotateReconciliationRecurrenceWithinContract(
   records: ReconciliationRecord[],
 ): ReconciliationRecord[] {
@@ -1159,6 +1296,7 @@ export function annotateReconciliationRecurrenceWithinContract(
   const recentStabilitySummary = summarizeRecentRecurrenceStability(records);
   const recentMaterialitySummary = summarizeRecentPatternMateriality(records);
   const recentPersistenceSummary = summarizeRecentSignalPersistence(records);
+  const recentRecoverySummary = summarizeRecentSignalRecovery(records);
 
   return records.map((record) => {
     const profileCount =
@@ -1218,6 +1356,9 @@ export function annotateReconciliationRecurrenceWithinContract(
     let recentPersistenceContext: ReconciliationDifferenceReadingSummary["recentPersistenceContext"];
     let recentPersistenceContextLabel: string;
     let recentPersistenceContextReason: string;
+    let recentRecoveryContext: ReconciliationDifferenceReadingSummary["recentRecoveryContext"];
+    let recentRecoveryContextLabel: string;
+    let recentRecoveryContextReason: string;
     const recordSignalCodes = Array.from(getRecordRecurringSignalCodes(record)).filter(
       (code) =>
         temporalSummary.activeSignalCodes.has(code) ||
@@ -1388,6 +1529,47 @@ export function annotateReconciliationRecurrenceWithinContract(
         "A leitura recente nao distingue persistencia forte nem enfraquecimento claro para esta competencia.";
     }
 
+    if (
+      recentRecoverySummary.recentRecoveryState ===
+      "sem_sinal_recente_de_recuperacao"
+    ) {
+      recentRecoveryContext = "sem_sinal_recente_de_recuperacao";
+      recentRecoveryContextLabel = "sem sinal recente de recuperacao";
+      recentRecoveryContextReason =
+        "A janela recente nao sustenta leitura de recuperacao para esta competencia.";
+    } else if (!recentRecoverySummary.recentCompetencies.has(record.competency)) {
+      recentRecoveryContext = "fora_da_janela_recente";
+      recentRecoveryContextLabel = "fora da janela recente";
+      recentRecoveryContextReason =
+        "Esta competencia ficou fora da janela recente usada para avaliar recuperacao dos sinais.";
+    } else if (
+      recentRecoverySummary.perceptibleCompetencies.has(record.competency)
+    ) {
+      recentRecoveryContext = "recuperacao_perceptivel";
+      recentRecoveryContextLabel = "recuperacao perceptivel";
+      recentRecoveryContextReason =
+        "A competencia mais recente deixou de carregar sinais materiais abertos, indicando melhora perceptivel frente aos ciclos anteriores.";
+    } else if (
+      recentRecoverySummary.incipientCompetencies.has(record.competency)
+    ) {
+      recentRecoveryContext = "recuperacao_incipiente";
+      recentRecoveryContextLabel = "recuperacao incipiente";
+      recentRecoveryContextReason =
+        "A competencia mais recente reduziu os sinais materiais, mas ainda deve ser acompanhada antes de tratar a melhora como consolidada.";
+    } else if (
+      recentRecoverySummary.reductionOnlyCompetencies.has(record.competency)
+    ) {
+      recentRecoveryContext = "reducao_sem_recuperacao_clara";
+      recentRecoveryContextLabel = "reducao sem recuperacao clara";
+      recentRecoveryContextReason =
+        "A competencia mais recente reduziu intensidade, mas ainda mantem sinal material aberto, sem recuperacao clara.";
+    } else {
+      recentRecoveryContext = "sem_sinal_recente_de_recuperacao";
+      recentRecoveryContextLabel = "sem sinal recente de recuperacao";
+      recentRecoveryContextReason =
+        "A competencia participa da janela recente, mas nao e o ponto que demonstra recuperacao dos sinais.";
+    }
+
     return {
       ...record,
       differenceReading: {
@@ -1407,6 +1589,9 @@ export function annotateReconciliationRecurrenceWithinContract(
         recentPersistenceContext,
         recentPersistenceContextLabel,
         recentPersistenceContextReason,
+        recentRecoveryContext,
+        recentRecoveryContextLabel,
+        recentRecoveryContextReason,
       },
     };
   });
@@ -2027,6 +2212,10 @@ export function summarizeContractReconciliation(
       recentPersistenceStateLabel: "persistencia recente neutra",
       recentPersistenceStateReason:
         "Nao ha base recente suficiente para indicar se os sinais seguem fortes ou se perderam intensidade.",
+      recentRecoveryState: "sem_sinal_recente_de_recuperacao",
+      recentRecoveryStateLabel: "sem sinal recente de recuperacao",
+      recentRecoveryStateReason:
+        "Nao ha base recente suficiente para diferenciar recuperacao de oscilacao de intensidade.",
       hasOpenUnexplained: false,
       hasReopenedCompetencies: false,
       hasRelevantUnitemized: false,
@@ -2068,6 +2257,7 @@ export function summarizeContractReconciliation(
   const recentStabilitySummary = summarizeRecentRecurrenceStability(records);
   const recentMaterialitySummary = summarizeRecentPatternMateriality(records);
   const recentPersistenceSummary = summarizeRecentSignalPersistence(records);
+  const recentRecoverySummary = summarizeRecentSignalRecovery(records);
   const overallCoveragePercentage =
     overallTotal > 0
       ? Math.round((totalCoveredByItems / overallTotal) * 100)
@@ -2171,6 +2361,9 @@ export function summarizeContractReconciliation(
     recentPersistenceState: recentPersistenceSummary.recentPersistenceState,
     recentPersistenceStateLabel: recentPersistenceSummary.recentPersistenceStateLabel,
     recentPersistenceStateReason: recentPersistenceSummary.recentPersistenceStateReason,
+    recentRecoveryState: recentRecoverySummary.recentRecoveryState,
+    recentRecoveryStateLabel: recentRecoverySummary.recentRecoveryStateLabel,
+    recentRecoveryStateReason: recentRecoverySummary.recentRecoveryStateReason,
     hasOpenUnexplained,
     hasReopenedCompetencies,
     hasRelevantUnitemized,

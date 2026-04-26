@@ -852,3 +852,10 @@ Com isso, o proximo bloco seguro passa a ser a qualificacao leve da persistencia
 ## Atualizacao incremental mais recente
 A rodada atual qualificou a persistencia recente dos sinais conciliatorios, distinguindo quando os sinais continuam fortes por varios ciclos recentes, quando permanecem de forma moderada e quando ja perderam forca sem desaparecer totalmente. A leitura continua leve, derivada e coerente com recorrencia temporal, estabilidade e materialidade recentes.
 Com isso, o proximo bloco seguro passa a ser a qualificacao leve da recuperacao recente desses sinais, distinguindo contratos em melhora perceptivel daqueles que apenas reduziram intensidade sem reverter o padrao.
+
+## Atualizacao incremental mais recente
+A rodada atual qualificou de forma leve a recuperacao recente dos sinais conciliatorios, distinguindo recuperacao perceptivel, recuperacao incipiente, reducao sem recuperacao clara e ausencia de sinal recente de recuperacao.
+
+A leitura foi derivada da janela recente de competencias ja conciliadas, considerando queda do residual nao explicado, reducao do remanescente explicado relevante e persistencia dos sinais, sem criar score, SLA, tarefa ou workflow contabil novo.
+
+Com isso, o proximo bloco seguro passa a ser a consolidacao de uma revisao visual leve de consistencia entre filtros, badges e textos explicativos das leituras conciliatorias recentes, para reduzir ruido de tela sem alterar a regra de negocio.

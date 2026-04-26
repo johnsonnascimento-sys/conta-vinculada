@@ -136,6 +136,26 @@ function getRecentPersistenceTone(contract: ContractOverview) {
   return "neutral" as const;
 }
 
+function getRecentRecoveryTone(contract: ContractOverview) {
+  if (
+    contract.contractReconciliationSummary.recentRecoveryState ===
+    "recuperacao_perceptivel"
+  ) {
+    return "success" as const;
+  }
+
+  if (
+    contract.contractReconciliationSummary.recentRecoveryState ===
+      "recuperacao_incipiente" ||
+    contract.contractReconciliationSummary.recentRecoveryState ===
+      "reducao_sem_recuperacao_clara"
+  ) {
+    return "warning" as const;
+  }
+
+  return "neutral" as const;
+}
+
 export default async function ContractsPage() {
   const contracts = await getContractsOverview();
 
@@ -212,6 +232,12 @@ export default async function ContractsPage() {
                             .recentPersistenceStateLabel
                         }
                       </Badge>
+                      <Badge tone={getRecentRecoveryTone(contract)}>
+                        {
+                          contract.contractReconciliationSummary
+                            .recentRecoveryStateLabel
+                        }
+                      </Badge>
                     </div>
                     <p className="font-medium text-[var(--color-ink)]">
                       {contract.contractReconciliationSummary.managerialAttentionReason}
@@ -256,6 +282,12 @@ export default async function ContractsPage() {
                       {
                         contract.contractReconciliationSummary
                           .recentPersistenceStateReason
+                      }
+                    </p>
+                    <p>
+                      {
+                        contract.contractReconciliationSummary
+                          .recentRecoveryStateReason
                       }
                     </p>
                     <div className="flex flex-wrap gap-2">

@@ -882,3 +882,13 @@ No resumo do contrato, a persistencia recente pode aparecer como:
 - persistencia recente neutra, quando nao ha base suficiente ou quando a janela recente nao sustenta leitura clara de persistencia.
 Na conciliacao e no detalhe do contrato, cada competencia tambem passa a indicar se participa de sinal recente ainda forte, moderado, enfraquecido, neutro ou se ficou fora da janela recente usada para essa leitura.
 Essa leitura continua leve e orientativa. Ela nao cria fila de tarefas, nao substitui a analise operacional e nao transforma persistencia recente em conclusao definitiva.
+
+### 11.18 Recuperacao recente dos sinais conciliatorios
+A leitura recente do contrato passou a indicar tambem se a reducao dos sinais parece representar recuperacao operacional ou apenas perda parcial de intensidade.
+No resumo do contrato, a recuperacao recente pode aparecer como:
+- recuperacao perceptivel, quando a competencia mais recente deixa de carregar residual nao explicado e remanescente explicado relevante depois de ciclos anteriores com sinais materiais;
+- recuperacao incipiente, quando os sinais materiais recentes diminuem e ficam restritos a indicio menor, ainda dependente de acompanhamento;
+- reducao sem recuperacao clara, quando houve queda de intensidade, mas a competencia mais recente ainda mantem residual aberto ou remanescente relevante;
+- sem sinal recente de recuperacao, quando a janela recente nao sustenta queda concreta ou ainda nao ha base suficiente.
+Na conciliacao e no detalhe do contrato, cada competencia tambem passa a indicar se participa dessa leitura como recuperacao perceptivel, recuperacao incipiente, simples reducao sem recuperacao clara, ausencia de sinal recente de recuperacao ou se ficou fora da janela recente.
+Essa leitura deve ser usada como orientacao operacional. Ela nao encerra a analise contabil, nao cria tarefa automatica, nao altera fechamento ou reabertura e nao substitui a verificacao dos valores por competencia.

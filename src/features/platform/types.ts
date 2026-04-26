@@ -349,6 +349,15 @@ export interface ReconciliationDifferenceReadingSummary {
     | "persistencia_neutra";
   recentPersistenceContextLabel: string;
   recentPersistenceContextReason: string;
+  recentRecoveryContext:
+    | "sem_base_recente_suficiente"
+    | "fora_da_janela_recente"
+    | "recuperacao_perceptivel"
+    | "recuperacao_incipiente"
+    | "reducao_sem_recuperacao_clara"
+    | "sem_sinal_recente_de_recuperacao";
+  recentRecoveryContextLabel: string;
+  recentRecoveryContextReason: string;
 }
 
 export type CompetencyOccurrenceType =
@@ -688,6 +697,13 @@ export interface ContractReconciliationSummary {
     | "persistencia_neutra";
   recentPersistenceStateLabel: string;
   recentPersistenceStateReason: string;
+  recentRecoveryState:
+    | "recuperacao_perceptivel"
+    | "recuperacao_incipiente"
+    | "reducao_sem_recuperacao_clara"
+    | "sem_sinal_recente_de_recuperacao";
+  recentRecoveryStateLabel: string;
+  recentRecoveryStateReason: string;
   hasOpenUnexplained: boolean;
   hasReopenedCompetencies: boolean;
   hasRelevantUnitemized: boolean;

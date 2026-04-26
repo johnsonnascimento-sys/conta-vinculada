@@ -170,6 +170,22 @@ function getRecentPersistenceTone(item: ReconciliationRecord) {
   return "neutral" as const;
 }
 
+function getRecentRecoveryTone(item: ReconciliationRecord) {
+  if (item.differenceReading.recentRecoveryContext === "recuperacao_perceptivel") {
+    return "success" as const;
+  }
+
+  if (
+    item.differenceReading.recentRecoveryContext === "recuperacao_incipiente" ||
+    item.differenceReading.recentRecoveryContext ===
+      "reducao_sem_recuperacao_clara"
+  ) {
+    return "warning" as const;
+  }
+
+  return "neutral" as const;
+}
+
 function getAvailableBankEntries(
   item: ReconciliationRecord,
   bankEntries: BankEntry[],
@@ -379,6 +395,9 @@ export default async function ReconciliationPage({
                           <Badge tone={getRecentPersistenceTone(item)}>
                             {item.differenceReading.recentPersistenceContextLabel}
                           </Badge>
+                          <Badge tone={getRecentRecoveryTone(item)}>
+                            {item.differenceReading.recentRecoveryContextLabel}
+                          </Badge>
                         </div>
                         <p>{item.differenceReading.profileReason}</p>
                         <p>{item.differenceReading.recurrenceContextReason}</p>
@@ -386,6 +405,7 @@ export default async function ReconciliationPage({
                         <p>{item.differenceReading.recentStabilityContextReason}</p>
                         <p>{item.differenceReading.recentMaterialityContextReason}</p>
                         <p>{item.differenceReading.recentPersistenceContextReason}</p>
+                        <p>{item.differenceReading.recentRecoveryContextReason}</p>
                         <p>
                           Priorizacao visual:{" "}
                           {item.differenceSummary.unitemizedBalancePriorityLabel}

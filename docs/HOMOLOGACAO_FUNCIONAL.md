@@ -618,3 +618,16 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] Nao aplicavel
+
+### 11.18 Recuperacao recente dos sinais conciliatorios
+- [ ] O detalhe do contrato indica se a recuperacao recente esta como recuperacao perceptivel, recuperacao incipiente, reducao sem recuperacao clara ou sem sinal recente de recuperacao.
+- [ ] O motivo operacional curto da recuperacao recente e coerente com residual nao explicado, remanescente explicado relevante, materialidade recente, estabilidade recente e persistencia recente.
+- [ ] A conciliacao e o detalhe do contrato indicam, por competencia, se ela participa de recuperacao perceptivel, recuperacao incipiente, reducao sem recuperacao clara, ausencia de sinal recente ou se ficou fora da janela recente.
+- [ ] A listagem de contratos reflete a mesma leitura agregada de recuperacao recente exibida no detalhe do contrato.
+- [ ] A nova leitura diferencia melhora operacional perceptivel de simples reducao de intensidade sem alterar fechamento, reabertura, cobertura, materialidade, estabilidade ou persistencia recentes.
+Observacoes:
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel

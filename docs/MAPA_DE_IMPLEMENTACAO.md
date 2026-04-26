@@ -399,3 +399,12 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 
 ### Proximo bloco sugerido
 - [ ] Qualificar de forma leve a recuperacao recente desses sinais, distinguindo melhora perceptivel e simples reducao de intensidade.
+
+### Atualizacao da rodada
+- [x] Derivar leitura leve de recuperacao recente a partir da janela recente de competencias conciliadas.
+- [x] Distinguir recuperacao perceptivel, recuperacao incipiente, reducao sem recuperacao clara e ausencia de sinal recente.
+- [x] Expor a leitura no detalhe do contrato, na conciliacao e na listagem de contratos.
+- [x] Preservar persistencia, materialidade, estabilidade e recorrencia recentes sem criar workflow contabil novo.
+
+### Proximo bloco sugerido
+- [ ] Consolidar revisao visual leve de consistencia entre filtros, badges e textos explicativos das leituras conciliatorias recentes.

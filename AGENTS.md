@@ -42,6 +42,8 @@ Avoid spending `GPT-5.5` on simple edits, repetitive adjustments, low-risk local
 
 This project must use a master/subagent governance model when work is complex, normatively sensitive or touches more than one functional area.
 
+Every delivery must explicitly identify which master agent and which subagents were used. If no subagents were used, the final response must still say so in the required `Agentes utilizados` section and explain why the task was classified as simple, local and low risk.
+
 ### Master Agent / Orchestrator
 
 Preferred model: `GPT-5.5`.
@@ -179,7 +181,7 @@ Subagents are mandatory when a task involves any of the following:
 - required-document changes;
 - financial-execution changes;
 - competency closing or reopening changes;
-- changes that affect user manual and homologation;
+- changes to `docs/MANUAL_DO_USUARIO.md` or `docs/HOMOLOGACAO_FUNCIONAL.md` because of functional or operational impact;
 - tasks touching backend plus frontend plus documentation;
 - tasks involving more than one functional area.
 
@@ -190,6 +192,8 @@ For these tasks, Codex must operate with at least:
 4. Tests / Homologation Subagent;
 5. Functional Documentation Subagent, when there is operational impact;
 6. Final Review / Quality Subagent, when the change is cross-cutting or sensitive.
+
+Codex must not answer that subagents were not used when the task changes `rules.ts`, `workflow.ts`, `policy.ts`, server-side commands, serializers, Prisma schema, reconciliation, releases, financial execution, normative adherence, required documents, competency closing/reopening, or user manual/homologation due to functional impact.
 
 ### When subagents are not required
 
@@ -244,7 +248,7 @@ When subagents were used, this section must appear before `Comandos executados` 
 
 When no subagents were used, the final response must still include `Agentes utilizados` with this sentence:
 
-> Nao foram acionados subagentes porque a tarefa foi classificada como simples/local/baixo risco.
+> Nao foram acionados subagentes porque a tarefa foi classificada como simples, local e de baixo risco.
 
 In that case, the response must also state:
 - model used;
@@ -329,7 +333,7 @@ When subagents are used, the final response must follow this minimum order:
 8. `Resultado de validacao`
 9. `Proximo bloco sugerido`
 
-When subagents are not used, keep the same order when applicable and include the `Agentes utilizados` section immediately after `Estrategia escolhida`.
+When subagents are not used, the final response must still include `Agentes utilizados` immediately after `Estrategia escolhida`, with the mandatory sentence above, the model used and the reason for dismissing subagents. Use the rest of the response order when applicable to the task.
 
 The delivery is incomplete if the final response does not clearly state:
 - which master agent was used;
@@ -337,6 +341,7 @@ The delivery is incomplete if the final response does not clearly state:
 - which models were used;
 - what each agent did;
 - which agents were dismissed, when applicable.
+- how the orchestrator consolidated the final decision and which decision prevailed when conflicts existed.
 
 ## Rules and Workflow Governance
 
@@ -359,4 +364,6 @@ For changes in these files, the minimum routine is:
 6. Final Review / Quality Subagent checks duplication, regressions, scope creep and consistency across backend, frontend, tests and documentation.
 
 Rules, workflows and policies must remain centralized. Do not duplicate business logic between `workflow`, `queries`, `serializers`, `pages`, route handlers and UI components.
+
+The same mandatory routine applies when the task changes reconciliation logic, release flows, financial execution, required documents, derived statuses, competency closing/reopening, normative adherence, or functional user documentation required by those changes.
 <!-- END:nextjs-agent-rules -->

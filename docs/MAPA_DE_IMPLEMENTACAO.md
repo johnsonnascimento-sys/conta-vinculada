@@ -428,3 +428,10 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 
 ### Proximo bloco sugerido
 - [ ] Revisar responsividade e leitura em telas menores das tabelas de conciliacao e contratos, sem alterar regras de negocio.
+
+### Atualizacao de governanca de agentes e transparencia
+
+- [x] Reforcar `AGENTS.md` para tornar obrigatoria a secao `Agentes utilizados` em toda resposta final.
+- [x] Exigir identificacao do agente mestre/orquestrador, subagentes acionados, modelos usados, escopos, arquivos ou areas analisadas, resultados, conflitos e decisao final consolidada.
+- [x] Registrar que tarefas simples, locais e de baixo risco podem dispensar subagentes, mas ainda devem informar modelo usado e motivo da dispensa.
+- [x] Reafirmar que alteracoes em rules, workflow, policy, commands, serializers, schema Prisma, conciliacao, liberacoes, execucao financeira, aderencia normativa, documentos exigidos, fechamento/reabertura de competencia ou manual/homologacao por impacto funcional nao podem dispensar subagentes.

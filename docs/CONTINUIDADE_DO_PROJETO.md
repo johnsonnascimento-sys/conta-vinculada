@@ -874,3 +874,9 @@ A rodada atual fez uma revisao visual leve das leituras conciliatorias recentes,
 A conciliacao, a listagem de contratos e o detalhe do contrato passaram a priorizar alerta principal, cobertura, recuperacao recente e valores essenciais, mantendo recorrencia, estabilidade, materialidade, persistencia, origem operacional e revisao dirigida como contexto complementar.
 
 Com isso, o proximo bloco seguro passa a ser revisar responsividade e leitura em telas menores das tabelas de conciliacao e contratos, sem alterar regras de negocio.
+
+## Atualizacao de governanca de agentes e transparencia
+
+A governanca do projeto foi reforcada em `AGENTS.md` para exigir que toda entrega informe explicitamente o agente mestre/orquestrador, os subagentes acionados, os modelos usados, os escopos atribuidos, os resultados entregues, conflitos relevantes e a decisao final consolidada.
+
+Quando uma tarefa for simples, local e de baixo risco, a resposta final ainda deve conter a secao `Agentes utilizados`, informando que subagentes foram dispensados e registrando o modelo usado e o motivo da dispensa. Essa dispensa nao se aplica a tarefas em `rules.ts`, `workflow.ts`, `policy.ts`, commands, serializers, schema Prisma, conciliacao, liberacoes, execucao financeira, aderencia normativa, documentos exigidos, fechamento/reabertura de competencia ou manual/homologacao por impacto funcional.

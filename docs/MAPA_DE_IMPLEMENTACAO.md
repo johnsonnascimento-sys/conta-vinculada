@@ -419,3 +419,12 @@ Uma tarefa funcional nao deve ser tratada como concluida se essa sincronizacao d
 ### Regra permanente para proximas rodadas
 
 - [ ] Antes de alterar regras de negocio, workflows, policies, commands, serializers, schema Prisma ou fluxos transversais, aplicar a rotina obrigatoria de subagentes descrita em `AGENTS.md`.
+
+### Atualizacao da rodada
+- [x] Revisar visualmente badges, labels e textos explicativos das leituras conciliatorias recentes.
+- [x] Reduzir exposicao simultanea de leituras auxiliares em conciliacao, listagem e detalhe do contrato.
+- [x] Manter regras de negocio e codigos derivados preservados no backend.
+- [x] Atualizar manual e homologacao para refletir a leitura visual mais compacta.
+
+### Proximo bloco sugerido
+- [ ] Revisar responsividade e leitura em telas menores das tabelas de conciliacao e contratos, sem alterar regras de negocio.

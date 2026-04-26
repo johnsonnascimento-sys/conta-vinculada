@@ -867,3 +867,10 @@ A governanca operacional do projeto foi reforcada em `AGENTS.md` para tornar obr
 A partir desta rodada, futuras alteracoes em `rules.ts`, `workflow.ts` e `policy.ts` devem seguir rotina com agente mestre/orquestrador, subagente de regras de negocio/normativo, subagente backend ou frontend conforme o caso, subagente de testes/homologacao, subagente de documentacao quando houver impacto operacional e revisao final quando a mudanca for transversal ou sensivel.
 
 Essa mudanca nao altera funcionalidade do sistema. Ela apenas ajusta a forma como proximas rodadas devem ser planejadas, divididas, revisadas e validadas.
+
+## Atualizacao incremental mais recente
+A rodada atual fez uma revisao visual leve das leituras conciliatorias recentes, reduzindo badges simultaneos e movendo motivos auxiliares para areas expansivas de detalhes.
+
+A conciliacao, a listagem de contratos e o detalhe do contrato passaram a priorizar alerta principal, cobertura, recuperacao recente e valores essenciais, mantendo recorrencia, estabilidade, materialidade, persistencia, origem operacional e revisao dirigida como contexto complementar.
+
+Com isso, o proximo bloco seguro passa a ser revisar responsividade e leitura em telas menores das tabelas de conciliacao e contratos, sem alterar regras de negocio.

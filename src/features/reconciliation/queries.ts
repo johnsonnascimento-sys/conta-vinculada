@@ -52,28 +52,28 @@ export async function getReconciliationOverview(filterValue?: string): Promise<R
     { key: "todas", label: "Todas", count: reconciliations.length },
     {
       key: "divergencias_residuais",
-      label: "Divergencias residuais",
+      label: "Residual aberto",
       count: reconciliations.filter((item) =>
         matchesReconciliationFilter(item, "divergencias_residuais"),
       ).length,
     },
     {
       key: "reabertas",
-      label: "Reabertas",
+      label: "Competencias reabertas",
       count: reconciliations.filter((item) =>
         matchesReconciliationFilter(item, "reabertas"),
       ).length,
     },
     {
       key: "aptas_fechamento",
-      label: "Aptas a fechamento",
+      label: "Aptas ao fechamento",
       count: reconciliations.filter((item) =>
         matchesReconciliationFilter(item, "aptas_fechamento"),
       ).length,
     },
     {
       key: "justificativas_sensiveis",
-      label: "Justificativas sensiveis",
+      label: "Justificativa sensivel",
       count: reconciliations.filter((item) =>
         matchesReconciliationFilter(item, "justificativas_sensiveis"),
       ).length,

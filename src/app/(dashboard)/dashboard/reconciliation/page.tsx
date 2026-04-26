@@ -226,11 +226,13 @@ export default async function ReconciliationPage({
   const canRegisterItem = currentUser
     ? canRegisterReconciliationItem(currentUser)
     : false;
+  const primaryFilters = filters.slice(0, 4);
+  const secondaryFilters = filters.slice(4);
 
   return (
     <TableCard
       title="Conciliacao"
-      description="Comparacao entre extrato bancario, provisoes liquidas, diferencas e itens conciliatorios minimos da competencia. O modulo continua sem integracao bancaria automatica e sem workflow contabil pesado."
+      description="Comparacao operacional entre saldos, cobertura, alertas principais e contexto recente da competencia."
     >
       <div className="space-y-3">
         {!databaseEnabled ? (
@@ -241,7 +243,7 @@ export default async function ReconciliationPage({
         ) : null}
 
         <div className="flex flex-wrap gap-2">
-          {filters.map((filter) => (
+          {primaryFilters.map((filter) => (
             <Link
               key={filter.key}
               href={
@@ -259,6 +261,26 @@ export default async function ReconciliationPage({
             </Link>
           ))}
         </div>
+        <details className="rounded-[1.3rem] border border-black/8 bg-white px-4 py-3 text-sm text-[var(--color-muted)]">
+          <summary className="cursor-pointer font-semibold text-[var(--color-ink)]">
+            Mais filtros de acompanhamento
+          </summary>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {secondaryFilters.map((filter) => (
+              <Link
+                key={filter.key}
+                href={`/dashboard/reconciliation?filtro=${filter.key}`}
+                className={`rounded-full border px-3 py-2 text-sm transition ${
+                  selectedFilter === filter.key
+                    ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-white"
+                    : "border-black/10 bg-white text-[var(--color-muted)] hover:border-black/20 hover:text-[var(--color-ink)]"
+                }`}
+              >
+                {filter.label} ({filter.count})
+              </Link>
+            ))}
+          </div>
+        </details>
 
         <div className="overflow-hidden rounded-[1.4rem] border border-black/8">
           <table className="min-w-full divide-y divide-black/8 text-left">
@@ -266,9 +288,9 @@ export default async function ReconciliationPage({
               <tr>
                 <th className="px-4 py-3">Competencia</th>
                 <th className="px-4 py-3">Saldos</th>
-                <th className="px-4 py-3">Classificacao e prioridade</th>
+                <th className="px-4 py-3">Alerta principal</th>
                 <th className="px-4 py-3">Situacao atual</th>
-                <th className="px-4 py-3">Itens conciliatorios</th>
+                <th className="px-4 py-3">Cobertura e leituras</th>
                 <th className="px-4 py-3">Historico e proxima acao</th>
                 <th className="px-4 py-3">Acoes</th>
               </tr>
@@ -364,58 +386,61 @@ export default async function ReconciliationPage({
                           Diferenca nao explicada remanescente:{" "}
                           {formatCurrency(item.differenceSummary.unexplainedAmount)}
                         </p>
-                        <p>{item.differenceSummary.explainedCoverageReason}</p>
-                        <p>
-                          Origem operacional:{" "}
-                          {item.differenceSummary.unitemizedBalanceOriginLabel}
-                        </p>
-                        <p>{item.differenceSummary.unitemizedBalanceOriginReason}</p>
-                        <p>
-                          Leitura da divergencia:{" "}
-                          <span className="font-medium text-[var(--color-ink)]">
-                            {item.differenceReading.profileLabel}
-                          </span>
-                        </p>
                         <div className="flex flex-wrap gap-2">
                           <Badge tone={getDifferenceReadingTone(item)}>
                             {item.differenceReading.profileLabel}
-                          </Badge>
-                          <Badge tone="neutral">
-                            {item.differenceReading.recurrenceContextLabel}
-                          </Badge>
-                          <Badge tone={getRecurrenceTemporalTone(item)}>
-                            {item.differenceReading.recurrenceTemporalContextLabel}
-                          </Badge>
-                          <Badge tone={getRecentStabilityTone(item)}>
-                            {item.differenceReading.recentStabilityContextLabel}
-                          </Badge>
-                          <Badge tone={getRecentMaterialityTone(item)}>
-                            {item.differenceReading.recentMaterialityContextLabel}
-                          </Badge>
-                          <Badge tone={getRecentPersistenceTone(item)}>
-                            {item.differenceReading.recentPersistenceContextLabel}
                           </Badge>
                           <Badge tone={getRecentRecoveryTone(item)}>
                             {item.differenceReading.recentRecoveryContextLabel}
                           </Badge>
                         </div>
                         <p>{item.differenceReading.profileReason}</p>
-                        <p>{item.differenceReading.recurrenceContextReason}</p>
-                        <p>{item.differenceReading.recurrenceTemporalContextReason}</p>
-                        <p>{item.differenceReading.recentStabilityContextReason}</p>
-                        <p>{item.differenceReading.recentMaterialityContextReason}</p>
-                        <p>{item.differenceReading.recentPersistenceContextReason}</p>
-                        <p>{item.differenceReading.recentRecoveryContextReason}</p>
-                        <p>
-                          Priorizacao visual:{" "}
-                          {item.differenceSummary.unitemizedBalancePriorityLabel}
-                        </p>
-                        <p>{item.differenceSummary.unitemizedBalancePriorityReason}</p>
-                        <p>
-                          Revisao dirigida:{" "}
-                          {item.differenceSummary.directedReviewRecommendation}
-                        </p>
-                        <p>{item.differenceSummary.directedReviewReason}</p>
+                        <details className="rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2 text-xs leading-5">
+                          <summary className="cursor-pointer font-semibold text-[var(--color-ink)]">
+                            Ver contexto recente e detalhes da cobertura
+                          </summary>
+                          <div className="mt-3 space-y-2">
+                            <div className="flex flex-wrap gap-2">
+                              <Badge tone="neutral">
+                                {item.differenceReading.recurrenceContextLabel}
+                              </Badge>
+                              <Badge tone={getRecurrenceTemporalTone(item)}>
+                                {item.differenceReading.recurrenceTemporalContextLabel}
+                              </Badge>
+                              <Badge tone={getRecentStabilityTone(item)}>
+                                {item.differenceReading.recentStabilityContextLabel}
+                              </Badge>
+                              <Badge tone={getRecentMaterialityTone(item)}>
+                                {item.differenceReading.recentMaterialityContextLabel}
+                              </Badge>
+                              <Badge tone={getRecentPersistenceTone(item)}>
+                                {item.differenceReading.recentPersistenceContextLabel}
+                              </Badge>
+                            </div>
+                            <p>{item.differenceSummary.explainedCoverageReason}</p>
+                            <p>
+                              Origem operacional:{" "}
+                              {item.differenceSummary.unitemizedBalanceOriginLabel}
+                            </p>
+                            <p>{item.differenceSummary.unitemizedBalanceOriginReason}</p>
+                            <p>{item.differenceReading.recurrenceContextReason}</p>
+                            <p>{item.differenceReading.recurrenceTemporalContextReason}</p>
+                            <p>{item.differenceReading.recentStabilityContextReason}</p>
+                            <p>{item.differenceReading.recentMaterialityContextReason}</p>
+                            <p>{item.differenceReading.recentPersistenceContextReason}</p>
+                            <p>{item.differenceReading.recentRecoveryContextReason}</p>
+                            <p>
+                              Priorizacao visual:{" "}
+                              {item.differenceSummary.unitemizedBalancePriorityLabel}
+                            </p>
+                            <p>{item.differenceSummary.unitemizedBalancePriorityReason}</p>
+                            <p>
+                              Revisao dirigida:{" "}
+                              {item.differenceSummary.directedReviewRecommendation}
+                            </p>
+                            <p>{item.differenceSummary.directedReviewReason}</p>
+                          </div>
+                        </details>
                         <div className="space-y-2">
                           {item.items.map((reconciliationItem) => (
                             <div
@@ -451,14 +476,15 @@ export default async function ReconciliationPage({
                     </td>
                     <td className="px-4 py-4 align-top">
                       <div className="space-y-2 text-sm text-[var(--color-muted)]">
-                        <p>
-                          Justificativa do fechamento:{" "}
-                          {item.closureJustification ?? "nao registrada"}
-                        </p>
-                        <p>
-                          Justificativa da reabertura:{" "}
-                          {item.reopeningJustification ?? "nao registrada"}
-                        </p>
+                        <div className="rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2 text-xs leading-5">
+                          <Badge tone={getTrackingTone(item)}>
+                            {item.history.recommendedActionLabel}
+                          </Badge>
+                          <p className="mt-2">
+                            {item.history.recommendedActionReason}
+                          </p>
+                          <p>Prioridade operacional: {item.qualification.priorityReason}</p>
+                        </div>
                         <div className="flex flex-wrap gap-2">
                           {item.qualification.pointings.map((pointing) => (
                             <Badge key={pointing.code} tone="neutral">
@@ -475,29 +501,35 @@ export default async function ReconciliationPage({
                         ) : (
                           <p>Ultima ocorrencia relevante: nao registrada</p>
                         )}
-                        {item.history.timeline.slice(-3).map((event) => (
-                          <div
-                            key={event.id}
-                            className="rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2 text-xs leading-5"
-                          >
-                            <p className="font-semibold text-[var(--color-ink)]">
-                              {event.label}
-                            </p>
-                            <p>{event.description}</p>
+                        <details className="rounded-2xl border border-black/8 bg-white px-3 py-2 text-xs leading-5">
+                          <summary className="cursor-pointer font-semibold text-[var(--color-ink)]">
+                            Ver justificativas e historico
+                          </summary>
+                          <div className="mt-3 space-y-2">
                             <p>
-                              {event.actor} | {event.happenedAt}
+                              Justificativa do fechamento:{" "}
+                              {item.closureJustification ?? "nao registrada"}
                             </p>
+                            <p>
+                              Justificativa da reabertura:{" "}
+                              {item.reopeningJustification ?? "nao registrada"}
+                            </p>
+                            {item.history.timeline.slice(-3).map((event) => (
+                              <div
+                                key={event.id}
+                                className="rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2"
+                              >
+                                <p className="font-semibold text-[var(--color-ink)]">
+                                  {event.label}
+                                </p>
+                                <p>{event.description}</p>
+                                <p>
+                                  {event.actor} | {event.happenedAt}
+                                </p>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                        <div className="rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2 text-xs leading-5">
-                          <Badge tone={getTrackingTone(item)}>
-                            {item.history.recommendedActionLabel}
-                          </Badge>
-                          <p className="mt-2">
-                            {item.history.recommendedActionReason}
-                          </p>
-                          <p>Prioridade operacional: {item.qualification.priorityReason}</p>
-                        </div>
+                        </details>
                       </div>
                     </td>
                     <td className="px-4 py-4 align-top">

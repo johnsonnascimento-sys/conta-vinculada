@@ -631,3 +631,17 @@ Resultado:
 - [ ] Aprovado com ressalva
 - [ ] Reprovado
 - [ ] Nao aplicavel
+
+### 11.19 Revisao visual das leituras conciliatorias recentes
+- [ ] A conciliacao mostra primeiro alerta principal, cobertura, perfil da divergencia e recuperacao recente, sem excesso de badges simultaneos.
+- [ ] As leituras auxiliares de recorrencia, evolucao temporal, estabilidade, materialidade, persistencia, origem operacional, prioridade visual e revisao dirigida continuam acessiveis em area de detalhes.
+- [ ] A listagem de contratos mostra uma leitura conciliatoria mais compacta, com atencao gerencial, cobertura, recuperacao recente e valores principais.
+- [ ] O detalhe do contrato agrupa estabilidade, materialidade e persistencia recente como contexto auxiliar, sem remover os motivos operacionais.
+- [ ] Os filtros da conciliacao usam nomes mais diretos e continuam localizando os mesmos recortes operacionais anteriores.
+- [ ] A revisao visual nao altera regras de negocio, fechamento, reabertura, cobertura, recorrencia, materialidade, persistencia ou recuperacao.
+Observacoes:
+Resultado:
+- [ ] Aprovado
+- [ ] Aprovado com ressalva
+- [ ] Reprovado
+- [ ] Nao aplicavel

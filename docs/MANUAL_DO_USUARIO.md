@@ -892,3 +892,18 @@ No resumo do contrato, a recuperacao recente pode aparecer como:
 - sem sinal recente de recuperacao, quando a janela recente nao sustenta queda concreta ou ainda nao ha base suficiente.
 Na conciliacao e no detalhe do contrato, cada competencia tambem passa a indicar se participa dessa leitura como recuperacao perceptivel, recuperacao incipiente, simples reducao sem recuperacao clara, ausencia de sinal recente de recuperacao ou se ficou fora da janela recente.
 Essa leitura deve ser usada como orientacao operacional. Ela nao encerra a analise contabil, nao cria tarefa automatica, nao altera fechamento ou reabertura e nao substitui a verificacao dos valores por competencia.
+
+### 11.19 Revisao visual das leituras conciliatorias recentes
+A conciliacao, a listagem de contratos e o detalhe do contrato passaram a organizar as leituras conciliatorias recentes com menos informacoes simultaneas na primeira visualizacao.
+
+Na pratica, o usuario passa a ver primeiro:
+- o alerta principal da competencia ou do contrato;
+- a cobertura ou situacao gerencial mais relevante;
+- a recuperacao recente, quando houver leitura agregada;
+- os valores principais de residual e remanescente.
+
+As leituras auxiliares continuam preservadas, mas com hierarquia mais clara. Parte do contexto recente permanece visivel quando ajuda a interpretar o contrato, enquanto motivos, marcadores complementares, origem operacional, prioridade visual e revisao dirigida ficam concentrados em areas expansiveis de detalhes. Isso reduz poluicao visual sem remover informacao operacional importante.
+
+Os filtros da conciliacao tambem passaram a usar nomes mais diretos, como residual aberto, competencias reabertas, aptas ao fechamento, justificativa sensivel, remanescente relevante, justificativa insuficiente, itemizacao em andamento e baixa materialidade. Esses filtros continuam representando os mesmos recortes operacionais anteriores.
+
+

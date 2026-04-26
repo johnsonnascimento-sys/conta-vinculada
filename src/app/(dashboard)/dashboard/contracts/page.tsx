@@ -22,23 +22,6 @@ function getManagerialAttentionTone(contract: ContractOverview) {
   return "success" as const;
 }
 
-function getCoverageTone(contract: ContractOverview) {
-  if (
-    contract.contractReconciliationSummary.overallCoverageState === "sem_cobertura"
-  ) {
-    return "danger" as const;
-  }
-
-  if (
-    contract.contractReconciliationSummary.overallCoverageState ===
-    "cobertura_parcial"
-  ) {
-    return "warning" as const;
-  }
-
-  return "success" as const;
-}
-
 function getRecurrenceTone(contract: ContractOverview) {
   if (
     contract.contractReconciliationSummary.recurrenceState ===
@@ -136,33 +119,13 @@ function getRecentPersistenceTone(contract: ContractOverview) {
   return "neutral" as const;
 }
 
-function getRecentRecoveryTone(contract: ContractOverview) {
-  if (
-    contract.contractReconciliationSummary.recentRecoveryState ===
-    "recuperacao_perceptivel"
-  ) {
-    return "success" as const;
-  }
-
-  if (
-    contract.contractReconciliationSummary.recentRecoveryState ===
-      "recuperacao_incipiente" ||
-    contract.contractReconciliationSummary.recentRecoveryState ===
-      "reducao_sem_recuperacao_clara"
-  ) {
-    return "warning" as const;
-  }
-
-  return "neutral" as const;
-}
-
 export default async function ContractsPage() {
   const contracts = await getContractsOverview();
 
   return (
     <TableCard
       title="Contratos"
-      description="Visao consolidada por contrato com saldos, reservas e leitura gerencial minima da conciliacao."
+      description="Visao consolidada por contrato com alerta gerencial, saldos principais e contexto conciliatorio recente."
     >
       <div className="overflow-hidden rounded-[1.4rem] border border-black/8">
         <table className="min-w-full divide-y divide-black/8 text-left">
@@ -202,45 +165,22 @@ export default async function ContractsPage() {
                       <Badge tone={getManagerialAttentionTone(contract)}>
                         {contract.contractReconciliationSummary.managerialAttentionLabel}
                       </Badge>
-                      <Badge tone={getCoverageTone(contract)}>
-                        {contract.contractReconciliationSummary.overallCoverageStateLabel}
-                      </Badge>
-                      <Badge tone={getRecurrenceTone(contract)}>
-                        {contract.contractReconciliationSummary.recurrenceStateLabel}
-                      </Badge>
-                      <Badge tone={getRecurrenceTemporalTone(contract)}>
-                        {
-                          contract.contractReconciliationSummary
-                            .recurrenceTemporalStateLabel
-                        }
-                      </Badge>
-                      <Badge tone={getRecentStabilityTone(contract)}>
-                        {
-                          contract.contractReconciliationSummary
-                            .recentStabilityStateLabel
-                        }
-                      </Badge>
-                      <Badge tone={getRecentMaterialityTone(contract)}>
-                        {
-                          contract.contractReconciliationSummary
-                            .recentMaterialityStateLabel
-                        }
-                      </Badge>
-                      <Badge tone={getRecentPersistenceTone(contract)}>
-                        {
-                          contract.contractReconciliationSummary
-                            .recentPersistenceStateLabel
-                        }
-                      </Badge>
-                      <Badge tone={getRecentRecoveryTone(contract)}>
-                        {
-                          contract.contractReconciliationSummary
-                            .recentRecoveryStateLabel
-                        }
-                      </Badge>
                     </div>
                     <p className="font-medium text-[var(--color-ink)]">
                       {contract.contractReconciliationSummary.managerialAttentionReason}
+                    </p>
+                    <p>
+                      Cobertura:{" "}
+                      <span className="font-medium text-[var(--color-ink)]">
+                        {contract.contractReconciliationSummary.overallCoverageStateLabel}
+                      </span>
+                      {" "}({contract.contractReconciliationSummary.overallCoveragePercentage}%)
+                    </p>
+                    <p>
+                      Recuperacao recente:{" "}
+                      <span className="font-medium text-[var(--color-ink)]">
+                        {contract.contractReconciliationSummary.recentRecoveryStateLabel}
+                      </span>
                     </p>
                     <p>
                       Residual nao explicado:{" "}
@@ -255,91 +195,123 @@ export default async function ContractsPage() {
                           .totalExplainedStillUnitemized,
                       )}
                     </p>
-                    <p>
-                      Cobertura agregada:{" "}
-                      {contract.contractReconciliationSummary.overallCoveragePercentage}%
-                    </p>
-                    <p>{contract.contractReconciliationSummary.recurrenceStateReason}</p>
-                    <p>
-                      {
-                        contract.contractReconciliationSummary
-                          .recurrenceTemporalStateReason
-                      }
-                    </p>
-                    <p>
-                      {
-                        contract.contractReconciliationSummary
-                          .recentStabilityStateReason
-                      }
-                    </p>
-                    <p>
-                      {
-                        contract.contractReconciliationSummary
-                          .recentMaterialityStateReason
-                      }
-                    </p>
-                    <p>
-                      {
-                        contract.contractReconciliationSummary
-                          .recentPersistenceStateReason
-                      }
-                    </p>
-                    <p>
-                      {
-                        contract.contractReconciliationSummary
-                          .recentRecoveryStateReason
-                      }
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {contract.contractReconciliationSummary.hasOpenUnexplained ? (
-                        <Badge tone="danger">residual aberto</Badge>
-                      ) : null}
-                      {contract.contractReconciliationSummary.hasReopenedCompetencies ? (
-                        <Badge tone="warning">competencia reaberta</Badge>
-                      ) : null}
-                      {contract.contractReconciliationSummary.hasRelevantUnitemized ? (
-                        <Badge tone="warning">remanescente relevante</Badge>
-                      ) : null}
-                      {!contract.contractReconciliationSummary.hasOpenUnexplained &&
-                      !contract.contractReconciliationSummary
-                        .hasReopenedCompetencies &&
-                      !contract.contractReconciliationSummary.hasRelevantUnitemized ? (
-                        <Badge tone="success">situacao normal</Badge>
-                      ) : null}
-                      {contract.contractReconciliationSummary.recurringSignals.map(
-                        (signal) => (
-                          <Badge key={signal.code} tone="neutral">
-                            {signal.label} ({signal.count})
+                    <details className="rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2 text-xs leading-5">
+                      <summary className="cursor-pointer font-semibold text-[var(--color-ink)]">
+                        Ver leituras recentes e marcadores
+                      </summary>
+                      <div className="mt-3 space-y-2">
+                        <div className="flex flex-wrap gap-2">
+                          <Badge tone={getRecurrenceTone(contract)}>
+                            {contract.contractReconciliationSummary.recurrenceStateLabel}
                           </Badge>
-                        ),
-                      )}
-                      {contract.contractReconciliationSummary.recentRecurringSignals.map(
-                        (signal) => (
-                          <Badge key={`recent-${signal.code}`} tone="warning">
-                            recente: {signal.label}
+                          <Badge tone={getRecurrenceTemporalTone(contract)}>
+                            {
+                              contract.contractReconciliationSummary
+                                .recurrenceTemporalStateLabel
+                            }
                           </Badge>
-                        ),
-                      )}
-                      {contract.contractReconciliationSummary.recentProfileSignals.map(
-                        (signal) => (
-                          <Badge key={`recent-profile-${signal.code}`} tone="warning">
-                            janela: {signal.label}
+                          <Badge tone={getRecentStabilityTone(contract)}>
+                            {
+                              contract.contractReconciliationSummary
+                                .recentStabilityStateLabel
+                            }
                           </Badge>
-                        ),
-                      )}
-                      {contract.contractReconciliationSummary.historicalRecurringSignals
-                        .filter(
-                          (signal) =>
-                            !contract.contractReconciliationSummary.recentRecurringSignals.some(
-                              (recentSignal) => recentSignal.code === signal.code,
+                          <Badge tone={getRecentMaterialityTone(contract)}>
+                            {
+                              contract.contractReconciliationSummary
+                                .recentMaterialityStateLabel
+                            }
+                          </Badge>
+                          <Badge tone={getRecentPersistenceTone(contract)}>
+                            {
+                              contract.contractReconciliationSummary
+                                .recentPersistenceStateLabel
+                            }
+                          </Badge>
+                        </div>
+                        <p>{contract.contractReconciliationSummary.recurrenceStateReason}</p>
+                        <p>
+                          {
+                            contract.contractReconciliationSummary
+                              .recurrenceTemporalStateReason
+                          }
+                        </p>
+                        <p>
+                          {
+                            contract.contractReconciliationSummary
+                              .recentStabilityStateReason
+                          }
+                        </p>
+                        <p>
+                          {
+                            contract.contractReconciliationSummary
+                              .recentMaterialityStateReason
+                          }
+                        </p>
+                        <p>
+                          {
+                            contract.contractReconciliationSummary
+                              .recentPersistenceStateReason
+                          }
+                        </p>
+                        <p>
+                          {
+                            contract.contractReconciliationSummary
+                              .recentRecoveryStateReason
+                          }
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {contract.contractReconciliationSummary.hasOpenUnexplained ? (
+                            <Badge tone="danger">residual aberto</Badge>
+                          ) : null}
+                          {contract.contractReconciliationSummary.hasReopenedCompetencies ? (
+                            <Badge tone="warning">competencia reaberta</Badge>
+                          ) : null}
+                          {contract.contractReconciliationSummary.hasRelevantUnitemized ? (
+                            <Badge tone="warning">remanescente relevante</Badge>
+                          ) : null}
+                          {!contract.contractReconciliationSummary.hasOpenUnexplained &&
+                          !contract.contractReconciliationSummary
+                            .hasReopenedCompetencies &&
+                          !contract.contractReconciliationSummary.hasRelevantUnitemized ? (
+                            <Badge tone="success">situacao normal</Badge>
+                          ) : null}
+                          {contract.contractReconciliationSummary.recurringSignals.map(
+                            (signal) => (
+                              <Badge key={signal.code} tone="neutral">
+                                {signal.label} ({signal.count})
+                              </Badge>
                             ),
-                        )
-                        .map((signal) => (
-                          <Badge key={`history-${signal.code}`} tone="neutral">
-                            historico: {signal.label}
-                          </Badge>
-                        ))}
-                    </div>
+                          )}
+                          {contract.contractReconciliationSummary.recentRecurringSignals.map(
+                            (signal) => (
+                              <Badge key={`recent-${signal.code}`} tone="warning">
+                                recente: {signal.label}
+                              </Badge>
+                            ),
+                          )}
+                          {contract.contractReconciliationSummary.recentProfileSignals.map(
+                            (signal) => (
+                              <Badge key={`recent-profile-${signal.code}`} tone="warning">
+                                janela: {signal.label}
+                              </Badge>
+                            ),
+                          )}
+                          {contract.contractReconciliationSummary.historicalRecurringSignals
+                            .filter(
+                              (signal) =>
+                                !contract.contractReconciliationSummary.recentRecurringSignals.some(
+                                  (recentSignal) => recentSignal.code === signal.code,
+                                ),
+                            )
+                            .map((signal) => (
+                              <Badge key={`history-${signal.code}`} tone="neutral">
+                                historico: {signal.label}
+                              </Badge>
+                            ))}
+                        </div>
+                      </div>
+                    </details>
                   </div>
                 </td>
                 <td className="px-4 py-4">

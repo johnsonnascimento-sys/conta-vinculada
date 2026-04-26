@@ -395,62 +395,44 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                 {detail.contractReconciliationSummary.recurrenceTemporalStateReason}
               </p>
             </div>
-            <div className="flex-1 rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
+            <div className="flex-[2] rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
               <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                Estabilidade recente
-              </span>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <Badge tone={getRecurrenceTone(detail.contractReconciliationSummary.recentStabilityState)}>
-                  {detail.contractReconciliationSummary.recentStabilityStateLabel}
-                </Badge>
-                {detail.contractReconciliationSummary.recentProfileSignals.map((signal) => (
-                  <Badge key={`stability-${signal.code}`} tone="warning">
-                    {signal.label} ({signal.count})
-                  </Badge>
-                ))}
-              </div>
-              <p className="mt-2 text-sm text-[var(--color-muted)]">
-                {detail.contractReconciliationSummary.recentStabilityStateReason}
-              </p>
-            </div>
-            <div className="flex-1 rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
-              <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                Materialidade recente
-              </span>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <Badge tone={getRecurrenceTone(detail.contractReconciliationSummary.recentMaterialityState)}>
-                  {detail.contractReconciliationSummary.recentMaterialityStateLabel}
-                </Badge>
-              </div>
-              <p className="mt-2 text-sm text-[var(--color-muted)]">
-                {detail.contractReconciliationSummary.recentMaterialityStateReason}
-              </p>
-            </div>
-            <div className="flex-1 rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
-              <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                Persistencia recente
-              </span>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <Badge tone={getRecurrenceTone(detail.contractReconciliationSummary.recentPersistenceState)}>
-                  {detail.contractReconciliationSummary.recentPersistenceStateLabel}
-                </Badge>
-              </div>
-              <p className="mt-2 text-sm text-[var(--color-muted)]">
-                {detail.contractReconciliationSummary.recentPersistenceStateReason}
-              </p>
-            </div>
-            <div className="flex-1 rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
-              <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                Recuperacao recente
+                Leituras recentes
               </span>
               <div className="mt-2 flex flex-wrap gap-2">
                 <Badge tone={getRecurrenceTone(detail.contractReconciliationSummary.recentRecoveryState)}>
                   {detail.contractReconciliationSummary.recentRecoveryStateLabel}
                 </Badge>
+                <Badge tone={getRecurrenceTone(detail.contractReconciliationSummary.recentPersistenceState)}>
+                  {detail.contractReconciliationSummary.recentPersistenceStateLabel}
+                </Badge>
+                <Badge tone={getRecurrenceTone(detail.contractReconciliationSummary.recentMaterialityState)}>
+                  {detail.contractReconciliationSummary.recentMaterialityStateLabel}
+                </Badge>
               </div>
               <p className="mt-2 text-sm text-[var(--color-muted)]">
                 {detail.contractReconciliationSummary.recentRecoveryStateReason}
               </p>
+              <details className="mt-2 rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2 text-xs leading-5 text-[var(--color-muted)]">
+                <summary className="cursor-pointer font-semibold text-[var(--color-ink)]">
+                  Ver estabilidade, materialidade e persistencia
+                </summary>
+                <div className="mt-3 space-y-2">
+                  <div className="flex flex-wrap gap-2">
+                    <Badge tone={getRecurrenceTone(detail.contractReconciliationSummary.recentStabilityState)}>
+                      {detail.contractReconciliationSummary.recentStabilityStateLabel}
+                    </Badge>
+                    {detail.contractReconciliationSummary.recentProfileSignals.map((signal) => (
+                      <Badge key={`stability-${signal.code}`} tone="warning">
+                        {signal.label} ({signal.count})
+                      </Badge>
+                    ))}
+                  </div>
+                  <p>{detail.contractReconciliationSummary.recentStabilityStateReason}</p>
+                  <p>{detail.contractReconciliationSummary.recentMaterialityStateReason}</p>
+                  <p>{detail.contractReconciliationSummary.recentPersistenceStateReason}</p>
+                </div>
+              </details>
             </div>
             <div className="rounded-2xl border border-[var(--color-line)] bg-white px-4 py-3">
               <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
@@ -590,32 +572,9 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                                 {reconciliation.differenceSummary.unitemizedBalancePriorityLabel}
                               </Badge>
                             </div>
-                            <p>{reconciliation.differenceSummary.explainedCoverageReason}</p>
-                            <p>
-                              Origem operacional:{" "}
-                              {reconciliation.differenceSummary.unitemizedBalanceOriginLabel}
-                            </p>
-                            <p>
-                              {reconciliation.differenceSummary.unitemizedBalanceOriginReason}
-                            </p>
                             <div className="flex flex-wrap gap-2">
                               <Badge tone={getDifferenceReadingTone(reconciliation)}>
                                 {reconciliation.differenceReading.profileLabel}
-                              </Badge>
-                              <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recurrenceContext)}>
-                                {reconciliation.differenceReading.recurrenceContextLabel}
-                              </Badge>
-                              <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recurrenceTemporalContext)}>
-                                {reconciliation.differenceReading.recurrenceTemporalContextLabel}
-                              </Badge>
-                              <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recentStabilityContext)}>
-                                {reconciliation.differenceReading.recentStabilityContextLabel}
-                              </Badge>
-                              <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recentMaterialityContext)}>
-                                {reconciliation.differenceReading.recentMaterialityContextLabel}
-                              </Badge>
-                              <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recentPersistenceContext)}>
-                                {reconciliation.differenceReading.recentPersistenceContextLabel}
                               </Badge>
                               <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recentRecoveryContext)}>
                                 {reconciliation.differenceReading.recentRecoveryContextLabel}
@@ -625,23 +584,51 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                               Leitura da divergencia:{" "}
                               {reconciliation.differenceReading.profileReason}
                             </p>
-                            <p>{reconciliation.differenceReading.recurrenceContextReason}</p>
-                            <p>{reconciliation.differenceReading.recurrenceTemporalContextReason}</p>
-                            <p>{reconciliation.differenceReading.recentStabilityContextReason}</p>
-                            <p>{reconciliation.differenceReading.recentMaterialityContextReason}</p>
-                            <p>{reconciliation.differenceReading.recentPersistenceContextReason}</p>
-                            <p>{reconciliation.differenceReading.recentRecoveryContextReason}</p>
-                            <p>
-                              Priorizacao visual:{" "}
-                              {reconciliation.differenceSummary.unitemizedBalancePriorityLabel}
-                            </p>
-                            <p>
-                              {reconciliation.differenceSummary.unitemizedBalancePriorityReason}
-                            </p>
-                            <p>
-                              Revisao dirigida:{" "}
-                              {reconciliation.differenceSummary.directedReviewRecommendation}
-                            </p>
+                            <details className="rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2 text-xs leading-5">
+                              <summary className="cursor-pointer font-semibold text-[var(--color-ink)]">
+                                Ver contexto recente e detalhes da cobertura
+                              </summary>
+                              <div className="mt-3 space-y-2">
+                                <div className="flex flex-wrap gap-2">
+                                  <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recurrenceContext)}>
+                                    {reconciliation.differenceReading.recurrenceContextLabel}
+                                  </Badge>
+                                  <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recurrenceTemporalContext)}>
+                                    {reconciliation.differenceReading.recurrenceTemporalContextLabel}
+                                  </Badge>
+                                  <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recentStabilityContext)}>
+                                    {reconciliation.differenceReading.recentStabilityContextLabel}
+                                  </Badge>
+                                  <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recentMaterialityContext)}>
+                                    {reconciliation.differenceReading.recentMaterialityContextLabel}
+                                  </Badge>
+                                  <Badge tone={getRecurrenceTone(reconciliation.differenceReading.recentPersistenceContext)}>
+                                    {reconciliation.differenceReading.recentPersistenceContextLabel}
+                                  </Badge>
+                                </div>
+                                <p>{reconciliation.differenceSummary.explainedCoverageReason}</p>
+                                <p>
+                                  Origem operacional:{" "}
+                                  {reconciliation.differenceSummary.unitemizedBalanceOriginLabel}
+                                </p>
+                                <p>{reconciliation.differenceSummary.unitemizedBalanceOriginReason}</p>
+                                <p>{reconciliation.differenceReading.recurrenceContextReason}</p>
+                                <p>{reconciliation.differenceReading.recurrenceTemporalContextReason}</p>
+                                <p>{reconciliation.differenceReading.recentStabilityContextReason}</p>
+                                <p>{reconciliation.differenceReading.recentMaterialityContextReason}</p>
+                                <p>{reconciliation.differenceReading.recentPersistenceContextReason}</p>
+                                <p>{reconciliation.differenceReading.recentRecoveryContextReason}</p>
+                                <p>
+                                  Priorizacao visual:{" "}
+                                  {reconciliation.differenceSummary.unitemizedBalancePriorityLabel}
+                                </p>
+                                <p>{reconciliation.differenceSummary.unitemizedBalancePriorityReason}</p>
+                                <p>
+                                  Revisao dirigida:{" "}
+                                  {reconciliation.differenceSummary.directedReviewRecommendation}
+                                </p>
+                              </div>
+                            </details>
                             <p>
                               Proxima acao sugerida:{" "}
                               {reconciliation.history.recommendedActionLabel}
@@ -826,30 +813,9 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                       {item.differenceSummary.unitemizedBalancePriorityLabel}
                     </Badge>
                   </div>
-                  <p className="text-sm text-[var(--color-muted)]">
-                    {item.differenceSummary.explainedCoverageReason}
-                  </p>
-                  <p className="text-sm text-[var(--color-muted)]">
-                    Origem operacional: {item.differenceSummary.unitemizedBalanceOriginLabel}
-                  </p>
-                  <p className="text-sm text-[var(--color-muted)]">
-                    {item.differenceSummary.unitemizedBalanceOriginReason}
-                  </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge tone={getDifferenceReadingTone(item)}>
                       {item.differenceReading.profileLabel}
-                    </Badge>
-                    <Badge tone={getRecurrenceTone(item.differenceReading.recurrenceContext)}>
-                      {item.differenceReading.recurrenceContextLabel}
-                    </Badge>
-                    <Badge tone={getRecurrenceTone(item.differenceReading.recurrenceTemporalContext)}>
-                      {item.differenceReading.recurrenceTemporalContextLabel}
-                    </Badge>
-                    <Badge tone={getRecurrenceTone(item.differenceReading.recentStabilityContext)}>
-                      {item.differenceReading.recentStabilityContextLabel}
-                    </Badge>
-                    <Badge tone={getRecurrenceTone(item.differenceReading.recentMaterialityContext)}>
-                      {item.differenceReading.recentMaterialityContextLabel}
                     </Badge>
                     <Badge tone={getRecurrenceTone(item.differenceReading.recentPersistenceContext)}>
                       {item.differenceReading.recentPersistenceContextLabel}
@@ -858,34 +824,46 @@ export default async function ContractDetailPage({ params }: ContractPageProps) 
                   <p className="text-sm text-[var(--color-muted)]">
                     Leitura da divergência: {item.differenceReading.profileReason}
                   </p>
-                  <p className="text-sm text-[var(--color-muted)]">
-                    {item.differenceReading.recurrenceContextReason}
-                  </p>
-                  <p className="text-sm text-[var(--color-muted)]">
-                    {item.differenceReading.recurrenceTemporalContextReason}
-                  </p>
-                  <p className="text-sm text-[var(--color-muted)]">
-                    {item.differenceReading.recentStabilityContextReason}
-                  </p>
-                  <p className="text-sm text-[var(--color-muted)]">
-                    {item.differenceReading.recentMaterialityContextReason}
-                  </p>
-                  <p className="text-sm text-[var(--color-muted)]">
-                    {item.differenceReading.recentPersistenceContextReason}
-                  </p>
-                  <p className="text-sm text-[var(--color-muted)]">
-                    Priorização visual:{" "}
-                    {item.differenceSummary.unitemizedBalancePriorityLabel}
-                  </p>
-                  <p className="text-sm text-[var(--color-muted)]">
-                    {item.differenceSummary.unitemizedBalancePriorityReason}
-                  </p>
-                  <p className="text-sm text-[var(--color-muted)]">
-                    Revisão dirigida: {item.differenceSummary.directedReviewRecommendation}
-                  </p>
-                  <p className="text-sm text-[var(--color-muted)]">
-                    {item.differenceSummary.directedReviewReason}
-                  </p>
+                  <details className="rounded-2xl border border-black/8 bg-[var(--color-surface)] px-3 py-2 text-xs leading-5 text-[var(--color-muted)]">
+                    <summary className="cursor-pointer font-semibold text-[var(--color-ink)]">
+                      Ver contexto recente e detalhes da cobertura
+                    </summary>
+                    <div className="mt-3 space-y-2">
+                      <div className="flex flex-wrap gap-2">
+                        <Badge tone={getRecurrenceTone(item.differenceReading.recurrenceContext)}>
+                          {item.differenceReading.recurrenceContextLabel}
+                        </Badge>
+                        <Badge tone={getRecurrenceTone(item.differenceReading.recurrenceTemporalContext)}>
+                          {item.differenceReading.recurrenceTemporalContextLabel}
+                        </Badge>
+                        <Badge tone={getRecurrenceTone(item.differenceReading.recentStabilityContext)}>
+                          {item.differenceReading.recentStabilityContextLabel}
+                        </Badge>
+                        <Badge tone={getRecurrenceTone(item.differenceReading.recentMaterialityContext)}>
+                          {item.differenceReading.recentMaterialityContextLabel}
+                        </Badge>
+                      </div>
+                      <p>{item.differenceSummary.explainedCoverageReason}</p>
+                      <p>
+                        Origem operacional: {item.differenceSummary.unitemizedBalanceOriginLabel}
+                      </p>
+                      <p>{item.differenceSummary.unitemizedBalanceOriginReason}</p>
+                      <p>{item.differenceReading.recurrenceContextReason}</p>
+                      <p>{item.differenceReading.recurrenceTemporalContextReason}</p>
+                      <p>{item.differenceReading.recentStabilityContextReason}</p>
+                      <p>{item.differenceReading.recentMaterialityContextReason}</p>
+                      <p>{item.differenceReading.recentPersistenceContextReason}</p>
+                      <p>
+                        Priorização visual:{" "}
+                        {item.differenceSummary.unitemizedBalancePriorityLabel}
+                      </p>
+                      <p>{item.differenceSummary.unitemizedBalancePriorityReason}</p>
+                      <p>
+                        Revisão dirigida: {item.differenceSummary.directedReviewRecommendation}
+                      </p>
+                      <p>{item.differenceSummary.directedReviewReason}</p>
+                    </div>
+                  </details>
                   <p className="text-sm text-[var(--color-muted)]">
                     Próxima ação sugerida: {item.history.recommendedActionLabel}
                   </p>
